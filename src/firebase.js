@@ -17,7 +17,16 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// ✅ Firestore (THIS fixes your error)
+// Runtime guard: some deployed/stale bundles call the global `getFirestore()`
+// (built from older code). Expose a safe wrapper on `window` so those
+// bundles don't throw `ReferenceError: getFirestore is not defined`.
+if (typeof window !== "undefined" && !window.getFirestore && firestore.getFirestore) {
+  // Keep signature compatible: getFirestore(app)
+  // eslint-disable-next-line no-undef
+  window.getFirestore = (appParam) => firestore.getFirestore(appParam);
+}
+
+// ✅ Firestore (primary export used by the app)
 export const db = firestore.getFirestore(app);
 
 // ✅ Auth (used in your app)
