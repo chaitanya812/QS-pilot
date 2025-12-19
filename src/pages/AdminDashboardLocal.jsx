@@ -1,36 +1,39 @@
 import React, { useEffect, useState } from "react";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { db } from "../firebase";
 
-/* ✅ LOCAL TECHNICIANS (already initialized via initTechnicians) */
+/* ✅ ADMIN DASHBOARD (Firestore bookings) */
 export default function AdminDashboardLocal() {
   const [bookings, setBookings] = useState([]);
   const [technicians, setTechnicians] = useState([]);
 
   useEffect(() => {
-    const allBookings = JSON.parse(localStorage.getItem("bookings") || "[]");
-    setBookings(allBookings);
-
-    const techs = JSON.parse(localStorage.getItem("technicians") || "[]");
-    setTechnicians(techs);
-  }, []);
-
-  /* ✅ ASSIGN TECHNICIAN (CORE LOGIC) */
-  const assignTechnician = (bookingId, technician) => {
-    const all = JSON.parse(localStorage.getItem("bookings") || "[]");
-
-    const updated = all.map((b) =>
-      b.id === bookingId
-        ? {
-            ...b,
-            status: "Assigned",
-            technicianId: technician.id,
-            technicianName: technician.name,
-            technicianRating: technician.rating,
-          }
-        : b
+    // 🔥 READ BOOKINGS FROM FIRESTORE (LIVE)
+    const q = query(
+      collection(db, "bookings"),
+      orderBy("createdAt", "desc")
     );
 
-    localStorage.setItem("bookings", JSON.stringify(updated));
-    setBookings(updated);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setBookings(list);
+    });
+
+    // ✅ LOCAL TECHNICIANS (unchanged)
+    const techs = JSON.parse(localStorage.getItem("technicians") || "[]");
+    setTechnicians(techs);
+
+    return () => unsubscribe();
+  }, []);
+
+  /* ❗ KEEP ASSIGN FUNCTION AS-IS (local only for now) */
+  const assignTechnician = (bookingId, technician) => {
+    alert(
+      "Status update will be connected to Firestore in the next step"
+    );
   };
 
   return (
@@ -47,12 +50,25 @@ export default function AdminDashboardLocal() {
           >
             <div className="font-semibold">{b.service}</div>
             <div className="text-sm text-gray-600">{b.subService}</div>
-            <div className="text-sm">
+
+            <div className="text-sm mt-1">
+              📅 {b.date} · ⏰ {b.time}
+            </div>
+
+            <div className="text-sm mt-1">
+              📍 {b.address}
+            </div>
+
+            <div className="text-sm mt-1">
+              📞 {b.phone}
+            </div>
+
+            <div className="text-sm mt-2">
               Status: <strong>{b.status}</strong>
             </div>
 
-            {/* ✅ TECH ASSIGN DROPDOWN */}
-            {b.status === "Pending" && (
+            {/* ✅ TECH ASSIGN DROPDOWN (UI SAME, logic later) */}
+            {b.status === "Pending" && technicians.length > 0 && (
               <div className="mt-3">
                 <select
                   onChange={(e) => {
@@ -73,7 +89,7 @@ export default function AdminDashboardLocal() {
               </div>
             )}
 
-            {/* ✅ SHOW ASSIGNED TECH (ADMIN VIEW) */}
+            {/* ✅ SHOW ASSIGNED TECH (if exists) */}
             {b.technicianName && (
               <div className="mt-2 text-sm bg-gray-100 p-2 rounded">
                 👨‍🔧 {b.technicianName} · ⭐ {b.technicianRating}
