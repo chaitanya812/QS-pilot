@@ -1,52 +1,79 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import "../techDashboard.css";
 
 export default function TechnicianDashboard() {
-  const nav = useNavigate();
-  const tech = JSON.parse(localStorage.getItem("technician"));
-  const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState([
+    {
+      id: 1,
+      customer: "Ramesh",
+      service: "AC Repair",
+      address: "Madhapur, Hyderabad",
+      time: "2:00 PM",
+      status: "Pending",
+    },
+    {
+      id: 2,
+      customer: "Suresh",
+      service: "Plumbing",
+      address: "Banjara Hills",
+      time: "4:30 PM",
+      status: "Pending",
+    },
+  ]);
 
-  useEffect(() => {
-    if (!tech) {
-      nav("/tech-login");
-      return;
-    }
-
-    const all = JSON.parse(localStorage.getItem("bookings") || "[]");
-    setJobs(all.filter((b) => b.technicianId === tech.id));
-  }, []);
-
-  const completeJob = (id) => {
-    const all = JSON.parse(localStorage.getItem("bookings") || "[]");
-    const updated = all.map((b) =>
-      b.id === id ? { ...b, status: "Completed" } : b
+  const updateStatus = (id, newStatus) => {
+    setJobs(prev =>
+      prev.map(job =>
+        job.id === id ? { ...job, status: newStatus } : job
+      )
     );
-    localStorage.setItem("bookings", JSON.stringify(updated));
-    setJobs(updated.filter((b) => b.technicianId === tech.id));
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">
-        Welcome, {tech?.name}
-      </h2>
+    <div className="tech-container">
+      <header className="tech-header">
+        Technician Dashboard
+      </header>
 
-      {jobs.map((b) => (
-        <div key={b.id} className="bg-white p-4 mb-3 rounded shadow">
-          <strong>{b.service}</strong>
-          <p>{b.address}</p>
-          <p>{b.date}</p>
+      <div className="job-list">
+        {jobs.map(job => (
+          <div className="job-card" key={job.id}>
+            <div className="job-row">
+              <h3>{job.service}</h3>
 
-          {b.status !== "Completed" && (
-            <button
-              onClick={() => completeJob(b.id)}
-              className="mt-2 px-4 py-1 bg-green-600 text-white rounded"
-            >
-              Mark Completed
-            </button>
-          )}
-        </div>
-      ))}
+              <span
+                className={`status ${
+                  job.status === "On the Way" ? "OnWay" : job.status
+                }`}
+              >
+                {job.status}
+              </span>
+            </div>
+
+            <p><b>Customer:</b> {job.customer}</p>
+            <p><b>Address:</b> {job.address}</p>
+            <p><b>Time:</b> {job.time}</p>
+
+            <div className="button-group">
+              <button
+                className="btn onway"
+                disabled={job.status !== "Pending"}
+                onClick={() => updateStatus(job.id, "On the Way")}
+              >
+                On The Way
+              </button>
+
+              <button
+                className="btn done"
+                disabled={job.status === "Done"}
+                onClick={() => updateStatus(job.id, "Done")}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
