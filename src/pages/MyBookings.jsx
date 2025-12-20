@@ -27,11 +27,11 @@ export default function MyBookings() {
 
   /* ================= LOAD BOOKINGS FROM FIREBASE ================= */
   useEffect(() => {
-    if (!user) return;
+    if (!user?.phone) return;
 
     const q = query(
       collection(db, "bookings"),
-      where("phone", "==", user.uid),
+      where("phone", "==", user.phone),
       orderBy("createdAt", "desc")
     );
 
@@ -44,7 +44,7 @@ export default function MyBookings() {
     });
 
     return () => unsub();
-  }, [user?.uid]);
+  }, [user?.phone]);
 
   /* ================= AUTO REVIEW ================= */
   useEffect(() => {
