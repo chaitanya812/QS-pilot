@@ -1,8 +1,8 @@
+// src/pages/MyBookings.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-/* ✅ New Firebase imports */
 import {
   collection,
   query,
@@ -25,7 +25,6 @@ export default function MyBookings() {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
 
-  /* ================= LOAD BOOKINGS FROM FIREBASE ================= */
   useEffect(() => {
     if (!user?.phone) return;
 
@@ -46,7 +45,6 @@ export default function MyBookings() {
     return () => unsub();
   }, [user?.phone]);
 
-  /* ================= AUTO REVIEW ================= */
   useEffect(() => {
     if (reviewBooking) return;
 
@@ -64,20 +62,21 @@ export default function MyBookings() {
     return () => clearTimeout(timer);
   }, [bookings, reviewBooking]);
 
-  /* ================= FILTER ================= */
   const filtered = useMemo(() => {
     if (filter === "Upcoming")
       return bookings.filter(
-        (b) => b.status === "Pending" || b.status === "Assigned"
+        (b) => b.status !== "Completed" && b.status !== "Cancelled"
       );
+
     if (filter === "Completed")
       return bookings.filter((b) => b.status === "Completed");
+
     if (filter === "Cancelled")
       return bookings.filter((b) => b.status === "Cancelled");
+
     return bookings;
   }, [filter, bookings]);
 
-  /* ================= REVIEW ================= */
   const submitReview = async () => {
     if (!rating) return alert("Please rate");
 
@@ -93,31 +92,59 @@ export default function MyBookings() {
       setRating(0);
       setReview("");
     } catch (err) {
-      console.error("Review update failed", err);
       alert("Failed to submit review");
     }
   };
 
+  const steps = [
+    "Pending",
+    "Assigned",
+    "Accepted",
+    "On The Way",
+    "Work Started",
+    "Completed",
+  ];
+
+  const StatusTimeline = ({ current }) => (
+    <div className="mt-2">
+      {steps.map((s, i) => {
+        const done = steps.indexOf(current) >= i;
+        return (
+          <div key={s} className="flex items-center gap-2">
+            <div
+              className={`h-3 w-3 rounded-full ${
+                done ? "bg-green-500" : "bg-gray-300"
+              }`}
+            />
+            <span
+              className={`text-sm ${
+                done ? "text-green-600 font-medium" : "text-gray-500"
+              }`}
+            >
+              {s}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div className="p-4 pb-28 bg-gray-50 min-h-screen">
-      {/* HEADER */}
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => navigate(-1)} className="p-2 rounded bg-gray-200">
+        <button onClick={() => navigate(-1)} className="p-2 bg-gray-200 rounded">
           ←
         </button>
         <h1 className="text-xl font-bold">My Bookings</h1>
       </div>
 
-      {/* FILTER */}
       <div className="flex gap-2 mb-4">
         {["Upcoming", "Completed", "Cancelled"].map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
             className={`px-4 py-1 rounded-full text-sm border ${
-              filter === f
-                ? "bg-qsBlue-500 text-white"
-                : "bg-white text-gray-600"
+              filter === f ? "bg-qsBlue-500 text-white" : "bg-white text-gray-600"
             }`}
           >
             {f}
@@ -125,45 +152,37 @@ export default function MyBookings() {
         ))}
       </div>
 
-      {/* BOOKINGS */}
       {filtered.length === 0 ? (
-        <div className="text-center mt-16 text-gray-500">
+        <div className="text-center mt-10 text-gray-500">
           No {filter.toLowerCase()} bookings yet
         </div>
       ) : (
         filtered.map((b) => (
-          <div
-            key={b.id}
-            className="bg-white border rounded-xl p-4 mb-3 shadow-sm"
-          >
-            <div className="flex justify-between items-center">
+          <div key={b.id} className="bg-white border rounded-xl p-4 mb-3 shadow-sm">
+            <div className="flex justify-between">
               <strong>{b.service}</strong>
-              <span className="text-xs px-2 py-1 rounded bg-gray-100">
-                {b.status}
-              </span>
+              <span className="text-xs px-2 py-1 rounded bg-gray-100">{b.status}</span>
             </div>
 
             <p className="text-sm">{b.subService}</p>
-            <p className="text-sm">
-              📅 {b.date} — ⏰ {b.time}
-            </p>
+            <p className="text-sm">📅 {b.date} — ⏰ {b.time}</p>
             <p className="text-sm">📍 {b.address}</p>
 
-            {b.status === "Assigned" && (
-              <button
-                onClick={() => navigate(`/track/${b.id}`)}
-                className="mt-3 w-full text-sm py-2 rounded bg-qsBlue-500 text-white"
-              >
-                📍 Track Technician
-              </button>
+            {b.technicianName && (
+              <div className="mt-2 text-sm bg-blue-50 p-2 rounded">
+                👨‍🔧 {b.technicianName}
+                <br />
+                📞 {b.technicianPhone}
+              </div>
             )}
+
+            <StatusTimeline current={b.status} />
           </div>
         ))
       )}
 
-      {/* ⭐ REVIEW POPUP */}
       {reviewBooking && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
           <div className="bg-white rounded-xl p-5 w-11/12 max-w-sm">
             <h3 className="text-lg font-semibold mb-2">
               Rate Your Professional
@@ -186,13 +205,13 @@ export default function MyBookings() {
             <textarea
               value={review}
               onChange={(e) => setReview(e.target.value)}
+              className="w-full border p-2 rounded mb-3"
               placeholder="Write feedback (optional)"
-              className="w-full p-2 border rounded mb-3"
             />
 
             <button
               onClick={submitReview}
-              className="w-full p-3 bg-qsBlue-500 text-white rounded"
+              className="w-full p-3 bg-qsBlue-500 rounded text-white"
             >
               Submit Review
             </button>

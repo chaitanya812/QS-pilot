@@ -10,6 +10,9 @@ import Profile from "./pages/Profile.jsx";
 import LiveTracking from "./pages/LiveTracking.jsx";
 import TechAccept from "./pages/TechAccept.jsx";
 import TechDecline from "./pages/TechDecline.jsx";
+import TechOnWay from "./pages/TechOnWay.jsx";
+import TechStart from "./pages/TechStart.jsx";
+import TechDone from "./pages/TechDone.jsx";
 
 /* ================= AUTH ================= */
 import PhoneLogin from "./pages/PhoneLogin.jsx";
@@ -100,6 +103,9 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route path="/tech/onway/:bookingId" element={<TechOnWay />} />
+<Route path="/tech/start/:bookingId" element={<TechStart />} />
+<Route path="/tech/done/:bookingId" element={<TechDone />} />
 
       {/* ================= ADMIN ================= */}
       <Route path="/admin" element={<AdminDashboardLocal />} />
