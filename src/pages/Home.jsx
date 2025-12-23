@@ -141,13 +141,13 @@ export default function Home() {
 
           <div className="flex gap-2">
             <a
-              href="tel:+919000000000"
+              href="tel:+7661045308"
               className="px-4 py-2 bg-green-600 rounded-xl font-semibold"
             >
               📞 Call
             </a>
             <a
-              href="https://wa.me/919000000000"
+              href="https://wa.me/7661045308"
               target="_blank"
               rel="noreferrer"
               className="px-4 py-2 bg-green-500 rounded-xl font-semibold"

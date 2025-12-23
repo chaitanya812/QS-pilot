@@ -2,89 +2,115 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const SUBS_EP = [
-  { id: "e1", label: "Switchboard repair / change", price: "₹99" },
-  { id: "e2", label: "Switch/socket repair /change", price: "₹149" },
-  { id: "e3", label: "New switchbox installation", price: "₹149" },
-  { id: "e4", label: "Fan repair", price: "₹149" },
-  { id: "e5", label: "Exhaust/pedestal/tower fan installation", price: "₹99" },
-  { id: "e6", label: "Fan regulator replacement", price: "₹79" },
-  { id: "e7", label: "Fancy light installation/replace", price: "₹149" },
-  { id: "e8", label: "Tubelight installation", price: "₹99" },
-  { id: "e9", label: "Bulb installation", price: "₹49" },
-  { id: "e10", label: "Ceiling light installation", price: "₹89" },
-  { id: "e11", label: "Hanging light installation", price: "₹199" },
-  { id: "e12", label: "Chandelier installation", price: "₹499" },
-  { id: "e13", label: "New internal wiring(per 1m)", price: "₹40" },
-  { id: "e14", label: "New external wiring(per 1m)", price: "₹24" },
-  { id: "e15", label: "Regular doorbell installation", price: "₹99" },
-  { id: "e16", label: "Video doorbell installation", price: "₹600" },
-  { id: "e17", label: "MCB/fuse repair", price: "₹149" },
-  { id: "e18", label: "Submeter installation", price: "249" },
-  { id: "e19", label: "Tv installation", price: "₹299" },
-    { id: "e20", label: "Tv uninstallation", price: "₹200" },
-      { id: "e21", label: "Karban Airzone fan installation", price: "₹399" },
-        { id: "e22", label: "Inverter installation", price: "₹450" },
-          { id: "e23", label: "Inverter fuse replacement", price: "₹99" },
-            { id: "e24", label: "Inverter servicing", price: "₹249" },
-              { id: "e25", label: "Inverter Check-up", price: "₹160" },
-                { id: "e26", label: "Inverter uninstallation", price: "₹499" },
-          { id: "e27", label: "Stabiliser installation", price: "₹149" },
-            
+  { id: "e1", label: "Switchboard Repair / Replacement", desc: "Fix or replace damaged switchboard safely", price: "₹99", tag: "Bestseller", time: "20–30 mins", warranty: "30 Days" },
+  { id: "e2", label: "Switch / Socket Repair / Replacement", desc: "Repair broken switches and loose sockets", price: "₹149", tag: "Popular", time: "20–40 mins", warranty: "30 Days" },
+  { id: "e3", label: "New Switch Box Installation", desc: "Install a brand new switch box securely", price: "₹149", time: "25–40 mins", warranty: "30 Days" },
+  { id: "e4", label: "Fan Repair", desc: "Fix fan not working, noise or slow speed", price: "₹149", tag: "Trending", time: "25–45 mins", warranty: "30 Days" },
+  { id: "e5", label: "Exhaust / Pedestal / Tower Fan Installation", desc: "Professional fan fitting with neat wiring", price: "₹99", time: "20–30 mins", warranty: "30 Days" },
+  { id: "e6", label: "Fan Regulator Replacement", desc: "Replace faulty fan speed regulator", price: "₹79", time: "15–20 mins", warranty: "30 Days" },
+  { id: "e7", label: "Fancy Light Installation / Replacement", desc: "Install or replace designer fancy lights", price: "₹149", tag: "Popular", time: "20–35 mins", warranty: "30 Days" },
+  { id: "e8", label: "Tubelight Installation", desc: "Safe and quick tube light installation", price: "₹99", time: "15–20 mins", warranty: "30 Days" },
+  { id: "e9", label: "Bulb Installation", desc: "Install bulb in any room or space", price: "₹49", time: "10 mins", warranty: "30 Days" },
+  { id: "e10", label: "Ceiling Light Installation", desc: "Fix ceiling lights properly and safely", price: "₹89", time: "15–25 mins", warranty: "30 Days" },
+  { id: "e11", label: "Hanging Light Installation", desc: "Install hanging lights with proper support", price: "₹199", time: "25–40 mins", warranty: "30 Days" },
+  { id: "e12", label: "Chandelier Installation", desc: "Expert chandelier fitting with care", price: "₹499", tag: "Premium", time: "40–60 mins", warranty: "45 Days" },
+  { id: "e13", label: "Internal Wiring (Per Meter)", desc: "New internal electrical wiring work", price: "₹40", time: "Depends on work", warranty: "30 Days" },
+  { id: "e14", label: "External Wiring (Per Meter)", desc: "Safe and neat external wiring setup", price: "₹24", time: "Depends on work", warranty: "30 Days" },
+  { id: "e15", label: "Regular Doorbell Installation", desc: "Install normal doorbell at your home", price: "₹99", time: "15–20 mins", warranty: "30 Days" },
+  { id: "e16", label: "Video Doorbell Installation", desc: "Install smart video doorbell securely", price: "₹600", tag: "Bestseller", time: "40–60 mins", warranty: "45 Days" },
+  { id: "e17", label: "MCB / Fuse Repair", desc: "Fix tripping MCBs or blown fuses", price: "₹149", time: "20–30 mins", warranty: "30 Days" },
+  { id: "e18", label: "Sub Meter Installation", desc: "Install separate home / room meter", price: "₹249", time: "35–50 mins", warranty: "45 Days" },
+  { id: "e19", label: "TV Installation", desc: "Wall mount and setup your television", price: "₹299", time: "30–45 mins", warranty: "30 Days" },
+  { id: "e20", label: "TV Uninstallation", desc: "Remove TV safely without damage", price: "₹200", time: "20–30 mins", warranty: "30 Days" },
+  { id: "e21", label: "Karban Airzone Fan Installation", desc: "Install premium Airzone fan safely", price: "₹399", time: "30–45 mins", warranty: "30 Days" },
+  { id: "e22", label: "Inverter Installation", desc: "Install inverter with proper connections", price: "₹450", tag: "Popular", time: "35–50 mins", warranty: "45 Days" },
+  { id: "e23", label: "Inverter Fuse Replacement", desc: "Replace damaged inverter fuse", price: "₹99", time: "10–15 mins", warranty: "30 Days" },
+  { id: "e24", label: "Inverter Servicing", desc: "Full health check and service of inverter", price: "₹249", time: "30–45 mins", warranty: "30 Days" },
+  { id: "e25", label: "Inverter Check-up", desc: "Basic inverter health inspection", price: "₹160", time: "15–25 mins", warranty: "30 Days" },
+  { id: "e26", label: "Inverter Uninstallation", desc: "Remove inverter safely and cleanly", price: "₹499", time: "30–45 mins", warranty: "30 Days" },
+  { id: "e27", label: "Stabilizer Installation", desc: "Install stabilizer for safe voltage use", price: "₹149", time: "20–30 mins", warranty: "30 Days" },
+];
+
+const getIcon = (label) => {
+  if (label.toLowerCase().includes("switch")) return "⚡";
+  if (label.toLowerCase().includes("fan")) return "🌀";
+  if (label.toLowerCase().includes("light")) return "💡";
+  if (label.toLowerCase().includes("wiring")) return "🧰";
+  if (label.toLowerCase().includes("doorbell")) return "🔔";
+  if (label.toLowerCase().includes("tv")) return "📺";
+  if (label.toLowerCase().includes("inverter")) return "🔋";
+  if (label.toLowerCase().includes("mcb") || label.toLowerCase().includes("fuse")) return "🛡️";
+  return "🧑‍🔧";
+};
+
+const REVIEWS = [
+  {
+    name: "Rohit Sharma",
+    city: "Hyderabad",
+    text: "Technician arrived on time, work done neatly. Very professional service.",
+    rating: 5,
+    avatar: "https://randomuser.me/api/portraits/men/11.jpg",
+    date: "2 days ago",
+  },
+  {
+    name: "Priya Singh",
+    city: "Madhapur",
+    text: "Quick response and helpful behaviour. Pricing is also reasonable.",
+    rating: 5,
+    avatar: "https://randomuser.me/api/portraits/women/22.jpg",
+    date: "1 week ago",
+  },
+  {
+    name: "Aman Verma",
+    city: "Kondapur",
+    text: "Good work quality and safe installation. Happy with the service.",
+    rating: 4,
+    avatar: "https://randomuser.me/api/portraits/men/44.jpg",
+    date: "3 weeks ago",
+  },
 ];
 
 export default function ElectricianPlumber() {
   const nav = useNavigate();
+  const supportPhone = "7661045308";
 
-  /* 📞 SUPPORT CONFIG */
-  const supportPhone = "919000000000"; // 🔁 replace with real QS number
   const whatsappMessage = encodeURIComponent(
-    "Hi QuickSeva, I need help with Electrician & Plumber services."
+    "Hi QuickSeva, I need help with Electrician services."
   );
 
   return (
-    <div className="p-4 pb-28">
+    <div className="p-4 pb-28 service-container">
 
       {/* HEADER */}
       <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={() => nav(-1)}
-          className="p-2 rounded bg-gray-200"
-        >
+        <button onClick={() => nav(-1)} className="p-2 rounded bg-gray-200">
           ← Back
         </button>
         <h2 className="text-lg font-bold">Electrician</h2>
         <div />
       </div>
 
-      {/* 🔥 HERO BANNER */}
+      {/* HERO */}
       <div
-        className="relative h-44 rounded-2xl overflow-hidden shadow mb-5"
+        className="relative h-44 rounded-2xl overflow-hidden shadow mb-6"
         style={{
           backgroundImage:
-            "url(https://images.unsplash.com/photo-1581092919535-7146c1c9c6c9)",
+            "url(https://images.unsplash.com/photo-1581092919535-7146c1c9c6c9?auto=format&fit=crop&w=1200&q=80)",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
         <div className="absolute inset-0 bg-black/55" />
-
         <div className="relative z-10 h-full p-4 flex flex-col justify-between text-white">
           <div>
-            <h3 className="text-xl font-bold">Safe & Reliable Repairs</h3>
-            <p className="text-sm opacity-90">
-              Certified electricians & plumbers at your doorstep
-            </p>
+            <h3 className="text-xl font-bold">Safe & Reliable Electrical Work</h3>
+            <p className="text-sm opacity-90">Certified electricians for quick & safe service</p>
           </div>
 
-          {/* ✅ CALL + WHATSAPP */}
           <div className="flex gap-2">
-            <a
-              href={`tel:+${supportPhone}`}
-              className="px-4 py-2 bg-green-600 rounded-xl font-semibold shadow"
-            >
+            <a href={`tel:${supportPhone}`} className="px-4 py-2 bg-green-600 rounded-xl font-semibold shadow">
               📞 Call
             </a>
-
             <a
               href={`https://wa.me/${supportPhone}?text=${whatsappMessage}`}
               target="_blank"
@@ -97,44 +123,103 @@ export default function ElectricianPlumber() {
         </div>
       </div>
 
-      {/* INFO CARD */}
-      <div className="bg-white p-4 rounded-2xl shadow mb-4">
-        <p className="text-sm text-gray-600">
-          Certified electricians and plumbers for safe and fast repairs at home.
-        </p>
+      {/* ⭐ RATING + REVIEW (Combined Same Div) */}
+      <div className="bg-white p-4 rounded-2xl shadow mb-6">
+        <h3 className="font-semibold mb-2">Customer Ratings & Reviews</h3>
+
+        {/* Rating Summary */}
+        <div className="flex items-center gap-4 mb-4">
+          <div className="text-center">
+            <p className="text-3xl font-bold">4.9 ⭐</p>
+            <p className="text-xs text-gray-500">Based on 900+ ratings</p>
+          </div>
+
+          <div className="flex-1">
+            {[5,4,3,2,1].map((star) => (
+              <div key={star} className="flex items-center gap-2">
+                <span className="text-xs">{star}★</span>
+                <div className="w-full bg-gray-200 h-2 rounded-full">
+                  <div
+                    className="bg-green-500 h-2 rounded-full"
+                    style={{ width: `${star * 18}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Scroll Reviews */}
+        <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+          {REVIEWS.map((r, i) => (
+            <div key={i} className="min-w-[260px] bg-gray-50 border rounded-2xl shadow-sm p-3">
+              <div className="flex items-center gap-2">
+                <img src={r.avatar} className="w-10 h-10 rounded-full border object-cover" />
+                <div>
+                  <p className="font-semibold text-sm">{r.name}</p>
+                  <p className="text-xs text-gray-500">{r.city}</p>
+                </div>
+              </div>
+
+              <p className="text-yellow-500 text-sm mt-1">⭐ {r.rating}</p>
+              <p className="text-sm text-gray-700 mt-2">{r.text}</p>
+              <p className="text-xs text-gray-500 mt-2">{r.date}</p>
+
+              <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-1 rounded mt-2">
+                ✔ Verified Booking
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* SERVICES */}
-      <h3 className="font-semibold mb-2"></h3>
-
-      <div className="space-y-3">
+      <div className="service-grid">
         {SUBS_EP.map((s) => (
-          <div
-            key={s.id}
-            className="bg-white p-3 rounded-2xl shadow flex justify-between items-center"
-          >
+          <div key={s.id} className="service-card bg-white p-3 rounded-2xl shadow border flex flex-col sm:flex-row justify-between gap-3">
             <div>
-              <div className="font-medium">{s.label}</div>
-              <div className="text-sm font-semibold text-blue-500">{s.price}</div>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{getIcon(s.label)}</span>
+                <p className="font-medium">{s.label}</p>
+
+                {s.tag && (
+                  <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded">
+                    ⭐ {s.tag}
+                  </span>
+                )}
+              </div>
+
+              {/* Description line */}
+              <p className="text-xs text-gray-500 mt-1">{s.desc}</p>
+
+              <div className="flex gap-2 mt-1 text-xs">
+                <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                  ⏱ {s.time}
+                </span>
+                <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
+                  🛡 {s.warranty}
+                </span>
+              </div>
+
+              <p className="text-sm font-semibold text-qsBlue-500 mt-1">{s.price}</p>
             </div>
 
-            <button
-              onClick={() =>
-                nav("/booking", {
-                  state: {
-                    service: "Electrician & Plumber",
-                    subService: s.label,
-                    price: s.price,
-                  },
-                })
-              }
-              className="px-4 py-2 rounded-2xl bg-qsBlue-500 text-white"
-            >
-              Book Now
-            </button>
+            <div className="service-actions mt-3 sm:mt-0">
+              <button
+                onClick={() =>
+                  nav("/booking", {
+                    state: { service: "Electrician", subService: s.label, price: s.price },
+                  })
+                }
+                className="px-4 py-2 rounded-2xl bg-qsBlue-500 text-white"
+              >
+                Book Now
+              </button>
+            </div>
           </div>
         ))}
       </div>
     </div>
+    
   );
 }

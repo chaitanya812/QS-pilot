@@ -10,13 +10,13 @@ export default function BeautySalon() {
   const nav = useNavigate();
 
   /* 📞 SUPPORT CONFIG (SERVICE-AWARE) */
-  const supportPhone = "919000000000"; // 🔁 replace with real QS number
+  const supportPhone = "7661045308"; // QuickSeva support number
   const whatsappMessage = encodeURIComponent(
     "Hi QuickSeva, I need help with Beauty & Salon service."
   );
 
   return (
-    <div className="p-4 pb-28">
+    <div className="p-4 pb-28 service-container">
 
       {/* HEADER */}
       <div className="flex items-center justify-between mb-4">
@@ -78,31 +78,33 @@ export default function BeautySalon() {
       {/* SERVICES LIST (UNCHANGED) */}
       <h3 className="font-semibold mb-2">Popular Services</h3>
 
-      <div className="space-y-3">
+      <div className="service-grid">
         {SUBS_BEAUTY.map((s) => (
           <div
             key={s.id}
-            className="bg-white p-3 rounded-2xl shadow flex justify-between items-center"
+            className="service-card bg-white p-3 rounded-2xl shadow flex flex-col sm:flex-row justify-between gap-3"
           >
             <div>
               <div className="font-medium">{s.label}</div>
               <div className="text-sm text-gray-500">{s.price}</div>
             </div>
 
-            <button
-              onClick={() =>
-                nav("/booking", {
-                  state: {
-                    service: "Beauty & Salon",
-                    subService: s.label,
-                    price: s.price,
-                  },
-                })
-              }
-              className="px-4 py-2 rounded-2xl bg-qsBlue-500 text-white"
-            >
-              Book Now
-            </button>
+            <div className="service-actions mt-3 sm:mt-0">
+              <button
+                onClick={() =>
+                  nav("/booking", {
+                    state: {
+                      service: "Beauty & Salon",
+                      subService: s.label,
+                      price: s.price,
+                    },
+                  })
+                }
+                className="px-4 py-2 rounded-2xl bg-qsBlue-500 text-white"
+              >
+                Book Now
+              </button>
+            </div>
           </div>
         ))}
       </div>

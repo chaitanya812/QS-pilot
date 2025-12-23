@@ -1,74 +1,202 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-/* 
-  ICON STRATEGY:
-  - Unicode emojis = 100% copyright-free
-*/
-
+/* ================= FRIDGE SERVICES (HOME + COMMERCIAL) ================= */
 const SERVICES = [
+  /* ======= SUPER SAVER OFFERS ======= */
   {
-    id: "ac",
+    id: "fr1",
     icon: "❄️",
-    title: "Super saving offers",
-    tagline: "",
+    title: "Super Saving Offers",
+    tagline: "Best value fridge services",
     banner:
-      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1600959907703-125ba1374c92?auto=format&fit=crop&w=1200&q=80",
     items: [
-      { name: "Split AC installation (2 ACs)", desc: "Applicable for only split AC's", price: "₹2400" },
-      { name: "Foam-jet service (2  ACs)", desc: "Applicable for both window and split AC's", desc1: "Indoor unit deep cleaning with foam & jet spray", price: "₹990" },
-
+      {
+        name: "Single Door Service Pack",
+        desc: "Full cleaning & performance check",
+        price: "₹499",
+        time: "30–45 mins",
+        warranty: "30 Days",
+        tag: "Popular",
+      },
+      {
+        name: "Double Door Service Pack",
+        desc: "Deep cleaning + cooling check",
+        price: "₹699",
+        time: "40–60 mins",
+        warranty: "30 Days",
+        tag: "Bestseller",
+      },
+      {
+        name: "Side-by-Side / French Door Service Pack",
+        desc: "Premium refrigerator maintenance",
+        price: "₹899",
+        time: "50–70 mins",
+        warranty: "30 Days",
+      },
     ],
-  }, {
-    id: "ac",
-    icon: "❄️",
-    title: "AC Services",
-    tagline: "Cooling restored by verified professionals",
-    banner:
-      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1200&q=80",
-    items: [
-      { name: "Foam-jet service ", desc: "Applicable for both window and split AC's", desc1: "Indoor unit deep cleaning with foam & jet spray", price: "₹549" },
-      { name: "General AC service", desc: "Applicable for both window and split AC's", price: "₹350" },
-    ]
   },
-  {
-    id: "ac",
-    icon: "❄️",
-    title: "Repair & gas refill",
-    tagline: "Cooling restored by verified professionals",
-    banner:
-      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1200&q=80",
-    items: [
-      { name: "AC less/no cooling repair ", desc: "Applicable for both window and split AC's", price: "₹299" },
-      { name: "AC power issue repiar", desc: "Applicable for both window and split AC's", price: "₹259" },
-      { name: "AC water leakage repair", desc: "Applicable for both window and split AC's", price: "₹459" },
-      { name: "Gas refill and check-up", desc: "Applicable for both window and split AC's", price: "₹2500" },
-      { name: "AC nosie/smell repair", desc: "Applicable for both window and split AC's", price: "₹499" },
-      { name: "AC water leakage repair", desc: "Applicable for both window and split AC's", price: "₹599" },
-    ]
-  },{
-    id: "ac",
-    icon: "❄️",
-    title: "Installation/uninsatallation",
-    tagline: "Cooling restored by verified professionals",
-    banner:
-      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1200&q=80",
-    items: [
-      { name: "Insatallation(Spilt AC)", desc: " ✅warranty for 3 months", price: "₹1500" },
-      { name: "Window AC installation",desc:"", price: "₹259" },
-      { name: "Split AC uninstallation", desc: "", price: "₹850" },
-      { name: "Window AC uninstallation", desc: "", price: "₹699" },
-    ]
-  }
 
+  /* ======= HOME FRIDGE SERVICES ======= */
+  {
+    id: "fr2",
+    icon: "🧊",
+    title: "Home Fridge Services",
+    tagline: "Keeps your fridge running smooth",
+    banner:
+      "https://images.unsplash.com/photo-1591337676887-a217a6970a8a?auto=format&fit=crop&w=1200&q=80",
+    items: [
+      {
+        name: "General fridge service",
+        desc: "Basic cleaning & performance check",
+        price: "₹299",
+        time: "25–40 mins",
+        warranty: "30 Days",
+        tag: "Bestseller",
+      },
+      {
+        name: "Deep cleaning service",
+        desc: "Full inside cleaning & hygiene care",
+        price: "₹499",
+        time: "40–60 mins",
+        warranty: "30 Days",
+        tag: "Popular",
+      },
+      {
+        name: "Premium fridge service",
+        desc: "Triple door / French door / Side-by-Side",
+        price: "₹699",
+        time: "50–70 mins",
+        warranty: "30 Days",
+      },
+    ],
+  },
+
+  /* ======= REPAIR SERVICES ======= */
+  {
+    id: "fr3",
+    icon: "⚙️",
+    title: "Repair Services",
+    tagline: "Problem? We fix it properly",
+    banner:
+      "https://images.unsplash.com/photo-1593504982586-4458f98b5b43?auto=format&fit=crop&w=1200&q=80",
+    items: [
+      {
+        name: "Fridge not cooling repair",
+        desc: "Fix cooling issues safely",
+        price: "₹349",
+        time: "25–40 mins",
+        warranty: "30 Days",
+        tag: "Bestseller",
+      },
+      {
+        name: "Power / wiring issue repair",
+        desc: "Fix electrical or power problems",
+        price: "₹299",
+        time: "20–30 mins",
+        warranty: "30 Days",
+      },
+      {
+        name: "Water leakage repair",
+        desc: "Fix water leaking inside or outside",
+        price: "₹399",
+        time: "30–45 mins",
+        warranty: "30 Days",
+        tag: "Popular",
+      },
+      {
+        name: "Noise / vibration repair",
+        desc: "Fix unusual sound & shaking issues",
+        price: "₹349",
+        time: "25–40 mins",
+        warranty: "30 Days",
+      },
+    ],
+  },
+
+  /* ======= GAS & PARTS SUPPORT ======= */
+  {
+    id: "fr4",
+    icon: "🛠️",
+    title: "Gas & Parts Support",
+    tagline: "Handled by verified technicians",
+    banner:
+      "https://images.unsplash.com/photo-1581092795360-f12a5c2a9a5a?auto=format&fit=crop&w=1200&q=80",
+    items: [
+      {
+        name: "Gas refill (Home fridge)",
+        desc: "Gas refill + leakage & cooling test",
+        price: "₹1800",
+        time: "45–60 mins",
+        warranty: "45 Days",
+        tag: "Bestseller",
+      },
+      {
+        name: "Compressor health check",
+        desc: "Full compressor performance test",
+        price: "₹299",
+        time: "25–35 mins",
+        warranty: "30 Days",
+        tag: "Popular",
+      },
+      {
+        name: "Thermostat / Sensor Repair",
+        desc: "Fix temperature & auto cut-off problems",
+        price: "₹499",
+        time: "30–45 mins",
+        warranty: "30 Days",
+      },
+    ],
+  },
+
+  /* ======= COMMERCIAL FRIDGE & DEEP FREEZER ======= */
+  {
+    id: "fr5",
+    icon: "🏢",
+    title: "Commercial & Deep Freezer",
+    tagline: "Heavy duty cooling solutions",
+    banner:
+      "https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=1200&q=80",
+    items: [
+      {
+        name: "Deep Freezer Service",
+        desc: "Single / double door deep freezer service",
+        price: "₹899",
+        time: "50–70 mins",
+        warranty: "30 Days",
+        tag: "Bestseller",
+      },
+      {
+        name: "Visi Cooler / Display Fridge Service",
+        desc: "Shop display fridge cleaning & servicing",
+        price: "₹999",
+        time: "50–70 mins",
+        warranty: "30 Days",
+      },
+      {
+        name: "Commercial Gas Refill",
+        desc: "Gas refill with cooling test",
+        price: "₹2600",
+        time: "60–90 mins",
+        warranty: "60 Days",
+        tag: "Popular",
+      },
+      {
+        name: "Commercial Cooling Repair",
+        desc: "Cooling failure / heavy load repair",
+        price: "₹899",
+        time: "40–60 mins",
+        warranty: "45 Days",
+      },
+    ],
+  },
 ];
 
-export default function Frigde() {
+export default function Fridge() {
   const navigate = useNavigate();
   const [bannerIndex, setBannerIndex] = useState(0);
 
-
-  /* 🔄 AUTO-SCROLL BANNER */
   useEffect(() => {
     const interval = setInterval(() => {
       setBannerIndex((prev) => (prev + 1) % SERVICES.length);
@@ -78,30 +206,28 @@ export default function Frigde() {
 
   const active = SERVICES[bannerIndex];
 
-  const handleBook = (serviceTitle, problem) => {
+  const handleBook = (title, name, price) => {
     navigate("/booking", {
       state: {
-        service: "AC's & Appliances",
-        subService: `${serviceTitle} - ${problem}`,
+        service: "Fridge Repair",
+        subService: `${title} - ${name}`,
+        price,
       },
     });
   };
 
   return (
-    <div className="p-4 pb-28">
-
+    <div className="p-4 pb-28 service-container">
       {/* HEADER */}
       <div className="flex items-center justify-between mb-4">
         <button onClick={() => navigate(-1)} className="p-2 rounded bg-gray-200">
           ← Back
         </button>
-        <h2 className="text-lg font-bold">Appliance Services</h2>
+        <h2 className="text-lg font-bold">Fridge Repair</h2>
         <div />
       </div>
 
-
-
-      {/* 🔥 HERO BANNER */}
+      {/* HERO */}
       <div
         className="relative h-44 rounded-2xl overflow-hidden shadow mb-6 transition-all duration-700"
         style={{
@@ -118,7 +244,6 @@ export default function Frigde() {
             <p className="text-sm opacity-90">{active.tagline}</p>
           </div>
 
-          {/* ✅ CALL + WHATSAPP (REPLACED BOOK NOW) */}
           <div className="flex gap-2">
             <a
               href="tel:7661045308"
@@ -128,7 +253,7 @@ export default function Frigde() {
             </a>
 
             <a
-              href="https://wa.me/919000000000"
+              href="https://wa.me/7661045308"
               target="_blank"
               rel="noreferrer"
               className="px-4 py-2 bg-green-500 rounded-xl text-white font-semibold shadow"
@@ -139,17 +264,17 @@ export default function Frigde() {
         </div>
       </div>
 
-      {/* INFO CARD */}
+      {/* INFO */}
       <div className="bg-white p-4 rounded-2xl shadow mb-4">
         <p className="text-sm text-gray-600">
-          Get your appliances serviced by experienced professionals.<br />
-          ✅ QS covers upto 30days warranty on repairs.
-
+          Get your refrigerator repaired by trained technicians.
+          <br />
+          ✅ 30–60 days warranty on selected services
         </p>
       </div>
 
-      {/* SERVICES LIST (UNCHANGED) */}
-      <div className="space-y-6">
+      {/* SERVICES */}
+      <div className="space-y-6 service-grid">
         {SERVICES.map((section) => (
           <div key={section.id}>
             <div className="flex items-center gap-2 mb-2">
@@ -160,27 +285,49 @@ export default function Frigde() {
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="service-grid">
               {section.items.map((item, i) => (
                 <div
                   key={i}
-                  className="bg-white p-4 rounded-2xl shadow border flex justify-between items-center"
+                  className="service-card bg-white p-4 rounded-2xl shadow border flex flex-col sm:flex-row justify-between gap-3"
                 >
                   <div>
-                    <div className="font-medium">{item.name}</div>
-                    <div className="text-sm text-gray-600">{item.desc}</div>
-                    <div className="text-sm text-gray-600">{item.desc1}</div>
-                    <div className="text-sm font-semibold text-qsBlue-500">
-                      {item.price}
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{item.name}</p>
+
+                      {item.tag && (
+                        <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded">
+                          ⭐ {item.tag}
+                        </span>
+                      )}
                     </div>
+
+                    <p className="text-sm text-gray-600">{item.desc}</p>
+
+                    <div className="flex gap-2 mt-1 text-xs">
+                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                        ⏱ {item.time}
+                      </span>
+                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
+                        🛡 {item.warranty}
+                      </span>
+                    </div>
+
+                    <p className="text-sm font-semibold text-qsBlue-500 mt-1">
+                      {item.price}
+                    </p>
                   </div>
 
-                  <button
-                    onClick={() => handleBook(section.title, item.name)}
-                    className="px-4 py-2 rounded-xl bg-qsBlue-500 text-white"
-                  >
-                    Book Now
-                  </button>
+                  <div className="service-actions mt-3 sm:mt-0">
+                    <button
+                      onClick={() =>
+                        handleBook(section.title, item.name, item.price)
+                      }
+                      className="px-4 py-2 rounded-xl bg-qsBlue-500 text-white"
+                    >
+                      Book Now
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
