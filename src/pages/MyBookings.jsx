@@ -24,12 +24,12 @@ export default function MyBookings() {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
 
-  // NEW STATES
   const [cancelBooking, setCancelBooking] = useState(null);
   const [editBooking, setEditBooking] = useState(null);
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState({ hour: "", minute: "", period: "AM" });
-  const supportPhone = "7661045308"; // QuickSeva support number
+
+  const supportPhone = "7661045308";
 
   /* ================= LOAD BOOKINGS ================= */
   useEffect(() => {
@@ -46,7 +46,11 @@ export default function MyBookings() {
         id: d.id,
         ...d.data(),
       }));
-      setBookings(list);
+
+      // 🔥 FIX — remove duplicate bookings completely
+      const unique = Array.from(new Map(list.map(item => [item.id, item])).values());
+
+      setBookings(unique);
     });
 
     return () => unsub();
@@ -109,7 +113,6 @@ export default function MyBookings() {
   /* ================= CANCEL BOOKING ================= */
   const cancelUserBooking = async () => {
     try {
-      // Prevent cancellation if a technician is already assigned
       if (cancelBooking?.technicianId || cancelBooking?.technicianName) {
         alert(
           "This booking has been assigned to a technician. To cancel an assigned booking, please contact customer support."
@@ -259,7 +262,7 @@ export default function MyBookings() {
                   ✏️ Edit
                 </button>
 
-                { (b.technicianId || b.technicianName) ? (
+                {(b.technicianId || b.technicianName) ? (
                   <a
                     href={`tel:+${supportPhone}`}
                     className="w-full sm:flex-1 block text-center bg-orange-500 text-white py-2 rounded"
@@ -369,7 +372,9 @@ export default function MyBookings() {
             <div className="flex gap-2">
               <select
                 className="w-full border p-2 rounded"
-                onChange={(e) => setNewTime((p) => ({ ...p, hour: e.target.value }))}
+                onChange={(e) =>
+                  setNewTime((p) => ({ ...p, hour: e.target.value }))
+                }
               >
                 <option value="">Hour</option>
                 {[1,2,3,4,5,6,7,8,9,10,11,12].map(h => (
@@ -379,7 +384,9 @@ export default function MyBookings() {
 
               <select
                 className="w-full border p-2 rounded"
-                onChange={(e) => setNewTime((p) => ({ ...p, minute: e.target.value }))}
+                onChange={(e) =>
+                  setNewTime((p) => ({ ...p, minute: e.target.value }))
+                }
               >
                 <option value="">Min</option>
                 {["00","05","10","15","20","25","30","35","40","45","50","55"].map(m => (
@@ -389,7 +396,9 @@ export default function MyBookings() {
 
               <select
                 className="w-full border p-2 rounded"
-                onChange={(e) => setNewTime((p) => ({ ...p, period: e.target.value }))}
+                onChange={(e) =>
+                  setNewTime((p) => ({ ...p, period: e.target.value }))
+                }
               >
                 <option>AM</option>
                 <option>PM</option>
