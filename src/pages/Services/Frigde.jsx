@@ -1,9 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-/* ================= FRIDGE SERVICES (HOME + COMMERCIAL) ================= */
+/* ================= CUSTOMER REVIEWS ================= */
+const REVIEWS = [
+  {
+    name: "Kiran Reddy",
+    city: "Hyderabad",
+    rating: 5,
+    review:
+      "Technician came on time and fixed cooling issue quickly. Very professional!",
+    avatar: "https://randomuser.me/api/portraits/men/22.jpg",
+    date: "2 days ago",
+  },
+  {
+    name: "Megha Sharma",
+    city: "Kondapur",
+    rating: 5,
+    review:
+      "Good pricing and quality service. My double door fridge works perfectly now.",
+    avatar: "https://randomuser.me/api/portraits/women/30.jpg",
+    date: "1 week ago",
+  },
+  {
+    name: "Ravi Kumar",
+    city: "Madhapur",
+    rating: 4,
+    review:
+      "Quick service. Technician explained everything clearly. Recommended!",
+    avatar: "https://randomuser.me/api/portraits/men/66.jpg",
+    date: "3 weeks ago",
+  },
+];
+
+/* ================= FRIDGE SERVICES ================= */
 const SERVICES = [
-  /* ======= SUPER SAVER OFFERS ======= */
   {
     id: "fr1",
     icon: "❄️",
@@ -38,7 +68,6 @@ const SERVICES = [
     ],
   },
 
-  /* ======= HOME FRIDGE SERVICES ======= */
   {
     id: "fr2",
     icon: "🧊",
@@ -65,7 +94,7 @@ const SERVICES = [
       },
       {
         name: "Premium fridge service",
-        desc: "Triple door / French door / Side-by-Side",
+        desc: "Triple / French door / Side-by-Side",
         price: "₹699",
         time: "50–70 mins",
         warranty: "30 Days",
@@ -73,7 +102,6 @@ const SERVICES = [
     ],
   },
 
-  /* ======= REPAIR SERVICES ======= */
   {
     id: "fr3",
     icon: "⚙️",
@@ -99,7 +127,7 @@ const SERVICES = [
       },
       {
         name: "Water leakage repair",
-        desc: "Fix water leaking inside or outside",
+        desc: "Fix leaking inside or outside",
         price: "₹399",
         time: "30–45 mins",
         warranty: "30 Days",
@@ -115,7 +143,6 @@ const SERVICES = [
     ],
   },
 
-  /* ======= GAS & PARTS SUPPORT ======= */
   {
     id: "fr4",
     icon: "🛠️",
@@ -150,7 +177,6 @@ const SERVICES = [
     ],
   },
 
-  /* ======= COMMERCIAL FRIDGE & DEEP FREEZER ======= */
   {
     id: "fr5",
     icon: "🏢",
@@ -168,8 +194,8 @@ const SERVICES = [
         tag: "Bestseller",
       },
       {
-        name: "Visi Cooler / Display Fridge Service",
-        desc: "Shop display fridge cleaning & servicing",
+        name: "Visi Cooler / Display Fridge",
+        desc: "Shop display fridge servicing",
         price: "₹999",
         time: "50–70 mins",
         warranty: "30 Days",
@@ -264,17 +290,64 @@ export default function Fridge() {
         </div>
       </div>
 
-      {/* INFO */}
-      <div className="bg-white p-4 rounded-2xl shadow mb-4">
-        <p className="text-sm text-gray-600">
-          Get your refrigerator repaired by trained technicians.
-          <br />
-          ✅ 30–60 days warranty on selected services
-        </p>
+      {/* ⭐ REVIEWS */}
+      <div className="bg-white p-4 rounded-2xl shadow mb-6">
+        <h3 className="text-lg font-semibold mb-2">What Customers Say</h3>
+
+        <div className="flex items-center gap-4 mb-4">
+          <div className="text-center">
+            <p className="text-3xl font-bold">4.9 ⭐</p>
+            <p className="text-xs text-gray-500">Based on 900+ ratings</p>
+          </div>
+
+          <div className="flex-1">
+            {[5, 4, 3, 2, 1].map((star) => (
+              <div key={star} className="flex items-center gap-2">
+                <span className="text-xs">{star}★</span>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-green-500 h-2 rounded-full"
+                    style={{ width: `${star * 18}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+          {REVIEWS.map((r, i) => (
+            <div
+              key={i}
+              className="min-w-[260px] bg-gray-50 border rounded-2xl shadow-sm p-3"
+            >
+              <div className="flex items-center gap-2">
+                <img
+                  src={r.avatar}
+                  className="w-10 h-10 rounded-full border object-cover"
+                />
+                <div>
+                  <p className="font-semibold text-sm">{r.name}</p>
+                  <p className="text-xs text-gray-500">{r.city}</p>
+                </div>
+              </div>
+
+              <p className="text-yellow-500 text-sm mt-1">⭐ {r.rating}</p>
+              <p className="text-sm text-gray-700 mt-2">{r.review}</p>
+              <p className="text-xs text-gray-500 mt-2">{r.date}</p>
+
+              <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-1 rounded mt-2">
+                ✔ Verified Booking
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* SERVICES */}
       <div className="space-y-6 service-grid">
+        <h2 className="text-lg font-semibold mb-2">Our Services</h2>
+
         {SERVICES.map((section) => (
           <div key={section.id}>
             <div className="flex items-center gap-2 mb-2">
@@ -318,16 +391,14 @@ export default function Fridge() {
                     </p>
                   </div>
 
-                  <div className="service-actions mt-3 sm:mt-0">
-                    <button
-                      onClick={() =>
-                        handleBook(section.title, item.name, item.price)
-                      }
-                      className="px-4 py-2 rounded-xl bg-qsBlue-500 text-white"
-                    >
-                      Book Now
-                    </button>
-                  </div>
+                  <button
+                    onClick={() =>
+                      handleBook(section.title, item.name, item.price)
+                    }
+                    className="px-2 py-0 m rounded-xl bg-qsBlue-500 text-white mt-2 sm:mt-0"
+                  >
+                    Book Now
+                  </button>
                 </div>
               ))}
             </div>

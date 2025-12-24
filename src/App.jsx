@@ -27,7 +27,7 @@ import TechnicianLogin from "./pages/TechnicianLogin.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 /* ================= SERVICES ================= */
-
+import ServiceDetail from "./pages/Services/ServiceDetail.jsx";
 import BikeCarService from "./pages/Services/BikeCar.jsx";
 import BeautySalon from "./pages/Services/BeautySalon.jsx";
 import DecorationDetails from "./pages/Services/DecorationDetails.jsx";
@@ -126,9 +126,10 @@ export default function App() {
        <Route path="/plumber" element={<Plumber />} />
        <Route path="/washing-machine"  element={<Washing/>}/>
        <Route path="/refrigerator" element={<Frigde/>}/>
+       <Route path="/service-detail" element={<ServiceDetail/>}/>
      { /*<Route path="/clean" element={<CleaningPestControl />} />*/}
      <Route path="/tech/accept/:bookingId" element={<TechAccept />} />
      <Route path="/tech/decline/:bookingId" element={<TechDecline />} />
-    </Routes>
+    </Routes >
   );
 }
