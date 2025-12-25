@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import bannerPlumber from "../../assets/plumber-banner.jpg";
 /* ⭐ REVIEWS */
 const REVIEWS = [
   {
@@ -95,8 +95,7 @@ export default function Plumber() {
       <div
         className="relative h-44 rounded-2xl overflow-hidden shadow mb-6"
         style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1565895405227-31a94b62d0af?auto=format&fit=crop&w=1200&q=80')",
+          backgroundImage: `url(${bannerPlumber})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

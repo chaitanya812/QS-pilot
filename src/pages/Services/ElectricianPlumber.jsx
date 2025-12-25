@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import bannerElectrician from "../../assets/eletrican banner.png";
 
 const SUBS_EP = [
   { id: "e1", label: "Switchboard Repair / Replacement", desc: "Fix or replace damaged switchboard safely", price: "₹99", tag: "Bestseller", time: "20–30 mins", warranty: "30 Days" },
@@ -109,8 +110,7 @@ export default function ElectricianPlumber() {
       <div
         className="relative h-44 rounded-2xl overflow-hidden shadow mb-6"
         style={{
-          backgroundImage:
-            "url(https://images.unsplash.com/photo-1581092919535-7146c1c9c6c9?auto=format&fit=crop&w=1200&q=80)",
+          backgroundImage: `url(${bannerElectrician})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

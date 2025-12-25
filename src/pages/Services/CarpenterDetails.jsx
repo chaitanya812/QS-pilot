@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
+import bannerCarpenter from "../../assets/carpenter-banner.jpg";
 const REVIEWS = [
   {
     name: "Neeraj",
@@ -60,8 +60,7 @@ export default function CarpenterDetails() {
       <div
         className="relative h-44 rounded-2xl overflow-hidden shadow mb-6"
         style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1581090645668-0d39a3a3aad4?auto=format&fit=crop&w=1200&q=80')",
+          backgroundImage: `url(${bannerCarpenter})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

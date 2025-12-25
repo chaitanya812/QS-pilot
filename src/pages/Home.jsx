@@ -5,17 +5,26 @@ import QSBottomNav from "../UI/QSBottomNav.jsx";
 import QSDrawer from "../UI/QSDrawer.jsx";
 import QSServiceSkeleton from "../UI/QSServiceSkeleton.jsx";
 import AppRatingPopup from "../components/AppRatingPopup"; // ✅ ONLY ADDITION
+//Qs logo
+import qsLogo from"../assets/QS logo.png"
+
+// Banner Images
+import bannerElectrician from "../assets/eletrican banner.png";
+import bannerPlumber from "../assets/plumber-banner.jpg";
+import bannerAC from "../assets/ac-banner.jpg";
+import bannerWashing from "../assets/washing-banner.jpg";
+import bannerFridge from "../assets/fridge-banner.jpg.png";
+import bannerCarpenter from "../assets/carpenter-banner.jpg";
+
 
 // Service Icons
 // Service Icons (PILOT – FINAL)
-import imgElectrician from "../assets/eletrician.png";
-import imgPlumber from "../assets/eletrician.png";
-import imgAC from "../assets/ac.png";
-import imgWashing from "../assets/ac.png";
-import imgFridge from "../assets/ac.png";
-import imgCarpenter from "../assets/carpenter.png";
-
-
+import imgElectrician from"../assets/electrican.jpg";
+import imgPlumber from "../assets/plumber service.png";
+import imgAC from "../assets/ac service.png";
+import imgWashing from "../assets/washing service.png";
+import imgFridge from "../assets/Fridge service.png";
+import imgCarpenter from "../assets/carpenter service.png";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -29,52 +38,44 @@ export default function Home() {
     setTimeout(() => setLoading(false), 1200);
   }, []);
 
-  const categories = [
+ const categories = [
   {
     label: "Electrician",
     img: imgElectrician,
     path: "/electrician-plumber",
-    bannerImg:
-      "https://images.unsplash.com/photo-1581092919535-7146c1c9c6c9",
+    bannerImg: bannerElectrician,
   },
   {
     label: "Plumber",
     img: imgPlumber,
     path: "/plumber",
-    bannerImg:
-      "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea",
+    bannerImg: bannerPlumber,
   },
   {
     label: "AC Service",
     img: imgAC,
     path: "/ac",
-    bannerImg:
-      "https://images.unsplash.com/photo-1621905252507-b35492cc74b4",
+    bannerImg: bannerAC,
   },
   {
     label: "Washing Machine",
     img: imgWashing,
     path: "/washing-machine",
-    bannerImg:
-      "https://images.unsplash.com/photo-1626806787461-102c1a7a6c2f",
+    bannerImg: bannerWashing,
   },
   {
-    label: "Refrigerator",
+    label: "Fridge Repair",
     img: imgFridge,
     path: "/refrigerator",
-    bannerImg:
-      "https://images.unsplash.com/photo-1586208958839-06c17cacdf08",
+    bannerImg: bannerFridge,
   },
   {
     label: "Carpenter",
     img: imgCarpenter,
     path: "/carpenter",
-    bannerImg:
-      "https://images.unsplash.com/photo-1598300056393-4aac492f4344",
+    bannerImg: bannerCarpenter,
   },
-  
 ];
-
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -92,13 +93,13 @@ export default function Home() {
       <div className="flex items-center justify-between">
         <button
           onClick={() => setMenuOpen(true)}
-          className="p-2 rounded-lg bg-gray-200"
+          className=" rounded-lg bg-gray-200"
         >
-          ☰
+          <img src={qsLogo} alt="QuickSeva" className="h-10 w-auto rounded-lg" />
         </button>
 
         <h1 className="text-lg font-bold">
-          {user ? "Welcome" : "QuickSeva"}
+          {user ? "Welcome to QS" : "QuickSeva"}
         </h1>
 
         {!user ? (
@@ -171,14 +172,63 @@ export default function Home() {
             <div
               key={c.label}
               onClick={() => navigate(c.path)}
-              className="cursor-pointer p-4 bg-white rounded-xl shadow text-center"
+              className="cursor-pointer p-4 bg-white rounded-xl shadow text-center hover:shadow-lg transition x-1"
             >
-              <img src={c.img} className="w-16 h-16 mx-auto" />
+              <img src={c.img} className="w-17 h-17 mx-auto rounded-xl shadow" />
               <div className="mt-2 text-sm font-medium">{c.label}</div>
             </div>
           ))}
         </div>
       )}
+
+      {/* WHY CHOOSE US */}
+      <div className="mt-8 bg-white rounded-2xl shadow-lg p-5">
+        <h2 className="text-lg font-semibold text-gray-800 text-center">
+          Why Choose QuickSeva?
+        </h2>
+
+        <div className="mt-4 grid grid-cols-2 gap-4">
+          <div className="p-4 rounded-xl bg-gray-50 shadow-sm text-center">
+            <span className="text-3xl">⚡</span>
+            <h3 className="font-semibold text-gray-700 mt-2 text-sm">
+              Fast Service
+            </h3>
+            <p className="text-xs text-gray-500">
+              Quick response & doorstep support
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-gray-50 shadow-sm text-center">
+            <span className="text-3xl">👨‍🔧</span>
+            <h3 className="font-semibold text-gray-700 mt-2 text-sm">
+              Our professionals
+            </h3>
+            <p className="text-xs text-gray-500">
+              Verified & experienced professionals
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-gray-50 shadow-sm text-center">
+            <span className="text-3xl">💰</span>
+            <h3 className="font-semibold text-gray-700 mt-2 text-sm">
+              Affordable Pricing
+            </h3>
+            <p className="text-xs text-gray-500">
+              Best service at best price
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-gray-50 shadow-sm text-center">
+            <span className="text-3xl">⭐</span>
+            <h3 className="font-semibold text-gray-700 mt-2 text-sm">
+              Customer Satisfaction
+            </h3>
+            <p className="text-xs text-gray-500">
+              Service you can trust
+            </p>
+          </div>
+        </div>
+      </div>
 
       <QSDrawer open={menuOpen} setOpen={setMenuOpen} user={user} />
       <QSBottomNav />

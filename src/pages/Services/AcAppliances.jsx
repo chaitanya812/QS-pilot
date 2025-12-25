@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import bannerAC from "../../assets/ac-banner.jpg";
 /* ================= TECHNICIAN DATA ================= */
 const TECHNICIANS = [
   {
@@ -262,7 +262,7 @@ export default function ApplianceServices() {
       <div
         className="relative h-44 rounded-2xl overflow-hidden shadow mb-6 transition-all duration-700"
         style={{
-          backgroundImage: `url(${active.banner})`,
+          backgroundImage: `url(${bannerAC})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

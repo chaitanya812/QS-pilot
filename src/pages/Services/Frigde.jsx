@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import bannerFridge from "../../assets/Fridge service.png";
 /* ================= CUSTOMER REVIEWS ================= */
 const REVIEWS = [
   {
@@ -255,9 +255,9 @@ export default function Fridge() {
 
       {/* HERO */}
       <div
-        className="relative h-44 rounded-2xl overflow-hidden shadow mb-6 transition-all duration-700"
+        className="relative h-44 rounded-2xl overflow-hidden shadow mb-6"
         style={{
-          backgroundImage: `url(${active.banner})`,
+          backgroundImage: `url(${bannerFridge})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
