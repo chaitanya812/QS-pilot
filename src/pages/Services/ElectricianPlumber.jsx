@@ -2,43 +2,69 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import bannerElectrician from "../../assets/eletrican banner.png";
 import allfans from "../../assets/allfans.png";
+import switchs from "../../assets/switch.jpg";
+import switchboards from "../../assets/switchboard.jpg";
+import newbox from"../../assets/newswitchboard.jpg";
+import fanrepairs from "../../assets/fan repair.png";
+import regulator from"../../assets/fan regulator.png";
+import karbanfan from"../../assets/Karban fan.png";
+import fancylight from "../../assets/Fancylight.png";
+import Blub from "../../assets/blub.png";
+import Tubelight from "../../assets/tubelight.png";
+import Cellinglight from  "../../assets/Cellinglight.png";
+import Hanglight from "../../assets/hanginglight.png";
+import chandelier from"../../assets/chandler.png";
+import Internal from "../../assets/internal.png";
+import External from "../../assets/external.png";
+import Regularbell from "../../assets/regulardoorbell.png";
+import videoDoorbell from"../../assets/videodoorbell.png";
+import Mcb from"../../assets/mcb.png";
+import Inverterfuse from"../../assets/inverterfuse.png";
+import Submeter from "../../assets/submeter.png";
+import Tvinstall from"../../assets/tvinstall.png";
+import Tvuninstall from"../../assets/tvuninstall.png";
+import Inverterinstall from "../../assets/inverterinstall.png";
+import InverterService from "../../assets/inverterservice.png";
+import InverterCheck from "../../assets/invertercheckup.png";
+import Inverteruninstall from"../../assets/inverteruninstall.png";
+import Stabizer from"../../assets/stabilizer.png";
 const SUBS_EP = [
-  { id: "e1", label: "Switchboard Repair / Replacement", desc: "Fix or replace damaged switchboard safely", price: "₹99", tag: "Bestseller", time: "20–30 mins", warranty: "30 Days" },
-  { id: "e2", label: "Switch / Socket Repair / Replacement", desc: "Repair broken switches and loose sockets", price: "₹149", tag: "Popular", time: "20–40 mins", warranty: "30 Days" },
-  { id: "e3", label: "New Switch Box Installation", desc: "Install a brand new switch box securely", price: "₹149", time: "25–40 mins", warranty: "30 Days" },
+  { id: "e1", label: "Switchboard Repair / Replacement", desc: "Fix or replace damaged switchboard safely", price: "₹99", tag: "Bestseller", time: "20–30 mins", warranty: "30 Days", image: switchboards },
+  { id: "e2", label: "Switch / Socket Repair / Replacement", desc: "Repair broken switches and loose sockets", price: "₹149", tag: "Popular", time: "20–40 mins", warranty: "30 Days", image: switchs },
+  { id: "e3", label: "New Switch Box Installation", desc: "Install a brand new switch box securely", price: "₹149", time: "25–40 mins", warranty: "30 Days", image: newbox },
 
-  { id: "e4", label: "Fan Repair", desc: "Fix fan not working, noise or slow speed", price: "₹149", tag: "Trending", time: "25–45 mins", warranty: "30 Days" },
-  { id: "e5", label: "Exhaust / Pedestal / Tower Fan Installation", desc: "Professional fan fitting with neat wiring", price: "₹99", time: "20–30 mins", warranty: "30 Days" ,image: allfans},
-  { id: "e6", label: "Fan Regulator Replacement", desc: "Replace faulty fan speed regulator", price: "₹79", time: "15–20 mins", warranty: "30 Days" },
-  { id: "e21", label: "Karban Airzone Fan Installation", desc: "Install premium Airzone fan safely", price: "₹399", time: "30–45 mins", warranty: "30 Days" },
+  { id: "e4", label: "Fan Repair", desc: "Fix fan not working, noise or slow speed", price: "₹149", tag: "Trending", time: "25–45 mins", warranty: "30 Days", image: fanrepairs },
+  { id: "e5", label: "Exhaust / Pedestal / Tower Fan Installation", desc: "Professional fan fitting with neat wiring", price: "₹99", time: "20–30 mins", warranty: "30 Days", image: allfans },
+  { id: "e6", label: "Fan Regulator Replacement", desc: "Replace faulty fan speed regulator", price: "₹79", time: "15–20 mins", warranty: "30 Days", image: regulator },
+  { id: "e21", label: "Karban Airzone Fan Installation", desc: "Install premium Airzone fan safely", price: "₹399", time: "30–45 mins", warranty: "30 Days", image: karbanfan },
 
-  { id: "e7", label: "Fancy Light Installation / Replacement", desc: "Install or replace designer fancy lights", price: "₹149", tag: "Popular", time: "20–35 mins", warranty: "30 Days" },
-  { id: "e8", label: "Tubelight Installation", desc: "Safe and quick tube light installation", price: "₹99", time: "15–20 mins", warranty: "30 Days" },
-  { id: "e9", label: "Bulb Installation", desc: "Install bulb in any room or space", price: "₹49", time: "10 mins", warranty: "30 Days" },
-  { id: "e10", label: "Ceiling Light Installation", desc: "Fix ceiling lights properly and safely", price: "₹89", time: "15–25 mins", warranty: "30 Days" },
-  { id: "e11", label: "Hanging Light Installation", desc: "Install hanging lights with proper support", price: "₹199", time: "25–40 mins", warranty: "30 Days" },
-  { id: "e12", label: "Chandelier Installation", desc: "Expert chandelier fitting with care", price: "₹499", tag: "Premium", time: "40–60 mins", warranty: "45 Days" },
+  { id: "e7", label: "Fancy Light Installation / Replacement", desc: "Install or replace designer fancy lights", price: "₹149", tag: "Popular", time: "20–35 mins", warranty: "30 Days", image: fancylight },
+  { id: "e8", label: "Tubelight Installation", desc: "Safe and quick tube light installation", price: "₹99", time: "15–20 mins", warranty: "30 Days", image: Tubelight },
+  { id: "e9", label: "Bulb Installation", desc: "Install bulb in any room or space", price: "₹49", time: "10 mins", warranty: "30 Days", image: Blub },
+  { id: "e10", label: "Ceiling Light Installation", desc: "Fix ceiling lights properly and safely", price: "₹89", time: "15–25 mins", warranty: "30 Days", image: Cellinglight },
+  { id: "e11", label: "Hanging Light Installation", desc: "Install hanging lights with proper support", price: "₹199", time: "25–40 mins", warranty: "30 Days", image: Hanglight },
+  { id: "e12", label: "Chandelier Installation", desc: "Expert chandelier fitting with care", price: "₹499", tag: "Premium", time: "40–60 mins", warranty: "45 Days", image: chandelier },
 
-  { id: "e13", label: "Internal Wiring (Per Meter)", desc: "New internal electrical wiring work", price: "₹40", time: "Depends on work", warranty: "30 Days" },
-  { id: "e14", label: "External Wiring (Per Meter)", desc: "Safe and neat external wiring setup", price: "₹24", time: "Depends on work", warranty: "30 Days" },
+  { id: "e13", label: "Internal Wiring (Per Meter)", desc: "New internal electrical wiring work", price: "₹40", time: "Depends on work", warranty: "30 Days", image:Internal },
+  { id: "e14", label: "External Wiring (Per Meter)", desc: "Safe and neat external wiring setup", price: "₹24", time: "Depends on work", warranty: "30 Days", image:External },
 
-  { id: "e15", label: "Regular Doorbell Installation", desc: "Install normal doorbell at your home", price: "₹99", time: "15–20 mins", warranty: "30 Days" },
-  { id: "e16", label: "Video Doorbell Installation", desc: "Install smart video doorbell securely", price: "₹600", tag: "Bestseller", time: "40–60 mins", warranty: "45 Days" },
+  { id: "e15", label: "Regular Doorbell Installation", desc: "Install normal doorbell at your home", price: "₹99", time: "15–20 mins", warranty: "30 Days", image:Regularbell },
+  { id: "e16", label: "Video Doorbell Installation", desc: "Install smart video doorbell securely", price: "₹600", tag: "Bestseller", time: "40–60 mins", warranty: "45 Days", image:videoDoorbell },
 
-  { id: "e17", label: "MCB / Fuse Repair", desc: "Fix tripping MCBs or blown fuses", price: "₹149", time: "20–30 mins", warranty: "30 Days" },
+  { id: "e17", label: "MCB / Fuse Repair", desc: "Fix tripping MCBs or blown fuses", price: "₹149", time: "20–30 mins", warranty: "30 Days", image:Mcb },
 
-  { id: "e18", label: "Sub Meter Installation", desc: "Install separate home / room meter", price: "₹249", time: "35–50 mins", warranty: "45 Days" },
+  { id: "e18", label: "Sub Meter Installation", desc: "Install separate home / room meter", price: "₹249", time: "35–50 mins", warranty: "45 Days", image: Submeter },
 
-  { id: "e19", label: "TV Installation", desc: "Wall mount and setup your television", price: "₹299", time: "30–45 mins", warranty: "30 Days" },
-  { id: "e20", label: "TV Uninstallation", desc: "Remove TV safely without damage", price: "₹200", time: "20–30 mins", warranty: "30 Days" },
+  { id: "e19", label: "TV Installation", desc: "Wall mount and setup your television", price: "₹299", time: "30–45 mins", warranty: "30 Days", image:Tvinstall },
+  { id: "e20", label: "TV Uninstallation", desc: "Remove TV safely without damage", price: "₹200", time: "20–30 mins", warranty: "30 Days", image:Tvuninstall },
 
-  { id: "e22", label: "Inverter Installation", desc: "Install inverter with proper connections", price: "₹450", tag: "Popular", time: "35–50 mins", warranty: "45 Days" },
-  { id: "e23", label: "Inverter Fuse Replacement", desc: "Replace damaged inverter fuse", price: "₹99", time: "10–15 mins", warranty: "30 Days" },
-  { id: "e24", label: "Inverter Servicing", desc: "Full health check and service of inverter", price: "₹249", time: "30–45 mins", warranty: "30 Days" },
-  { id: "e25", label: "Inverter Check-up", desc: "Basic inverter health inspection", price: "₹160", time: "15–25 mins", warranty: "30 Days" },
-  { id: "e26", label: "Inverter Uninstallation", desc: "Remove inverter safely and cleanly", price: "₹499", time: "30–45 mins", warranty: "30 Days" },
+  { id: "e22", label: "Inverter Installation", desc: "Install inverter with proper connections", price: "₹450", tag: "Popular", time: "35–50 mins", warranty: "45 Days", image: Inverterinstall },
+  { id: "e23", label: "Inverter Fuse Replacement", desc: "Replace damaged inverter fuse", price: "₹99", time: "10–15 mins", warranty: "30 Days", image:Inverterfuse },
+  { id: "e24", label: "Inverter Servicing", desc: "Full health check and service of inverter", price: "₹249", time: "30–45 mins", warranty: "30 Days", image:InverterService },
+  { id: "e25", label: "Inverter Check-up", desc: "Basic inverter health inspection", price: "₹160", time: "15–25 mins", warranty: "30 Days", image: InverterCheck },
+  { id: "e26", label: "Inverter Uninstallation", desc: "Remove inverter safely and cleanly", price: "₹499", time: "30–45 mins", warranty: "30 Days", image: Inverteruninstall },
 
-  { id: "e27", label: "Stabilizer Installation", desc: "Install stabilizer for safe voltage use", price: "₹149", time: "20–30 mins", warranty: "30 Days" },
+  { id: "e27", label: "Stabilizer Installation", desc: "Install stabilizer for safe voltage use", price: "₹149", time: "20–30 mins", warranty: "30 Days", image: Stabizer },
 ];
 
 const CATEGORIES = [
@@ -238,8 +264,8 @@ export default function ElectricianPlumber() {
     h-auto
         max-h-48
         object-contain
-    sm:h-36
-    md:h-28
+    sm:h-40
+    md:h-40
     lg:h-32
     rounded-xl
     object-cover
