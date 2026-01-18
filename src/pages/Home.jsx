@@ -6,7 +6,7 @@ import QSDrawer from "../UI/QSDrawer.jsx";
 import QSServiceSkeleton from "../UI/QSServiceSkeleton.jsx";
 import AppRatingPopup from "../components/AppRatingPopup"; // ✅ ONLY ADDITION
 //Qs logo
-import qsLogo from"../assets/QS logo.png"
+import qsLogo from "../assets/QS logo.png"
 
 // Banner Images
 import bannerElectrician from "../assets/eletrican banner.png";
@@ -19,7 +19,7 @@ import bannerCarpenter from "../assets/carpenter-banner.jpg";
 
 // Service Icons
 // Service Icons (PILOT – FINAL)
-import imgElectrician from"../assets/electrican.jpg";
+import imgElectrician from "../assets/electrican.png";
 import imgPlumber from "../assets/plumber service.png";
 import imgAC from "../assets/ac service.png";
 import imgWashing from "../assets/washing service.png";
@@ -35,52 +35,52 @@ export default function Home() {
   const user = JSON.parse(localStorage.getItem("user") || "null");
 
   const whatsappMessage = encodeURIComponent(
-  "Hi QuickSeva 👋 I want to book a service. Please assist me."
-);
+    "Hi QuickSeva 👋 I want to book a service. Please assist me."
+  );
 
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1200);
   }, []);
 
- const categories = [
-  {
-    label: "Electrician",
-    img: imgElectrician,
-    path: "/electrician-plumber",
-    bannerImg: bannerElectrician,
-  },
-  {
-    label: "Plumber",
-    img: imgPlumber,
-    path: "/plumber",
-    bannerImg: bannerPlumber,
-  },
-  {
-    label: "AC Service",
-    img: imgAC,
-    path: "/ac",
-    bannerImg: bannerAC,
-  },
-  {
-    label: "Washing Machine",
-    img: imgWashing,
-    path: "/washing-machine",
-    bannerImg: bannerWashing,
-  },
-  {
-    label: "Fridge Repair",
-    img: imgFridge,
-    path: "/refrigerator",
-    bannerImg: bannerFridge,
-  },
-  {
-    label: "Carpenter",
-    img: imgCarpenter,
-    path: "/carpenter",
-    bannerImg: bannerCarpenter,
-  },
-];
+  const categories = [
+    {
+      label: "Electrician",
+      img: imgElectrician,
+      path: "/electrician-plumber",
+      bannerImg: bannerElectrician,
+    },
+    {
+      label: "Plumber",
+      img: imgPlumber,
+      path: "/plumber",
+      bannerImg: bannerPlumber,
+    },
+    {
+      label: "AC Service",
+      img: imgAC,
+      path: "/ac",
+      bannerImg: bannerAC,
+    },
+    {
+      label: "Washing Machine",
+      img: imgWashing,
+      path: "/washing-machine",
+      bannerImg: bannerWashing,
+    },
+    {
+      label: "Fridge Repair",
+      img: imgFridge,
+      path: "/refrigerator",
+      bannerImg: bannerFridge,
+    },
+    {
+      label: "Carpenter",
+      img: imgCarpenter,
+      path: "/carpenter",
+      bannerImg: bannerCarpenter,
+    },
+  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -136,7 +136,7 @@ export default function Home() {
           backgroundPosition: "center",
         }}
       >
-         <div className="absolute inset-0 bg-black/55 pointer-events-none" />
+        <div className="absolute inset-0 bg-black/55 pointer-events-none" />
         <div className="relative z-10 h-full flex flex-col justify-between p-4 text-white">
           <div>
             <h2 className="text-xl font-bold">{activeBanner.label}</h2>
@@ -146,20 +146,20 @@ export default function Home() {
           </div>
 
           <div className="flex gap-2 pointer-events-auto">
-      <a
-        href="tel:7661045308"
-        className="px-4 py-2 bg-green-600 rounded-xl font-semibold"
-      >
-        📞 Call
-      </a>
             <a
-  href={`https://wa.me/7661045308?text=${whatsappMessage}`}
-  target="_blank"
-  rel="noreferrer"
-  className="px-4 py-2 bg-green-500 rounded-xl font-semibold"
->
-  💬 WhatsApp
-</a>
+              href="tel:7661045308"
+              className="px-4 py-2 bg-green-600 rounded-xl font-semibold"
+            >
+              📞 Call
+            </a>
+            <a
+              href={`https://wa.me/7661045308?text=${whatsappMessage}`}
+              target="_blank"
+              rel="noreferrer"
+              className="px-4 py-2 bg-green-500 rounded-xl font-semibold"
+            >
+              💬 WhatsApp
+            </a>
 
           </div>
         </div>
@@ -178,11 +178,30 @@ export default function Home() {
             <div
               key={c.label}
               onClick={() => navigate(c.path)}
-              className="cursor-pointer p-4 bg-white rounded-xl shadow text-center hover:shadow-lg transition x-1"
+              className="cursor-pointer bg-white rounded-2xl shadow-md 
+             active:scale-95 transition-all duration-150
+             border border-gray-100"
             >
-              <img src={c.img} className="w-17 h-17 mx-auto rounded-xl shadow" />
-              <div className="mt-2 text-sm font-medium">{c.label}</div>
+              <div className="p-4 flex flex-col items-center">
+                <img
+                  src={c.img}
+                  alt={c.label}
+                  className="w-40 h-40 object-contain"
+                />
+
+                <div className="mt-3 text-sm font-semibold text-gray-800">
+                  {c.label}
+                </div>
+
+                {/* CTA BUTTON */}
+                <div className="mt-2 w-full">
+                  <button className="w-full py-2 rounded-xl bg-qsBlue-500 text-white text-sm font-semibold">
+                    Book Now
+                  </button>
+                </div>
+              </div>
             </div>
+
           ))}
         </div>
       )}

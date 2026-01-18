@@ -34,12 +34,12 @@ const SERVICES = [
   {
     id: "p1",
     icon: "🚿",
-    title: "Leakage & Repair",
+    title: "Tap Leakage & Repair",
     tagline: "Fix all types of water leak issues",
     items: [
-      { name: "Tap Leakage Repair", desc: "Fix tap dripping & leakage", price: "₹149", time: "20–30 mins", warranty: "30 Days", tag: "Bestseller" },
-      { name: "Bathroom Leakage Fix", desc: "Fix water leakage in bathroom areas", price: "₹249", time: "30–45 mins", warranty: "30 Days" },
-      { name: "Kitchen Sink Leakage Repair", desc: "Fix under-sink pipe leak", price: "₹199", time: "25–40 mins", warranty: "30 Days" },
+      { name: "Tap Leakage Repair", desc: "Fix tap dripping & leakage", price: "₹99", time: "20–30 mins", warranty: "30 Days", tag: "Bestseller" },
+      { name: "Tap accessory installation", desc: "Fix water leakage in bathroom areas", price: "₹79", time: "30–45 mins", warranty: "30 Days" },
+      { name: "Tap installation/replacement", desc: "Fix under-sink pipe leak", price: "₹99", time: "25–40 mins", warranty: "30 Days" },
     ],
   },
 
@@ -64,6 +64,17 @@ const SERVICES = [
       { name: "Wash Basin Block Removal", desc: "Clear clogged basin", price: "₹199", time: "25–40 mins", warranty: "30 Days" },
       { name: "Bathroom Drain Block Removal", desc: "Fix clogged bathroom drain", price: "₹249", time: "30–45 mins", warranty: "30 Days" },
       { name: "Kitchen Drain Block Removal", desc: "Clear kitchen pipeline clog", price: "₹299", time: "30–50 mins", warranty: "30 Days", tag: "Trending" },
+    ],
+  },
+  {
+    id:"p4",
+    icon: "🔧",
+    title: "General Plumbing",
+    tagline: "All other plumbing needs",
+    items: [
+      { name: "Pipe Repair", desc: "Fix broken or damaged pipes", price: "₹299", time: "30–45 mins", warranty: "30 Days" },
+      { name: "Water Heater Installation", desc: "Install new water heater", price: "₹499", time: "40–60 mins", warranty: "30 Days" },
+      { name: "Bathroom Renovation Plumbing", desc: "Complete bathroom plumbing setup", price: "₹799", time: "1–2 hrs", warranty: "30 Days" },
     ],
   },
 ];
