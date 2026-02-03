@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import QSBottomNav from "../UI/QSBottomNav.jsx";
 import QSDrawer from "../UI/QSDrawer.jsx";
 import QSServiceSkeleton from "../UI/QSServiceSkeleton.jsx";
-import AppRatingPopup from "../components/AppRatingPopup"; // ✅ ONLY ADDITION
-//Qs logo
-import qsLogo from "../assets/QS logo.png"
+import AppRatingPopup from "../components/AppRatingPopup";
+
+import qsLogo from "../assets/QS logo.png";
 
 // Banner Images
 import bannerElectrician from "../assets/eletrican banner.png";
@@ -16,15 +16,13 @@ import bannerWashing from "../assets/washing-banner.jpg";
 import bannerFridge from "../assets/fridge-banner.jpg.png";
 import bannerCarpenter from "../assets/carpenter-banner.jpg";
 
-
 // Service Icons
-// Service Icons (PILOT – FINAL)
-import imgElectrician from "../assets/electrican.png";
-import imgPlumber from "../assets/plumber service.png";
-import imgAC from "../assets/ac service.png";
-import imgWashing from "../assets/washing service.png";
-import imgFridge from "../assets/Fridge service.png";
-import imgCarpenter from "../assets/carpenter service.png";
+import imgElectrician from "../assets/electrician.png";
+import imgPlumber from "../assets/plumber (1).png";
+import imgAC from "../assets/service.png";
+import imgWashing from "../assets/repair.png";
+import imgFridge from "../assets/fridge.png";
+import imgCarpenter from "../assets/carpenter (1).png";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -37,7 +35,6 @@ export default function Home() {
   const whatsappMessage = encodeURIComponent(
     "Hi QuickSeva 👋 I want to book a service. Please assist me."
   );
-
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1200);
@@ -96,9 +93,10 @@ export default function Home() {
 
       {/* HEADER */}
       <div className="flex items-center justify-between">
+        {/* Logo */}
         <button
-          onClick={() => setMenuOpen(true)}
-          className=" rounded-lg bg-gray-200"
+          onClick={() => navigate("/")}
+          className="rounded-lg bg-gray-200"
         >
           <img src={qsLogo} alt="QuickSeva" className="h-10 w-auto rounded-lg" />
         </button>
@@ -107,24 +105,13 @@ export default function Home() {
           {user ? "Welcome to QS" : "QuickSeva"}
         </h1>
 
-        {!user ? (
-          <button
-            onClick={() => navigate("/login")}
-            className="px-3 py-1 rounded-lg bg-qsBlue-500 text-white"
-          >
-            Login
-          </button>
-        ) : (
-          <button
-            onClick={() => {
-              localStorage.removeItem("user");
-              navigate("/login");
-            }}
-            className="px-3 py-1 rounded-lg bg-red-500 text-white"
-          >
-            Logout
-          </button>
-        )}
+        {/* MENU BUTTON */}
+        <button
+          onClick={() => setMenuOpen(true)}
+          className="px-3 py-2 rounded-lg bg-gray-200 text-xl"
+        >
+          ☰
+        </button>
       </div>
 
       {/* AUTO SCROLL BANNER */}
@@ -160,12 +147,11 @@ export default function Home() {
             >
               💬 WhatsApp
             </a>
-
           </div>
         </div>
       </div>
 
-      {/* SERVICES GRID */}
+      {/* SERVICES */}
       <h2 className="mt-6 font-semibold text-gray-700 text-lg">
         Our Services
       </h2>
@@ -179,8 +165,8 @@ export default function Home() {
               key={c.label}
               onClick={() => navigate(c.path)}
               className="cursor-pointer bg-white rounded-2xl shadow-md 
-             active:scale-95 transition-all duration-150
-             border border-gray-100"
+              active:scale-95 transition-all duration-150
+              border border-gray-100"
             >
               <div className="p-4 flex flex-col items-center">
                 <img
@@ -188,12 +174,9 @@ export default function Home() {
                   alt={c.label}
                   className="w-40 h-40 object-contain"
                 />
-
                 <div className="mt-3 text-sm font-semibold text-gray-800">
                   {c.label}
                 </div>
-
-                {/* CTA BUTTON */}
                 <div className="mt-2 w-full">
                   <button className="w-full py-2 rounded-xl bg-qsBlue-500 text-white text-sm font-semibold">
                     Book Now
@@ -201,64 +184,12 @@ export default function Home() {
                 </div>
               </div>
             </div>
-
           ))}
         </div>
       )}
 
-      {/* WHY CHOOSE US */}
-      <div className="mt-8 bg-white rounded-2xl shadow-lg p-5">
-        <h2 className="text-lg font-semibold text-gray-800 text-center">
-          Why Choose QuickSeva?
-        </h2>
-
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl bg-gray-50 shadow-sm text-center">
-            <span className="text-3xl">⚡</span>
-            <h3 className="font-semibold text-gray-700 mt-2 text-sm">
-              Fast Service
-            </h3>
-            <p className="text-xs text-gray-500">
-              Quick response & doorstep support
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-gray-50 shadow-sm text-center">
-            <span className="text-3xl">👨‍🔧</span>
-            <h3 className="font-semibold text-gray-700 mt-2 text-sm">
-              Our professionals
-            </h3>
-            <p className="text-xs text-gray-500">
-              Verified & experienced professionals
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-gray-50 shadow-sm text-center">
-            <span className="text-3xl">💰</span>
-            <h3 className="font-semibold text-gray-700 mt-2 text-sm">
-              Affordable Pricing
-            </h3>
-            <p className="text-xs text-gray-500">
-              Best service at best price
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-gray-50 shadow-sm text-center">
-            <span className="text-3xl">⭐</span>
-            <h3 className="font-semibold text-gray-700 mt-2 text-sm">
-              Customer Satisfaction
-            </h3>
-            <p className="text-xs text-gray-500">
-              Service you can trust
-            </p>
-          </div>
-        </div>
-      </div>
-
       <QSDrawer open={menuOpen} setOpen={setMenuOpen} user={user} />
       <QSBottomNav />
-
-      {/* ⭐ APP RATING POPUP */}
       <AppRatingPopup />
     </div>
   );
