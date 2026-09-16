@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import QSBottomNav from "../UI/QSBottomNav.jsx";
@@ -7,8 +7,6 @@ import QSServiceSkeleton from "../UI/QSServiceSkeleton.jsx";
 import AppRatingPopup from "../components/AppRatingPopup";
 
 import qsLogo from "../assets/QS logo.png";
-
-// Banner Images
 import bannerElectrician from "../assets/eletrican banner.png";
 import bannerPlumber from "../assets/plumber-banner.jpg";
 import bannerAC from "../assets/ac-banner.jpg";
@@ -16,7 +14,6 @@ import bannerWashing from "../assets/washing-banner.jpg";
 import bannerFridge from "../assets/fridge-banner.jpg.png";
 import bannerCarpenter from "../assets/carpenter-banner.jpg";
 
-// Service Icons
 import imgElectrician from "../assets/electrician.png";
 import imgPlumber from "../assets/plumber (1).png";
 import imgAC from "../assets/service.png";
@@ -24,69 +21,82 @@ import imgWashing from "../assets/repair.png";
 import imgFridge from "../assets/fridge.png";
 import imgCarpenter from "../assets/carpenter (1).png";
 
+const categories = [
+  {
+    label: "Electrician",
+    img: imgElectrician,
+    path: "/electrician-plumber",
+    bannerImg: bannerElectrician,
+  },
+  {
+    label: "Plumber",
+    img: imgPlumber,
+    path: "/plumber",
+    bannerImg: bannerPlumber,
+  },
+  {
+    label: "AC Service",
+    img: imgAC,
+    path: "/ac",
+    bannerImg: bannerAC,
+  },
+  {
+    label: "Washing Machine",
+    img: imgWashing,
+    path: "/washing-machine",
+    bannerImg: bannerWashing,
+  },
+  {
+    label: "Fridge Repair",
+    img: imgFridge,
+    path: "/refrigerator",
+    bannerImg: bannerFridge,
+  },
+  {
+    label: "Carpenter",
+    img: imgCarpenter,
+    path: "/carpenter",
+    bannerImg: bannerCarpenter,
+  },
+];
+
 export default function Home() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [bannerIndex, setBannerIndex] = useState(0);
 
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const user = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || "null");
+    } catch {
+      return null;
+    }
+  })();
 
   const whatsappMessage = encodeURIComponent(
     "Hi QuickSeva 👋 I want to book a service. Please assist me."
   );
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 1200);
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
   }, []);
-
-  const categories = [
-    {
-      label: "Electrician",
-      img: imgElectrician,
-      path: "/electrician-plumber",
-      bannerImg: bannerElectrician,
-    },
-    {
-      label: "Plumber",
-      img: imgPlumber,
-      path: "/plumber",
-      bannerImg: bannerPlumber,
-    },
-    {
-      label: "AC Service",
-      img: imgAC,
-      path: "/ac",
-      bannerImg: bannerAC,
-    },
-    {
-      label: "Washing Machine",
-      img: imgWashing,
-      path: "/washing-machine",
-      bannerImg: bannerWashing,
-    },
-    {
-      label: "Fridge Repair",
-      img: imgFridge,
-      path: "/refrigerator",
-      bannerImg: bannerFridge,
-    },
-    {
-      label: "Carpenter",
-      img: imgCarpenter,
-      path: "/carpenter",
-      bannerImg: bannerCarpenter,
-    },
-  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
       setBannerIndex((prev) => (prev + 1) % categories.length);
     }, 3500);
-    return () => clearInterval(interval);
-  }, [categories.length]);
 
-  const activeBanner = categories[bannerIndex];
+    return () => clearInterval(interval);
+  }, []);
+
+  const activeBanner = categories[bannerIndex] ?? categories[0];
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
 
   return (
     <div className="p-4 pb-28 bg-gray-50 min-h-screen">
@@ -101,7 +111,7 @@ export default function Home() {
           <img src={qsLogo} alt="QuickSeva" className="h-10 w-auto rounded-lg" />
         </button>
 
-        <h1 className="text-lg font-bold">
+        <h1 className="text-lg font-bold text-gray-800">
           {user ? "Welcome to QS" : "QuickSeva"}
         </h1>
 
@@ -114,28 +124,27 @@ export default function Home() {
         </button>
       </div>
 
-      {/* AUTO SCROLL BANNER */}
-      <div
-        className="mt-4 relative w-full h-48 rounded-2xl overflow-hidden shadow-lg"
+      <section
+        className="relative mt-4 h-48 w-full overflow-hidden rounded-2xl shadow-lg"
         style={{
           backgroundImage: `url(${activeBanner.bannerImg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        <div className="absolute inset-0 bg-black/55 pointer-events-none" />
-        <div className="relative z-10 h-full flex flex-col justify-between p-4 text-white">
+        <div className="absolute inset-0 bg-black/55" />
+
+        <div className="relative z-10 flex h-full flex-col justify-between p-4 text-white">
           <div>
             <h2 className="text-xl font-bold">{activeBanner.label}</h2>
-            <p className="text-sm opacity-90">
-              Trusted professionals near you
-            </p>
+            <p className="text-sm opacity-90">Trusted professionals near you</p>
           </div>
 
-          <div className="flex gap-2 pointer-events-auto">
+          <div className="flex gap-2">
             <a
               href="tel:7661045308"
-              className="px-4 py-2 bg-green-600 rounded-xl font-semibold"
+              aria-label="Call QuickSeva"
+              className="rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold"
             >
               📞 Call
             </a>
@@ -143,13 +152,14 @@ export default function Home() {
               href={`https://wa.me/7661045308?text=${whatsappMessage}`}
               target="_blank"
               rel="noreferrer"
-              className="px-4 py-2 bg-green-500 rounded-xl font-semibold"
+              aria-label="Chat on WhatsApp"
+              className="rounded-xl bg-green-500 px-4 py-2 text-sm font-semibold"
             >
               💬 WhatsApp
             </a>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* SERVICES */}
       <h2 className="mt-6 font-semibold text-gray-700 text-lg">
@@ -159,26 +169,29 @@ export default function Home() {
       {loading ? (
         <QSServiceSkeleton />
       ) : (
-        <div className="grid grid-cols-2 gap-3 mt-3">
-          {categories.map((c) => (
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          {categories.map((category) => (
             <div
-              key={c.label}
-              onClick={() => navigate(c.path)}
+              key={category.label}
+              onClick={() => navigate(category.path)}
               className="cursor-pointer bg-white rounded-2xl shadow-md 
               active:scale-95 transition-all duration-150
               border border-gray-100"
             >
-              <div className="p-4 flex flex-col items-center">
+              <div className="flex flex-col items-center p-4">
                 <img
-                  src={c.img}
-                  alt={c.label}
-                  className="w-40 h-40 object-contain"
+                  src={category.img}
+                  alt={category.label}
+                  className="h-40 w-40 object-contain"
                 />
                 <div className="mt-3 text-sm font-semibold text-gray-800">
-                  {c.label}
+                  {category.label}
                 </div>
                 <div className="mt-2 w-full">
-                  <button className="w-full py-2 rounded-xl bg-qsBlue-500 text-white text-sm font-semibold">
+                  <button
+                    type="button"
+                    className="w-full rounded-xl bg-qsBlue-500 py-2 text-sm font-semibold text-white"
+                  >
                     Book Now
                   </button>
                 </div>
