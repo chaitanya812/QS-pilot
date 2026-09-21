@@ -1,8 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+
 import { useCart } from "../utils/CartContext";
+
 import CartItem from "../components/CartItem";
-import CartFooter from "../components/CartFooter";
 
 export default function CartScreen() {
   const navigate = useNavigate();
@@ -11,46 +12,75 @@ export default function CartScreen() {
     cart,
     total,
     itemCount,
+    clearCart,
   } = useCart();
 
-  const items = Object.values(cart || {});
+  const items = Object.values(cart);
 
-  const safeTotal = Number(total) || 0;
+  const handleContinue = () => {
+    if (items.length === 0) {
+      return;
+    }
+
+    /*
+     * Cart is already stored in CartContext.
+     *
+     * Booking page will read the current cart.
+     */
+    navigate("/booking");
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
+    <div className="min-h-screen bg-slate-50 pb-32">
+
+      {/* HEADER */}
+
+      <header className="sticky top-0 z-40 bg-white border-b">
+
+        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
+
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-xl transition hover:bg-slate-200 active:scale-95"
-            aria-label="Go back"
+            className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl"
           >
             ←
           </button>
 
-          <div className="text-center">
+          <div className="flex-1">
+
+            <p className="text-xs text-slate-500">
+              QuickSeva
+            </p>
+
             <h1 className="text-lg font-bold text-slate-900">
               Your Cart
             </h1>
 
-            <p className="text-xs text-slate-500">
-              {itemCount}{" "}
-              {itemCount === 1 ? "service" : "services"}
-            </p>
           </div>
 
-          <div className="h-10 w-10" />
+          {items.length > 0 && (
+            <button
+              type="button"
+              onClick={clearCart}
+              className="text-sm text-red-500 font-semibold"
+            >
+              Clear
+            </button>
+          )}
+
         </div>
+
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 pb-32 pt-5">
+      <main className="max-w-2xl mx-auto px-4 pt-5">
+
+        {/* EMPTY */}
+
         {items.length === 0 ? (
-          /* Empty Cart */
-          <div className="flex min-h-[65vh] flex-col items-center justify-center text-center">
-            <div className="mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-sky-100 text-5xl">
+          <div className="bg-white rounded-3xl border p-8 text-center mt-8">
+
+            <div className="text-6xl mb-4">
               🛒
             </div>
 
@@ -58,125 +88,201 @@ export default function CartScreen() {
               Your cart is empty
             </h2>
 
-            <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">
-              You haven't added any services yet.
-              Choose a service and add it to your cart
-              to continue.
+            <p className="text-sm text-slate-500 mt-2">
+              Select a service to continue with your booking.
             </p>
 
             <button
               type="button"
-              onClick={() => navigate("/")}
-              className="mt-6 rounded-xl bg-sky-500 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-600 active:scale-95"
+              onClick={() => navigate("/ac")}
+              className="mt-5 px-6 py-3 rounded-xl bg-sky-500 text-white font-bold"
             >
-              Browse Services
+              Browse AC Services
             </button>
 
             <button
               type="button"
               onClick={() => navigate("/")}
-              className="mt-3 text-sm font-medium text-slate-500 hover:text-sky-600"
+              className="block mx-auto mt-3 text-sm text-sky-600 font-semibold"
             >
-              ← Back to Home
+              Go to Home
             </button>
+
           </div>
         ) : (
+
           <>
-            {/* Heading */}
+            {/* TITLE */}
+
             <div className="mb-4">
+
               <h2 className="text-xl font-bold text-slate-900">
                 Selected Services
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
-                Review your services before booking.
+              <p className="text-sm text-slate-500">
+                {itemCount}{" "}
+                {itemCount === 1
+                  ? "service"
+                  : "services"}{" "}
+                selected
               </p>
+
             </div>
 
-            {/* Items */}
+            {/* ITEMS */}
+
             <div className="space-y-3">
-              {items.map((item, index) => (
-                <div
+
+              {items.map((item) => (
+                <CartItem
                   key={
                     item.key ||
                     item.id ||
-                    item.label ||
-                    `${item.name}-${index}`
+                    item.label
                   }
-                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
-                >
-                  <CartItem item={item} />
-                </div>
+                  item={item}
+                />
               ))}
+
             </div>
 
-            {/* Price Summary */}
-            <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h3 className="mb-4 text-base font-bold text-slate-900">
+            {/* SUMMARY */}
+
+            <section className="bg-white rounded-2xl border p-5 mt-5">
+
+              <h3 className="font-bold text-slate-900 mb-4">
                 Price Summary
               </h3>
 
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">
-                    Services ({itemCount})
-                  </span>
+              <div className="flex justify-between text-sm text-slate-600">
 
-                  <span className="font-semibold text-slate-800">
-                    ₹{safeTotal.toLocaleString("en-IN")}
-                  </span>
-                </div>
+                <span>
+                  Services
+                </span>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">
-                    Service visit
-                  </span>
+                <span>
+                  ₹
+                  {Number(total).toLocaleString(
+                    "en-IN"
+                  )}
+                </span>
 
-                  <span className="font-semibold text-emerald-600">
-                    Included
-                  </span>
-                </div>
-
-                <div className="border-t border-dashed border-slate-200 pt-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900">
-                      Estimated Total
-                    </span>
-
-                    <span className="text-xl font-extrabold text-slate-900">
-                      ₹{safeTotal.toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                </div>
               </div>
+
+              <div className="flex justify-between text-sm text-slate-600 mt-2">
+
+                <span>
+                  Service charge
+                </span>
+
+                <span className="text-emerald-600">
+                  Included
+                </span>
+
+              </div>
+
+              <div className="border-t mt-4 pt-4 flex justify-between">
+
+                <span className="font-bold text-slate-900">
+                  Total
+                </span>
+
+                <span className="text-xl font-bold text-slate-900">
+                  ₹
+                  {Number(total).toLocaleString(
+                    "en-IN"
+                  )}
+                </span>
+
+              </div>
+
             </section>
 
-            {/* Trust Message */}
-            <div className="mt-4 rounded-2xl bg-sky-50 p-4">
-              <div className="flex gap-3">
-                <div className="text-xl">
+            {/* TRUST */}
+
+            <div className="grid grid-cols-3 gap-2 mt-4">
+
+              <div className="bg-white border rounded-xl p-3 text-center">
+
+                <div>
                   🛡️
                 </div>
 
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    Safe & transparent booking
-                  </p>
+                <p className="text-xs font-semibold mt-1">
+                  Verified
+                </p>
 
-                  <p className="mt-1 text-xs leading-5 text-slate-600">
-                    You'll see your booking details and
-                    technician information after
-                    confirmation.
-                  </p>
-                </div>
               </div>
+
+              <div className="bg-white border rounded-xl p-3 text-center">
+
+                <div>
+                  💰
+                </div>
+
+                <p className="text-xs font-semibold mt-1">
+                  Clear Price
+                </p>
+
+              </div>
+
+              <div className="bg-white border rounded-xl p-3 text-center">
+
+                <div>
+                  ⭐
+                </div>
+
+                <p className="text-xs font-semibold mt-1">
+                  Trusted
+                </p>
+
+              </div>
+
             </div>
+
           </>
         )}
+
       </main>
 
-      {/* Bottom Footer */}
-      {items.length > 0 && <CartFooter />}
+      {/* CHECKOUT BAR */}
+
+      {items.length > 0 && (
+
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-2xl">
+
+          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+
+            <div className="flex-1">
+
+              <p className="text-xs text-slate-500">
+                Total
+              </p>
+
+              <p className="text-xl font-bold text-slate-900">
+                ₹
+                {Number(total).toLocaleString(
+                  "en-IN"
+                )}
+              </p>
+
+            </div>
+
+            <button
+              type="button"
+              onClick={handleContinue}
+              className="px-6 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold shadow-sm"
+            >
+              Continue →
+            </button>
+
+          </div>
+
+        </div>
+
+      )}
+
     </div>
   );
 }

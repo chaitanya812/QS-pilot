@@ -259,7 +259,17 @@ export default function App() {
         />
 
         <Route
+          path="/bike-car"
+          element={<BikeCarService />}
+        />
+
+        <Route
           path="/beauty"
+          element={<BeautySalon />}
+        />
+
+        <Route
+          path="/beauty-salon"
           element={<BeautySalon />}
         />
 
@@ -301,6 +311,12 @@ export default function App() {
         <Route
           path="/service-detail"
           element={<ServiceDetail />}
+        />
+
+
+        <Route
+          path="/view-cart"
+          element={<Navigate to="/cart" replace />}
         />
 
 

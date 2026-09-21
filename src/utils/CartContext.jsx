@@ -10,71 +10,133 @@ const CartContext = createContext(null);
 
 const CART_STORAGE_KEY = "quickseva_cart";
 
-/**
- * Safely convert a value to a positive number.
- */
+/* =========================================================
+   HELPERS
+========================================================= */
+
 const toNumber = (value) => {
+  if (typeof value === "string") {
+    const cleaned = value.replace(/[₹,\s]/g, "");
+    const number = Number(cleaned);
+
+    return Number.isFinite(number) ? number : 0;
+  }
+
   const number = Number(value);
+
   return Number.isFinite(number) ? number : 0;
 };
 
-/**
- * Create a stable key for a cart item.
- * We prefer id/key, then label/name.
- */
+const normalizeQty = (value) => {
+  const qty = Math.floor(toNumber(value));
+
+  return qty > 0 ? qty : 1;
+};
+
 const getItemKey = (item) => {
   if (!item) return null;
 
-  return String(
+  const key =
     item.id ||
-      item.key ||
-      item.serviceId ||
-      item.label ||
-      item.name ||
-      ""
-  ).trim();
+    item.serviceId ||
+    item.key ||
+    item.label ||
+    item.name ||
+    item.title;
+
+  if (!key) return null;
+
+  return String(key).trim();
 };
 
-/**
- * Normalize an item before putting it into the cart.
- */
 const normalizeItem = (item) => {
   if (!item) return null;
 
   const label = String(
-    item.label || item.name || item.title || "Service"
+    item.label ||
+      item.name ||
+      item.title ||
+      item.subService ||
+      "Service"
   ).trim();
-
-  const price = toNumber(
-    item.price ?? item.amount ?? item.servicePrice ?? 0
-  );
-
-  const qty = Math.max(
-    1,
-    Math.floor(toNumber(item.qty ?? item.quantity ?? 1))
-  );
 
   const key = getItemKey({
     ...item,
     label,
   });
 
-  if (!key) return null;
+  if (!key) {
+    return null;
+  }
+
+  const price = toNumber(
+    item.price ??
+      item.amount ??
+      item.servicePrice ??
+      0
+  );
+
+  const qty = normalizeQty(
+    item.qty ??
+      item.quantity ??
+      1
+  );
 
   return {
     ...item,
+
+    id: item.id || key,
     key,
+
     label,
     name: item.name || label,
+
     price,
     qty,
   };
 };
 
+const normalizeCart = (savedCart) => {
+  if (!savedCart || typeof savedCart !== "object") {
+    return {};
+  }
+
+  const normalizedCart = {};
+
+  Object.values(savedCart).forEach((item) => {
+    const normalized = normalizeItem(item);
+
+    if (!normalized) {
+      return;
+    }
+
+    const existing = normalizedCart[normalized.key];
+
+    if (existing) {
+      normalizedCart[normalized.key] = {
+        ...existing,
+        qty:
+          normalizeQty(existing.qty) +
+          normalizeQty(normalized.qty),
+      };
+    } else {
+      normalizedCart[normalized.key] = normalized;
+    }
+  });
+
+  return normalizedCart;
+};
+
+/* =========================================================
+   CART PROVIDER
+========================================================= */
+
 export function CartProvider({ children }) {
   const [cart, setCart] = useState(() => {
     try {
-      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+      const savedCart = localStorage.getItem(
+        CART_STORAGE_KEY
+      );
 
       if (!savedCart) {
         return {};
@@ -82,30 +144,21 @@ export function CartProvider({ children }) {
 
       const parsed = JSON.parse(savedCart);
 
-      if (!parsed || typeof parsed !== "object") {
-        return {};
-      }
-
-      const normalizedCart = {};
-
-      Object.values(parsed).forEach((item) => {
-        const normalized = normalizeItem(item);
-
-        if (normalized) {
-          normalizedCart[normalized.key] = normalized;
-        }
-      });
-
-      return normalizedCart;
+      return normalizeCart(parsed);
     } catch (error) {
-      console.error("Unable to load cart:", error);
+      console.error(
+        "QuickSeva: Unable to load cart",
+        error
+      );
+
       return {};
     }
   });
 
-  /**
-   * Save cart whenever it changes.
-   */
+  /* =======================================================
+     SAVE CART
+  ======================================================= */
+
   useEffect(() => {
     try {
       localStorage.setItem(
@@ -113,34 +166,43 @@ export function CartProvider({ children }) {
         JSON.stringify(cart)
       );
     } catch (error) {
-      console.error("Unable to save cart:", error);
+      console.error(
+        "QuickSeva: Unable to save cart",
+        error
+      );
     }
   }, [cart]);
 
-  /**
-   * Add service to cart.
-   *
-   * If the service already exists, quantity increases.
-   * IMPORTANT: We preserve the existing price instead of replacing
-   * it with a default price.
-   */
+  /* =======================================================
+     ADD ITEM
+  ======================================================= */
+
   const addItem = (item) => {
     const normalized = normalizeItem(item);
 
     if (!normalized) {
-      console.warn("Invalid cart item:", item);
-      return;
+      console.warn(
+        "QuickSeva: Invalid cart item",
+        item
+      );
+
+      return null;
     }
 
     setCart((currentCart) => {
-      const existing = currentCart[normalized.key];
+      const existing =
+        currentCart[normalized.key];
 
       if (existing) {
         return {
           ...currentCart,
+
           [normalized.key]: {
             ...existing,
-            qty: existing.qty + 1,
+
+            qty:
+              normalizeQty(existing.qty) +
+              normalizeQty(normalized.qty),
           },
         };
       }
@@ -150,11 +212,14 @@ export function CartProvider({ children }) {
         [normalized.key]: normalized,
       };
     });
+
+    return normalized.key;
   };
 
-  /**
-   * Decrease quantity.
-   */
+  /* =======================================================
+     DECREASE ITEM
+  ======================================================= */
+
   const decreaseItem = (itemKey) => {
     const key = String(itemKey || "").trim();
 
@@ -167,25 +232,35 @@ export function CartProvider({ children }) {
         return currentCart;
       }
 
-      if (existing.qty <= 1) {
-        const updatedCart = { ...currentCart };
+      const currentQty = normalizeQty(
+        existing.qty
+      );
+
+      if (currentQty <= 1) {
+        const updatedCart = {
+          ...currentCart,
+        };
+
         delete updatedCart[key];
+
         return updatedCart;
       }
 
       return {
         ...currentCart,
+
         [key]: {
           ...existing,
-          qty: existing.qty - 1,
+          qty: currentQty - 1,
         },
       };
     });
   };
 
-  /**
-   * Remove item completely.
-   */
+  /* =======================================================
+     REMOVE ITEM
+  ======================================================= */
+
   const removeItem = (itemKey) => {
     const key = String(itemKey || "").trim();
 
@@ -196,21 +271,28 @@ export function CartProvider({ children }) {
         return currentCart;
       }
 
-      const updatedCart = { ...currentCart };
+      const updatedCart = {
+        ...currentCart,
+      };
+
       delete updatedCart[key];
 
       return updatedCart;
     });
   };
 
-  /**
-   * Set exact quantity.
-   */
+  /* =======================================================
+     SET QUANTITY
+  ======================================================= */
+
   const setItemQty = (itemKey, quantity) => {
     const key = String(itemKey || "").trim();
-    const qty = Math.floor(toNumber(quantity));
 
     if (!key) return;
+
+    const qty = Math.floor(
+      toNumber(quantity)
+    );
 
     setCart((currentCart) => {
       const existing = currentCart[key];
@@ -220,13 +302,18 @@ export function CartProvider({ children }) {
       }
 
       if (qty <= 0) {
-        const updatedCart = { ...currentCart };
+        const updatedCart = {
+          ...currentCart,
+        };
+
         delete updatedCart[key];
+
         return updatedCart;
       }
 
       return {
         ...currentCart,
+
         [key]: {
           ...existing,
           qty,
@@ -235,53 +322,84 @@ export function CartProvider({ children }) {
     });
   };
 
-  /**
-   * Clear entire cart.
-   */
+  /* =======================================================
+     CLEAR CART
+  ======================================================= */
+
   const clearCart = () => {
     setCart({});
   };
 
-  /**
-   * Always calculate the total from current cart data.
-   * There is NO hard-coded ₹2400 here.
-   */
+  /* =======================================================
+     TOTAL
+  ======================================================= */
+
   const total = useMemo(() => {
-    return Object.values(cart).reduce((sum, item) => {
-      const price = toNumber(item.price);
-      const qty = toNumber(item.qty);
-
-      return sum + price * qty;
-    }, 0);
-  }, [cart]);
-
-  /**
-   * Total number of services.
-   */
-  const itemCount = useMemo(() => {
     return Object.values(cart).reduce(
-      (sum, item) => sum + toNumber(item.qty),
+      (sum, item) => {
+        const price = toNumber(item.price);
+        const qty = normalizeQty(item.qty);
+
+        return sum + price * qty;
+      },
       0
     );
   }, [cart]);
 
-  /**
-   * Number of different service types.
-   */
+  /* =======================================================
+     ITEM COUNT
+  ======================================================= */
+
+  const itemCount = useMemo(() => {
+    return Object.values(cart).reduce(
+      (sum, item) => {
+        return sum + normalizeQty(item.qty);
+      },
+      0
+    );
+  }, [cart]);
+
+  /* =======================================================
+     UNIQUE ITEM COUNT
+  ======================================================= */
+
   const uniqueItemCount = useMemo(() => {
     return Object.keys(cart).length;
   }, [cart]);
 
+  /* =======================================================
+     ITEMS ARRAY
+  ======================================================= */
+
+  const items = useMemo(() => {
+    return Object.values(cart);
+  }, [cart]);
+
+  /* =======================================================
+     EMPTY
+  ======================================================= */
+
+  const isEmpty = uniqueItemCount === 0;
+
+  /* =======================================================
+     CONTEXT VALUE
+  ======================================================= */
+
   const value = {
     cart,
+    items,
+
     addItem,
     decreaseItem,
     removeItem,
     setItemQty,
     clearCart,
+
     total,
     itemCount,
     uniqueItemCount,
+
+    isEmpty,
   };
 
   return (
@@ -290,6 +408,10 @@ export function CartProvider({ children }) {
     </CartContext.Provider>
   );
 }
+
+/* =========================================================
+   HOOK
+========================================================= */
 
 export function useCart() {
   const context = useContext(CartContext);

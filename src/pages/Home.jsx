@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 // UI
 import QSBottomNav from "../UI/QSBottomNav.jsx";
@@ -25,6 +26,15 @@ import imgAC from "../assets/ac service.png";
 import imgWashing from "../assets/washing service.png";
 import imgFridge from "../assets/Fridge service.png";
 import imgCarpenter from "../assets/carpenter service.png";
+
+// Images for services that did not have local assets yet.
+// These are used in both the Popular Services cards and the rotating banner.
+const beautyServiceImage =
+  "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=900&q=85";
+
+const bikeCarServiceImage =
+  "https://images.unsplash.com/photo-1558980664-10e5a4f75c2f?auto=format&fit=crop&w=900&q=85";
+
 
 export default function Home() {
   const navigate = useNavigate();
@@ -186,6 +196,44 @@ export default function Home() {
           "cupboard",
           "wardrobe",
           "woodwork",
+        ],
+      },
+      {
+        label: "Beauty Salon",
+        shortLabel: "Beauty & Salon",
+        icon: "💄",
+        img: beautyServiceImage,
+        path: "/beauty-salon",
+        bannerImg: beautyServiceImage,
+        keywords: [
+          "beauty",
+          "salon",
+          "hair",
+          "makeup",
+          "beauty service",
+          "haircut",
+          "facial",
+          "treatment",
+        ],
+      },
+      {
+        label: "Bike & Car Service",
+        shortLabel: "Bike & Car",
+        icon: "🚗",
+        img: bikeCarServiceImage,
+        path: "/bike-car",
+        bannerImg: bikeCarServiceImage,
+        keywords: [
+          "bike",
+          "car",
+          "vehicle",
+          "servicing",
+          "maintenance",
+          "repair",
+          "tire",
+          "oil",
+          "brake",
+          "ground",
         ],
       },
     ],
@@ -617,7 +665,7 @@ export default function Home() {
         ========================================== */}
         <section className="mt-5">
           <div
-            className="relative w-full h-44 sm:h-48 rounded-2xl overflow-hidden shadow-md"
+            className="relative w-full h-44 sm:h-48 rounded-2xl overflow-hidden shadow-md bg-gray-200"
             style={{
               backgroundImage: `url("${activeBanner.bannerImg}")`,
               backgroundSize: "cover",
@@ -703,8 +751,11 @@ export default function Home() {
                       <img
                         src={service.img}
                         alt={service.label}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-cover"
                         loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
                       />
                     </div>
 
