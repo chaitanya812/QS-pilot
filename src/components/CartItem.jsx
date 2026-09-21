@@ -2,47 +2,82 @@ import React from "react";
 import { useCart } from "../utils/CartContext";
 
 export default function CartItem({ item }) {
-  const { addItem, decreaseItem, removeItem } = useCart();
+  const {
+    addItem,
+    decreaseItem,
+    removeItem,
+  } = useCart();
+
+  const price = Number(item?.price) || 0;
+  const qty = Number(item?.qty) || 0;
+  const itemTotal = price * qty;
+
+  const handleDecrease = () => {
+    decreaseItem(item.key || item.label);
+  };
+
+  const handleIncrease = () => {
+    addItem(item);
+  };
+
+  const handleRemove = () => {
+    removeItem(item.key || item.label);
+  };
 
   return (
-    <div className="flex justify-between items-center bg-white rounded-xl p-4 shadow-sm mb-3 border border-gray-100 hover:shadow-md transition-shadow">
-      {/* Service Info */}
-      <div className="flex-1">
-        <p className="font-semibold text-sm text-gray-900">{item.label}</p>
-        <p className="text-gray-500 text-xs mt-1">₹{item.price} × {item.qty} = ₹{item.price * item.qty}</p>
+    <div className="flex items-center gap-3 rounded-2xl bg-white p-4">
+      {/* Service Icon */}
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-2xl">
+        🛠️
       </div>
 
-      {/* Controls - Quantity Adjuster */}
-      <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1">
-        {/* Decrease Button */}
+      {/* Service Details */}
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-bold text-slate-900">
+          {item?.label || item?.name || "Service"}
+        </p>
+
+        <p className="mt-1 text-xs text-slate-500">
+          ₹{price.toLocaleString("en-IN")} × {qty}
+        </p>
+
+        <p className="mt-1 text-sm font-extrabold text-slate-900">
+          ₹{itemTotal.toLocaleString("en-IN")}
+        </p>
+      </div>
+
+      {/* Quantity Controls */}
+      <div className="flex shrink-0 items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
         <button
-          onClick={() => decreaseItem(item.label)}
-          className="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-100 active:bg-gray-200 transition-colors"
-          title="Reduce quantity"
+          type="button"
+          onClick={handleDecrease}
+          className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-lg font-bold text-slate-700 shadow-sm transition hover:bg-slate-100 active:scale-90"
+          aria-label="Decrease quantity"
         >
           −
         </button>
 
-        {/* Quantity Display */}
-        <span className="w-8 text-center font-semibold text-sm text-gray-900">
-          {item.qty}
+        <span className="w-8 text-center text-sm font-bold text-slate-900">
+          {qty}
         </span>
 
-        {/* Increase Button */}
         <button
-          onClick={() => addItem(item)}
-          className="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-100 active:bg-gray-200 transition-colors"
-          title="Add more"
+          type="button"
+          onClick={handleIncrease}
+          className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500 text-lg font-bold text-white shadow-sm transition hover:bg-sky-600 active:scale-90"
+          aria-label="Increase quantity"
         >
           +
         </button>
       </div>
 
-      {/* Trash Button - Instant Delete */}
+      {/* Delete */}
       <button
-        onClick={() => removeItem(item.label)}
-        className="ml-3 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors active:bg-red-100"
-        title="Remove from cart"
+        type="button"
+        onClick={handleRemove}
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-red-500 transition hover:bg-red-50 active:scale-90"
+        aria-label="Remove service"
+        title="Remove service"
       >
         🗑️
       </button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import LocationCapture from "../components/LocationCapture";
 import { useAuth } from "../context/AuthContext";
@@ -6,299 +6,740 @@ import { useCart } from "../utils/CartContext";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
-// 🔥 BEST FIRESTORE-SAFE CLEANER (reliable method)
+// ------------------------------------------------------
+// Firestore-safe cleaner
+// ------------------------------------------------------
 const firestoreSafe = (obj) =>
   JSON.parse(
-    JSON.stringify(obj, (key, value) =>
+    JSON.stringify(obj, (_, value) =>
       value === undefined ? null : value
     )
   );
 
+// ------------------------------------------------------
+// Date helper
+// ------------------------------------------------------
+const getToday = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+// ------------------------------------------------------
+// Time slots
+// ------------------------------------------------------
+const TIME_SLOTS = [
+  "08:00 AM",
+  "09:00 AM",
+  "10:00 AM",
+  "11:00 AM",
+  "12:00 PM",
+  "01:00 PM",
+  "02:00 PM",
+  "03:00 PM",
+  "04:00 PM",
+  "05:00 PM",
+  "06:00 PM",
+  "07:00 PM",
+  "08:00 PM",
+];
+
+// ------------------------------------------------------
+// Booking Page
+// ------------------------------------------------------
 export default function Booking() {
-  const location = useLocation();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const { user } = useAuth();
   const { cart } = useCart();
 
-  const [postalCode, setPostalCode] = useState("");
+  // ----------------------------------------------------
+  // Cart
+  // ----------------------------------------------------
+  const cartItems = useMemo(() => {
+    return Object.values(cart || {}).filter(Boolean);
+  }, [cart]);
 
+  const totalAmount = useMemo(() => {
+    return cartItems.reduce((sum, item) => {
+      const price = Number(item?.price) || 0;
+      const qty = Number(item?.qty) > 0 ? Number(item.qty) : 1;
+
+      return sum + price * qty;
+    }, 0);
+  }, [cartItems]);
+
+  // ----------------------------------------------------
+  // Booking state
+  // ----------------------------------------------------
+  const [postalCode, setPostalCode] = useState("");
   const [address, setAddress] = useState("");
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
+
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 🛒 Calculate cart totals dynamically
-  const cartItems = Object.values(cart);
-  const totalAmount = cartItems.reduce(
-    (sum, item) => sum + item.price * item.qty,
-    0
-  );
+  const [locationDetected, setLocationDetected] = useState(false);
 
-  // 🧪 TEST FIRESTORE ON MOUNT
-  useEffect(() => {
-    console.log("🔧 Booking page mounted - Testing Firebase...");
-    console.log("📦 DB Object:", db);
-    
-    if (db._databaseId) {
-      const projectId = db._databaseId.projectId;
-      console.log("✅ Firebase ProjectID DETECTED:", projectId);
-      console.log("Expected ProjectID: quickseva-c0c49");
-      
-      if (projectId !== "quickseva-c0c49") {
-        console.error("❌ WRONG ProjectID! Got:", projectId);
-        setError(`❌ WRONG Firebase Project: ${projectId}\n\nMake sure .env file has correct credentials and dev server was restarted.`);
-      } else {
-        console.log("✅✅ ProjectID matches! Firebase is configured correctly.");
-      }
-    }
-  }, []);
+  // Optional information passed from previous page
+  const problem =
+    location?.state?.problem ||
+    location?.state?.description ||
+    "";
 
-  const handleSubmit = async () => {
-    // ✅ VALIDATION
-    if (cartItems.length === 0) {
-      alert("Please add services to cart first");
-      return;
-    }
-    if (!address) {
-      alert("Please detect your location");
-      return;
-    }
-    if (!date) {
-      alert("Please select a date");
-      return;
-    }
-    if (!time) {
-      alert("Please select time");
-      return;
-    }
-    if (!postalCode || postalCode.trim().length < 3) {
-      alert("Please confirm your postal code");
-      return;
+  // ----------------------------------------------------
+  // Location callback
+  // ----------------------------------------------------
+  const handleLocationDetected = (data) => {
+    if (!data) return;
+
+    setAddress(data.address || "");
+    setLatitude(data.latitude ?? null);
+    setLongitude(data.longitude ?? null);
+
+    if (data.postalCode) {
+      setPostalCode(String(data.postalCode));
     }
 
-    // ✅ CHECK USER AUTHENTICATION
+    // Keep existing LocationCapture behavior.
+    // If it provides a time, use it.
+    if (data.time) {
+      setTime(data.time);
+    }
+
+    setLocationDetected(true);
+    setError("");
+  };
+
+  // ----------------------------------------------------
+  // Validation
+  // ----------------------------------------------------
+  const validateBooking = () => {
     if (!user) {
-      alert("❌ You must be logged in to book a service");
-      setError("User not authenticated. Please log in again.");
+      return "Please login before booking a service.";
+    }
+
+    if (cartItems.length === 0) {
+      return "Your cart is empty. Please add a service first.";
+    }
+
+    if (!address.trim()) {
+      return "Please confirm your service location.";
+    }
+
+    if (!date) {
+      return "Please select your preferred service date.";
+    }
+
+    if (!time) {
+      return "Please select your preferred service time.";
+    }
+
+    if (!postalCode.trim()) {
+      return "Please enter your postal code.";
+    }
+
+    return "";
+  };
+
+  // ----------------------------------------------------
+  // Create booking
+  // ----------------------------------------------------
+  const handleSubmit = async () => {
+    setError("");
+
+    const validationError = validateBooking();
+
+    if (validationError) {
+      setError(validationError);
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+      return;
+    }
+
+    if (!navigator.onLine) {
+      setError(
+        "You appear to be offline. Please check your internet connection and try again."
+      );
       return;
     }
 
     setIsLoading(true);
-    setError("");
 
     try {
-      console.log("🔐 User info:", { uid: user?.uid, phone: user?.phone, name: user?.name });
-      console.log("📦 DB instance:", db);
-      console.log("🌐 Navigator online:", navigator.onLine);
-      
-      // 🧪 CHECK FIREBASE CONFIG
-      if (db._databaseId?.projectId) {
-        console.log("✅ Firebase ProjectID:", db._databaseId.projectId);
-        if (db._databaseId.projectId !== "quickseva-c0c49") {
-          console.warn("⚠️ ProjectID mismatch! Expected: quickseva-c0c49, Got:", db._databaseId.projectId);
-        }
-      } else {
-        console.error("❌ Firebase ProjectID not found - Config might be missing!");
-      }
+      // ----------------------------------------------
+      // Convert cart into clean booking items
+      // ----------------------------------------------
+      const bookingItems = cartItems.map((item) => {
+        const price = Number(item?.price) || 0;
+        const qty =
+          Number(item?.qty) > 0 ? Number(item.qty) : 1;
 
-      // 🛒 Convert cart to booking items
-      const bookingItems = cartItems.map((item) => ({
-        label: item.label || "Service",
-        price: typeof item.price === "number" ? item.price : 0,
-        qty: typeof item.qty === "number" && item.qty > 0 ? item.qty : 1,
-        subtotal: (typeof item.price === "number" ? item.price : 0) * (typeof item.qty === "number" && item.qty > 0 ? item.qty : 1),
-      }));
+        return {
+          label: item?.label || item?.name || "Service",
+          price,
+          qty,
+          subtotal: price * qty,
+        };
+      });
 
+      // ----------------------------------------------
+      // Booking data
+      // ----------------------------------------------
       const rawBookingData = {
-        userId: user?.uid || "anonymous",
-        userName: user?.name || "Guest",
+        userId: user?.uid || null,
+        userName:
+          user?.name ||
+          user?.displayName ||
+          "Customer",
         phone: user?.phone || null,
+
         items: bookingItems,
-        totalAmount: totalAmount,
+
+        totalAmount,
+
         address: address.trim(),
-        latitude: latitude ?? null,
-        longitude: longitude ?? null,
-        date: date,
-        time: time.trim(),
+        latitude:
+          latitude !== null ? Number(latitude) : null,
+        longitude:
+          longitude !== null ? Number(longitude) : null,
+
         postalCode: postalCode.trim(),
+
+        date,
+        time: time.trim(),
+
         status: "Pending",
+
+        // Useful for admin / technician flow
+        technicianId: null,
+        technicianName: null,
+        technicianPhone: null,
+        technicianPhoto: null,
+        technicianRating: null,
+
+        // Optional problem description
+        problem: problem
+          ? String(problem).trim()
+          : null,
+
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
 
-      // 🔥 CRITICAL LINE — this guarantees Firestore acceptance
       const bookingData = firestoreSafe(rawBookingData);
 
-      console.log("📤 FINAL DATA TO FIRESTORE:", bookingData);
-      console.log("🔥 Firebase DB instance:", db);
+      console.log("Creating booking:", bookingData);
 
-      // ✅ ADD TO FIRESTORE WITH TIMEOUT
-      console.log("⏳ Starting Firestore write...");
-      
-      const submitPromise = addDoc(collection(db, "bookings"), bookingData);
-      
-      // Set a 20-second timeout
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Firestore write timeout (20s) - Check your internet connection and Firebase configuration")), 20000)
+      // ----------------------------------------------
+      // Save to Firestore
+      // ----------------------------------------------
+      const bookingRef = await addDoc(
+        collection(db, "bookings"),
+        bookingData
       );
 
-      const docRef = await Promise.race([submitPromise, timeoutPromise]);
-      
-      console.log("✅ Booking saved with ID:", docRef.id);
+      console.log(
+        "Booking successfully created:",
+        bookingRef.id
+      );
 
-      // ✅ NAVIGATE WITH STATE
-      const saved = { id: docRef.id, ...bookingData };
-      console.log("🚀 Navigating to booking-success with state:", saved);
-      
-      setIsLoading(false);
-      navigate("/booking-success", { state: saved });
+      // ----------------------------------------------
+      // Data passed to BookingSuccess
+      // ----------------------------------------------
+      const savedBooking = {
+        id: bookingRef.id,
+        ...bookingData,
+      };
+
+      // ----------------------------------------------
+      // Navigate
+      // ----------------------------------------------
+      navigate("/booking-success", {
+        state: savedBooking,
+      });
     } catch (err) {
-      console.error("❌ Firestore Error:", err);
-      console.error("Error Code:", err.code);
-      console.error("Error Message:", err.message);
-      console.error("Full Error Object:", err);
-      
-      let errorMsg = `Failed to save booking: ${err.message}`;
-      
-      // Check if browser is offline
+      console.error("Booking creation failed:", err);
+
+      let message =
+        "We couldn't create your booking. Please try again.";
+
       if (!navigator.onLine) {
-        errorMsg = "❌ YOU ARE OFFLINE\n\nPlease check your internet connection and try again.";
-      } else if (err.message.includes("client is offline")) {
-        errorMsg = "❌ FIREBASE OFFLINE\n\nPossible causes:\n• Your internet connection is unstable\n• Firebase servers are unreachable\n• Check your network and try again";
-      } else if (err.message.includes("timeout")) {
-        errorMsg = "❌ REQUEST TIMEOUT\n\nFirestore is taking too long to respond.\n• Check your internet connection\n• Verify Firebase credentials in .env file\n• Try again in a moment";
-      } else if (err.code === "permission-denied") {
-        errorMsg = "❌ Permission Denied\n\nFirestore security rules don't allow this write.\n\nContact your admin to check Firestore rules.";
-      } else if (err.code === "unavailable") {
-        errorMsg = "❌ Service Unavailable\n\nFirebase is temporarily down. Please try again later.";
-      } else if (err.code === "unauthenticated") {
-        errorMsg = "❌ Not Authenticated\n\nPlease log in again and try.";
-      } else if (err.code === "invalid-argument") {
-        errorMsg = "❌ Invalid Data\n\nThe booking data format is incorrect.";
+        message =
+          "You are offline. Please check your internet connection.";
+      } else if (err?.code === "permission-denied") {
+        message =
+          "Booking permission was denied. Please check your Firebase security rules.";
+      } else if (err?.code === "unauthenticated") {
+        message =
+          "Your login session has expired. Please login again.";
+      } else if (err?.code === "unavailable") {
+        message =
+          "Firebase is temporarily unavailable. Please try again in a moment.";
+      } else if (
+        err?.code === "invalid-argument"
+      ) {
+        message =
+          "Some booking information is invalid. Please check your details.";
+      } else if (err?.message) {
+        message = `Booking failed: ${err.message}`;
       }
-      
-      setError(errorMsg);
+
+      setError(message);
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    } finally {
       setIsLoading(false);
-      
-      // Also show alert for immediate feedback
-      alert(errorMsg);
     }
   };
 
-  return (
-    <div className="p-4 pb-24 bg-gray-50 min-h-screen">
-      <h1 className="text-xl font-bold mb-3">Book Service</h1>
+  // ----------------------------------------------------
+  // Empty cart screen
+  // ----------------------------------------------------
+  if (cartItems.length === 0) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-5">
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-sm border border-slate-200 p-7 text-center">
+          <div className="w-20 h-20 mx-auto rounded-full bg-sky-50 flex items-center justify-center text-4xl">
+            🛒
+          </div>
 
-      {/* ⚠️ ERROR DISPLAY */}
-      {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-          <p className="font-semibold">⚠️ Error</p>
-          <p className="text-sm mt-1">{error}</p>
+          <h1 className="text-2xl font-bold text-slate-900 mt-5">
+            Your cart is empty
+          </h1>
+
+          <p className="text-slate-500 mt-2 leading-relaxed">
+            Add a service first and then continue
+            with your booking.
+          </p>
+
           <button
-            onClick={() => setError("")}
-            className="mt-2 text-sm underline"
+            onClick={() => navigate("/")}
+            className="w-full mt-6 py-3.5 rounded-2xl bg-sky-500 hover:bg-sky-600 text-white font-bold transition active:scale-[0.98]"
           >
-            Dismiss
+            Browse Services
+          </button>
+
+          <button
+            onClick={() => navigate(-1)}
+            className="w-full mt-3 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition"
+          >
+            Go Back
           </button>
         </div>
-      )}
+      </div>
+    );
+  }
 
-      {/* 🛒 CART SUMMARY */}
-      {cartItems.length > 0 && (
-        <div className="bg-white p-3 rounded-xl shadow mb-4">
-          <h2 className="font-semibold mb-2">Your Cart</h2>
+  // ----------------------------------------------------
+  // Main UI
+  // ----------------------------------------------------
+  return (
+    <div className="min-h-screen bg-slate-50 pb-32">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-xl transition"
+            aria-label="Go back"
+          >
+            ←
+          </button>
 
-          {cartItems.map((i, idx) => (
-            <div key={idx} className="flex justify-between text-sm mb-1">
-              <span>
-                {i.label} × {i.qty}
-              </span>
-              <span>₹{(i.price || 0) * (i.qty || 1)}</span>
-            </div>
-          ))}
+          <div className="flex-1">
+            <h1 className="font-bold text-slate-900">
+              Book Your Service
+            </h1>
 
-          <hr className="my-2" />
+            <p className="text-xs text-slate-500">
+              Just a few details and you're done
+            </p>
+          </div>
 
-          <div className="flex justify-between font-bold">
-            <span>Total</span>
-            <span>₹{totalAmount}</span>
+          <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center">
+            📋
           </div>
         </div>
-      )}
+      </header>
 
-      {/* DATE */}
-      <div>
-        <label className="text-sm block mb-1">Preferred Service Date</label>
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="w-full border p-2 rounded mb-2 bg-white"
-          min={new Date().toISOString().split("T")[0]}
-        />
-      </div>
+      <main className="max-w-2xl mx-auto px-4 pt-5">
+        {/* Progress */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
+          <div className="flex items-center justify-between text-xs font-semibold">
+            <span className="text-sky-600">
+              1. Service
+            </span>
 
-      <LocationCapture
-        onLocationDetected={(data) => {
-          setAddress(data.address || "");
-          setLatitude(data.latitude ?? null);
-          setLongitude(data.longitude ?? null);
-          setTime(data.time || "");
-          if (data.postalCode) setPostalCode(data.postalCode);
-        }}
-      />
+            <span className="text-sky-600">
+              2. Details
+            </span>
 
-      {address && (
-        <div className="mt-4 p-3 rounded bg-green-50 border border-green-200 text-sm">
-          <p>
-            📍 <b>Address:</b> {address}
-          </p>
-          {time && (
-            <p>
-              🕒 <b>Time:</b> {time}
+            <span className="text-slate-400">
+              3. Confirmation
+            </span>
+          </div>
+
+          <div className="h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
+            <div className="h-full w-2/3 bg-sky-500 rounded-full" />
+          </div>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4">
+            <div className="flex gap-3">
+              <div className="text-xl">⚠️</div>
+
+              <div className="flex-1">
+                <p className="font-bold text-red-800">
+                  Something needs your attention
+                </p>
+
+                <p className="text-sm text-red-700 mt-1 whitespace-pre-line">
+                  {error}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setError("")}
+                className="text-red-500 font-bold"
+                aria-label="Dismiss error"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Customer */}
+        <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 mb-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-11 h-11 rounded-2xl bg-sky-50 flex items-center justify-center text-xl">
+              👤
+            </div>
+
+            <div>
+              <h2 className="font-bold text-slate-900">
+                Customer Details
+              </h2>
+
+              <p className="text-xs text-slate-500">
+                Booking will be created for this account
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="font-semibold text-slate-900">
+              {user?.name ||
+                user?.displayName ||
+                "Customer"}
             </p>
+
+            {user?.phone && (
+              <p className="text-sm text-slate-500 mt-1">
+                📱 {user.phone}
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* Cart */}
+        <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="font-bold text-slate-900">
+                Selected Services
+              </h2>
+
+              <p className="text-xs text-slate-500 mt-1">
+                {cartItems.length} service
+                {cartItems.length !== 1 ? "s" : ""}
+              </p>
+            </div>
+
+            <span className="px-3 py-1.5 rounded-full bg-sky-50 text-sky-700 text-xs font-bold">
+              {cartItems.length} item
+              {cartItems.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {cartItems.map((item, index) => {
+              const price =
+                Number(item?.price) || 0;
+
+              const qty =
+                Number(item?.qty) > 0
+                  ? Number(item.qty)
+                  : 1;
+
+              return (
+                <div
+                  key={`${item?.label || "service"}-${index}`}
+                  className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50"
+                >
+                  <div className="min-w-0">
+                    <p className="font-semibold text-slate-800 truncate">
+                      {item?.label ||
+                        item?.name ||
+                        "Service"}
+                    </p>
+
+                    <p className="text-xs text-slate-500 mt-1">
+                      ₹{price} × {qty}
+                    </p>
+                  </div>
+
+                  <p className="font-bold text-slate-900 whitespace-nowrap">
+                    ₹{price * qty}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="border-t border-slate-200 mt-4 pt-4 flex justify-between items-center">
+            <span className="font-bold text-slate-700">
+              Total
+            </span>
+
+            <span className="text-xl font-extrabold text-slate-900">
+              ₹{totalAmount}
+            </span>
+          </div>
+        </section>
+
+        {/* Location */}
+        <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 mb-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center text-xl">
+              📍
+            </div>
+
+            <div>
+              <h2 className="font-bold text-slate-900">
+                Service Location
+              </h2>
+
+              <p className="text-xs text-slate-500 mt-1">
+                Where should our technician visit?
+              </p>
+            </div>
+          </div>
+
+          <LocationCapture
+            onLocationDetected={
+              handleLocationDetected
+            }
+          />
+
+          {locationDetected && address && (
+            <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+              <div className="flex gap-3">
+                <span className="text-xl">
+                  ✅
+                </span>
+
+                <div className="flex-1">
+                  <p className="font-bold text-emerald-800">
+                    Location detected
+                  </p>
+
+                  <p className="text-sm text-emerald-700 mt-1 leading-relaxed">
+                    {address}
+                  </p>
+                </div>
+              </div>
+
+              {/* Postal Code */}
+              <div className="mt-4">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Postal Code
+                </label>
+
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={10}
+                  value={postalCode}
+                  onChange={(e) =>
+                    setPostalCode(
+                      e.target.value.replace(
+                        /\D/g,
+                        ""
+                      )
+                    )
+                  }
+                  placeholder="Enter postal code"
+                  className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition"
+                />
+              </div>
+            </div>
           )}
-          <div className="mt-2">
-            <label className="text-sm block mb-1">
-              Postal Code (confirm/edit)
+        </section>
+
+        {/* Date & Time */}
+        <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 mb-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-11 h-11 rounded-2xl bg-violet-50 flex items-center justify-center text-xl">
+              🗓️
+            </div>
+
+            <div>
+              <h2 className="font-bold text-slate-900">
+                Schedule Service
+              </h2>
+
+              <p className="text-xs text-slate-500 mt-1">
+                Choose when you want the service
+              </p>
+            </div>
+          </div>
+
+          {/* Date */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Preferred Date
             </label>
+
             <input
-              value={postalCode}
-              onChange={(e) => setPostalCode(e.target.value)}
-              className="w-40 border p-2 rounded bg-white"
-              placeholder="Postal code"
+              type="date"
+              value={date}
+              min={getToday()}
+              onChange={(e) =>
+                setDate(e.target.value)
+              }
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition"
             />
           </div>
-        </div>
-      )}
 
-      <div className="fixed bottom-4 left-0 right-0 px-4 z-50 sm:static sm:px-0">
-        <button
-          onClick={handleSubmit}
-          disabled={isLoading || cartItems.length === 0 || !address || !date || !time || !postalCode}
-          className={`w-full py-3 rounded text-white font-semibold transition ${
-            isLoading
-              ? "bg-gray-500 cursor-wait"
-              : cartItems.length > 0 && address && date && time && postalCode
-              ? "bg-qsBlue-500 hover:bg-qsBlue-600 active:scale-95"
-              : "bg-gray-400 cursor-not-allowed"
-          }`}
-        >
-          {isLoading ? "⏳ Processing Booking..." : "Confirm Booking"}
-        </button>
-        
-        {isLoading && (
-          <button
-            onClick={() => setIsLoading(false)}
-            className="w-full mt-2 py-2 rounded text-gray-700 bg-gray-200 hover:bg-gray-300 font-medium transition"
-          >
-            Cancel
-          </button>
+          {/* Time */}
+          <div className="mt-4">
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Preferred Time
+            </label>
+
+            <div className="grid grid-cols-3 gap-2">
+              {TIME_SLOTS.map((slot) => {
+                const selected = time === slot;
+
+                return (
+                  <button
+                    key={slot}
+                    type="button"
+                    onClick={() => setTime(slot)}
+                    className={`py-2.5 px-2 rounded-xl text-xs sm:text-sm font-semibold border transition ${
+                      selected
+                        ? "bg-sky-500 text-white border-sky-500 shadow-sm"
+                        : "bg-white text-slate-700 border-slate-200 hover:border-sky-300 hover:bg-sky-50"
+                    }`}
+                  >
+                    {slot}
+                  </button>
+                );
+              })}
+            </div>
+
+            {time && (
+              <div className="mt-3 rounded-xl bg-sky-50 px-4 py-3 text-sm text-sky-700">
+                🕒 Selected time:{" "}
+                <strong>{time}</strong>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Problem */}
+        {problem && (
+          <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-amber-50 flex items-center justify-center text-xl">
+                💬
+              </div>
+
+              <div>
+                <h2 className="font-bold text-slate-900">
+                  Problem Description
+                </h2>
+
+                <p className="text-xs text-slate-500 mt-1">
+                  Information provided by you
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
+              {problem}
+            </div>
+          </section>
         )}
+
+        {/* Booking note */}
+        <div className="rounded-2xl bg-sky-50 border border-sky-100 p-4 mb-5">
+          <div className="flex gap-3">
+            <span className="text-xl">
+              💡
+            </span>
+
+            <div>
+              <p className="font-bold text-sky-800">
+                What happens next?
+              </p>
+
+              <p className="text-sm text-sky-700 mt-1 leading-relaxed">
+                Your booking will be sent to Quickly.
+                A technician can then be assigned to
+                your request and you'll be able to
+                follow the booking status.
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Bottom Booking Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur border-t border-slate-200 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]">
+        <div className="max-w-2xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-slate-500">
+              Booking Total
+            </span>
+
+            <span className="font-extrabold text-slate-900">
+              ₹{totalAmount}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isLoading}
+            className={`w-full py-3.5 rounded-2xl text-white font-bold text-base transition active:scale-[0.98] ${
+              isLoading
+                ? "bg-slate-400 cursor-wait"
+                : "bg-sky-500 hover:bg-sky-600 shadow-lg shadow-sky-500/20"
+            }`}
+          >
+            {isLoading
+              ? "⏳ Creating Booking..."
+              : "Confirm Booking →"}
+          </button>
+        </div>
       </div>
     </div>
   );
