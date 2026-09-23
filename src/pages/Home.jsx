@@ -7,6 +7,11 @@ import QSBottomNav from "../UI/QSBottomNav.jsx";
 import QSDrawer from "../UI/QSDrawer.jsx";
 import QSServiceSkeleton from "../UI/QSServiceSkeleton.jsx";
 import AppRatingPopup from "../components/AppRatingPopup";
+import {
+  detectCurrentLocation,
+  getSavedLocation,
+  saveLocation as saveSharedLocation,
+} from "../utils/locationService";
 
 // Logo
 import qsLogo from "../assets/QS logo.png";
@@ -56,12 +61,19 @@ export default function Home() {
   const [filePreview, setFilePreview] = useState("");
 
   const [showLocationBox, setShowLocationBox] = useState(false);
-  const [location, setLocation] = useState(
-    localStorage.getItem("qsLocation") || ""
+  const [locationDetails, setLocationDetails] = useState(() =>
+    getSavedLocation()
   );
-  const [locationInput, setLocationInput] = useState(
-    localStorage.getItem("qsLocation") || ""
-  );
+  const [location, setLocation] = useState(() => {
+    const saved = getSavedLocation();
+    return saved?.displayName || saved?.address || "";
+  });
+  const [locationInput, setLocationInput] = useState(() => {
+    const saved = getSavedLocation();
+    return saved?.displayName || saved?.address || "";
+  });
+  const [detectingLocation, setDetectingLocation] = useState(false);
+  const [locationError, setLocationError] = useState("");
 
   const [showProblemResult, setShowProblemResult] = useState(false);
   const [detectedService, setDetectedService] = useState(null);
@@ -437,16 +449,90 @@ export default function Home() {
   // =========================
   // LOCATION
   // =========================
-  const saveLocation = () => {
-    const cleanLocation = locationInput.trim();
+  const handleAutoLocation = async ({
+    closeAfter = false,
+    silent = false,
+  } = {}) => {
+    setDetectingLocation(true);
 
-    if (!cleanLocation) {
-      alert("Please enter your service location.");
+    if (!silent) {
+      setLocationError("");
+    }
+
+    try {
+      const detected = await detectCurrentLocation();
+      const displayName =
+        detected?.displayName ||
+        detected?.address ||
+        "Current location";
+
+      setLocationDetails(detected);
+      setLocation(displayName);
+      setLocationInput(displayName);
+      setLocationError("");
+
+      if (closeAfter) {
+        setShowLocationBox(false);
+      }
+    } catch (error) {
+      console.error(
+        "QuickSeva: GPS location error",
+        error
+      );
+
+      setLocationError(
+        error?.message ||
+          "Unable to detect your location. Please try again."
+      );
+    } finally {
+      setDetectingLocation(false);
+    }
+  };
+
+  // Automatically detect the location once on the homepage when
+  // there is no saved location. The customer can still change it.
+  useEffect(() => {
+    const saved = getSavedLocation();
+
+    if (saved) {
+      const displayName =
+        saved.displayName || saved.address || "";
+      setLocationDetails(saved);
+      setLocation(displayName);
+      setLocationInput(displayName);
       return;
     }
 
-    localStorage.setItem("qsLocation", cleanLocation);
+    handleAutoLocation({ silent: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const saveManualLocation = () => {
+    const cleanLocation = locationInput.trim();
+
+    if (!cleanLocation) {
+      setLocationError("Please enter your service location.");
+      return;
+    }
+
+    const saved = saveSharedLocation({
+      address: cleanLocation,
+      displayName: cleanLocation,
+      addressLine1: "",
+      addressLine2: cleanLocation,
+      landmark: "",
+      city: "",
+      postalCode: "",
+      latitude: null,
+      longitude: null,
+      accuracy: null,
+      source: "manual",
+    });
+
+    setLocationDetails(saved);
     setLocation(cleanLocation);
+    setLocationInput(cleanLocation);
+    setLocationError("");
     setShowLocationBox(false);
   };
 
@@ -502,7 +588,9 @@ export default function Home() {
               className="text-xs text-gray-500 mt-0.5 max-w-full truncate"
             >
               📍{" "}
-              {location
+              {detectingLocation
+                ? "Detecting your location..."
+                : location
                 ? location
                 : "Add your service location"}
             </button>
@@ -549,7 +637,9 @@ export default function Home() {
             </p>
 
             <p className="font-semibold text-sm truncate">
-              {location || "Add your location"}
+              {detectingLocation
+                ? "Detecting your location..."
+                : location || "Add your location"}
             </p>
           </div>
 
@@ -979,7 +1069,7 @@ export default function Home() {
       ========================================== */}
       {showLocationBox && (
         <div className="fixed inset-0 z-[100] bg-black/50 flex items-end sm:items-center justify-center p-3">
-          <div className="w-full max-w-md bg-white rounded-3xl p-5 shadow-2xl">
+          <div className="w-full max-w-md bg-white rounded-3xl p-5 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold">
@@ -987,7 +1077,7 @@ export default function Home() {
                 </h2>
 
                 <p className="text-xs text-gray-500 mt-1">
-                  Where should the service provider come?
+                  We use your location to find nearby professionals.
                 </p>
               </div>
 
@@ -1001,21 +1091,103 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="mt-4">
+            <button
+              type="button"
+              onClick={() =>
+                handleAutoLocation({ closeAfter: true })
+              }
+              disabled={detectingLocation}
+              className={`w-full mt-4 rounded-2xl border px-4 py-3.5 flex items-center gap-3 text-left transition ${
+                detectingLocation
+                  ? "bg-gray-100 border-gray-200"
+                  : "bg-blue-50 border-blue-100 hover:bg-blue-100"
+              }`}
+            >
+              <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center text-xl shadow-sm">
+                📍
+              </div>
+
+              <div className="flex-1">
+                <p
+                  className={`text-sm font-bold ${
+                    detectingLocation
+                      ? "text-gray-400"
+                      : "text-blue-700"
+                  }`}
+                >
+                  {detectingLocation
+                    ? "Detecting your location..."
+                    : "Use my current location"}
+                </p>
+
+                <p className="text-xs text-gray-500 mt-0.5">
+                  GPS will fill your area, city and pincode.
+                </p>
+              </div>
+
+              <span className="text-blue-600 font-bold">›</span>
+            </button>
+
+            {locationError && (
+              <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 p-3">
+                <p className="text-xs font-semibold text-red-700">
+                  ⚠️ {locationError}
+                </p>
+              </div>
+            )}
+
+            <div className="flex items-center gap-3 my-4">
+              <div className="h-px bg-gray-200 flex-1" />
+              <span className="text-[11px] font-bold text-gray-400">
+                OR ENTER MANUALLY
+              </span>
+              <div className="h-px bg-gray-200 flex-1" />
+            </div>
+
+            <div>
               <label className="text-xs font-semibold text-gray-600">
-                Enter location
+                Area / Location
               </label>
 
               <input
                 type="text"
                 value={locationInput}
-                onChange={(e) =>
-                  setLocationInput(e.target.value)
-                }
+                onChange={(e) => {
+                  setLocationInput(e.target.value);
+                  setLocationError("");
+                }}
                 placeholder="Example: Kukatpally, Hyderabad"
                 className="w-full mt-2 px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-blue-500 text-sm"
               />
             </div>
+
+            {locationDetails?.latitude != null &&
+              locationDetails?.longitude != null && (
+                <div className="mt-3 rounded-2xl bg-gray-50 border border-gray-100 p-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🛰️</span>
+                    <p className="text-xs text-gray-600">
+                      GPS coordinates saved for this location
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      window.open(
+                        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                          `${locationDetails.latitude},${locationDetails.longitude}`
+                        )}`,
+                        "_blank",
+                        "noopener,noreferrer"
+                      )
+                    }
+                    className="mt-2 text-xs font-bold text-blue-600"
+                  >
+                    Open in Google Maps →
+                  </button>
+                </div>
+              )}
 
             <div className="flex gap-2 mt-4">
               <button
@@ -1028,7 +1200,7 @@ export default function Home() {
 
               <button
                 type="button"
-                onClick={saveLocation}
+                onClick={saveManualLocation}
                 className="flex-1 py-3 rounded-xl bg-blue-600 text-white font-semibold text-sm"
               >
                 Save Location

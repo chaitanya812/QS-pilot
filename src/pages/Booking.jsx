@@ -1,10 +1,14 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import LocationCapture from "../components/LocationCapture";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../utils/CartContext";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import {
+  detectCurrentLocation as detectGPSLocation,
+  getSavedLocation,
+  saveLocation as saveSharedLocation,
+} from "../utils/locationService";
 
 // ------------------------------------------------------
 // Firestore-safe cleaner
@@ -76,10 +80,34 @@ export default function Booking() {
   // ----------------------------------------------------
   // Booking state
   // ----------------------------------------------------
-  const [postalCode, setPostalCode] = useState("");
-  const [address, setAddress] = useState("");
-  const [latitude, setLatitude] = useState(null);
-  const [longitude, setLongitude] = useState(null);
+  const savedLocation = getSavedLocation();
+
+  const [postalCode, setPostalCode] = useState(
+    savedLocation?.postalCode || ""
+  );
+  const [address, setAddress] = useState(
+    savedLocation?.address ||
+      savedLocation?.displayName ||
+      ""
+  );
+  const [addressLine1, setAddressLine1] = useState(
+    savedLocation?.addressLine1 || ""
+  );
+  const [addressLine2, setAddressLine2] = useState(
+    savedLocation?.addressLine2 || ""
+  );
+  const [landmark, setLandmark] = useState(
+    savedLocation?.landmark || ""
+  );
+  const [city, setCity] = useState(
+    savedLocation?.city || ""
+  );
+  const [latitude, setLatitude] = useState(
+    savedLocation?.latitude ?? null
+  );
+  const [longitude, setLongitude] = useState(
+    savedLocation?.longitude ?? null
+  );
 
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -88,6 +116,8 @@ export default function Booking() {
   const [error, setError] = useState("");
 
   const [locationDetected, setLocationDetected] = useState(false);
+  const [detectingLocation, setDetectingLocation] = useState(false);
+  const [mapError, setMapError] = useState("");
 
   // Optional information passed from previous page
   const problem =
@@ -96,27 +126,80 @@ export default function Booking() {
     "";
 
   // ----------------------------------------------------
-  // Location callback
+  // Shared location data
   // ----------------------------------------------------
-  const handleLocationDetected = (data) => {
+  const applySavedLocation = (data) => {
     if (!data) return;
 
-    setAddress(data.address || "");
+    const detectedAddress = String(
+      data.address ||
+        data.displayName ||
+        ""
+    ).trim();
+
+    setAddress(detectedAddress);
+    setAddressLine1(String(data.addressLine1 || ""));
+    setAddressLine2(String(data.addressLine2 || ""));
+    setLandmark(String(data.landmark || ""));
+    setCity(String(data.city || ""));
+    setPostalCode(String(data.postalCode || ""));
     setLatitude(data.latitude ?? null);
     setLongitude(data.longitude ?? null);
-
-    if (data.postalCode) {
-      setPostalCode(String(data.postalCode));
-    }
-
-    // Keep existing LocationCapture behavior.
-    // If it provides a time, use it.
-    if (data.time) {
-      setTime(data.time);
-    }
-
-    setLocationDetected(true);
+    setLocationDetected(
+      data.source === "gps" &&
+        data.latitude != null &&
+        data.longitude != null
+    );
     setError("");
+    setMapError("");
+  };
+
+  useEffect(() => {
+    const saved = getSavedLocation();
+
+    if (saved) {
+      applySavedLocation(saved);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ----------------------------------------------------
+  // AUTO-DETECT CURRENT LOCATION
+  // ----------------------------------------------------
+  const detectCurrentLocation = async () => {
+    setDetectingLocation(true);
+    setMapError("");
+    setError("");
+
+    try {
+      const detected = await detectGPSLocation();
+      const saved = saveSharedLocation(detected);
+      applySavedLocation(saved);
+    } catch (locationError) {
+      console.error(
+        "Location detection error:",
+        locationError
+      );
+
+      setMapError(
+        locationError?.message ||
+          "Unable to detect your location. Please try again or enter the address manually."
+      );
+    } finally {
+      setDetectingLocation(false);
+    }
+  };
+
+  const openGoogleMaps = () => {
+    if (latitude === null || longitude === null) return;
+
+    window.open(
+      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        `${latitude},${longitude}`
+      )}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
   };
 
   // ----------------------------------------------------
@@ -131,8 +214,27 @@ export default function Booking() {
       return "Your cart is empty. Please add a service first.";
     }
 
-    if (!address.trim()) {
-      return "Please confirm your service location.";
+    const composedAddress = [
+      addressLine1,
+      addressLine2,
+      landmark ? `Landmark: ${landmark}` : "",
+      city,
+      postalCode,
+    ]
+      .filter(Boolean)
+      .join(", ")
+      .trim();
+
+    if (!composedAddress) {
+      return "Please enter your complete service address.";
+    }
+
+    if (!postalCode.trim()) {
+      return "Please enter your pincode.";
+    }
+
+    if (postalCode.trim().length !== 6) {
+      return "Please enter a valid 6-digit pincode.";
     }
 
     if (!date) {
@@ -141,10 +243,6 @@ export default function Booking() {
 
     if (!time) {
       return "Please select your preferred service time.";
-    }
-
-    if (!postalCode.trim()) {
-      return "Please enter your postal code.";
     }
 
     return "";
@@ -193,6 +291,43 @@ export default function Booking() {
         };
       });
 
+      // Keep Home and Booking on the same shared location record.
+      const finalServiceAddress = [
+        addressLine1,
+        addressLine2,
+        landmark ? `Landmark: ${landmark}` : "",
+        city,
+        postalCode,
+      ]
+        .filter(Boolean)
+        .join(", ")
+        .trim();
+
+      saveSharedLocation({
+        ...(getSavedLocation() || {}),
+        address: finalServiceAddress,
+        displayName: [
+          addressLine1,
+          addressLine2,
+          city,
+          postalCode,
+        ]
+          .filter(Boolean)
+          .join(", ")
+          .trim(),
+        addressLine1,
+        addressLine2,
+        landmark,
+        city,
+        postalCode,
+        latitude,
+        longitude,
+        source:
+          latitude !== null && longitude !== null
+            ? "gps"
+            : "manual",
+      });
+
       // ----------------------------------------------
       // Booking data
       // ----------------------------------------------
@@ -208,7 +343,16 @@ export default function Booking() {
 
         totalAmount,
 
-        address: address.trim(),
+        address: [
+          addressLine1,
+          addressLine2,
+          landmark ? `Landmark: ${landmark}` : "",
+          city,
+          postalCode,
+        ]
+          .filter(Boolean)
+          .join(", ")
+          .trim(),
         latitude:
           latitude !== null ? Number(latitude) : null,
         longitude:
@@ -524,70 +668,189 @@ export default function Booking() {
           </div>
         </section>
 
-        {/* Location */}
+        {/* Service Location */}
         <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 mb-4">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-5">
             <div className="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center text-xl">
               📍
             </div>
-
             <div>
               <h2 className="font-bold text-slate-900">
-                Service Location
+                Where should we send our professional?
               </h2>
-
               <p className="text-xs text-slate-500 mt-1">
-                Where should our technician visit?
+                Add your service address
               </p>
             </div>
           </div>
 
-          <LocationCapture
-            onLocationDetected={
-              handleLocationDetected
-            }
-          />
+          <button
+            type="button"
+            onClick={detectCurrentLocation}
+            disabled={detectingLocation}
+            className={`w-full rounded-2xl border px-4 py-3.5 flex items-center gap-3 text-left transition ${
+              detectingLocation
+                ? "bg-slate-100 border-slate-200"
+                : "bg-sky-50 border-sky-100 hover:bg-sky-100"
+            }`}
+          >
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-lg shadow-sm">
+              📍
+            </div>
+            <div className="flex-1">
+              <p className={`text-sm font-bold ${
+                detectingLocation ? "text-slate-400" : "text-sky-700"
+              }`}>
+                {detectingLocation
+                  ? "Detecting your location..."
+                  : "Use my current location"}
+              </p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Automatically fill your area and pincode
+              </p>
+            </div>
+            <span className="text-sky-600 font-bold">›</span>
+          </button>
 
-          {locationDetected && address && (
-            <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-              <div className="flex gap-3">
-                <span className="text-xl">
-                  ✅
-                </span>
+          <div className="flex items-center gap-3 my-4">
+            <div className="h-px bg-slate-200 flex-1" />
+            <span className="text-[11px] font-bold text-slate-400">
+              OR ENTER ADDRESS
+            </span>
+            <div className="h-px bg-slate-200 flex-1" />
+          </div>
 
-                <div className="flex-1">
-                  <p className="font-bold text-emerald-800">
-                    Location detected
-                  </p>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                House / Flat / Office No.
+              </label>
+              <input
+                type="text"
+                value={addressLine1}
+                onChange={(e) => {
+                  setAddressLine1(e.target.value);
+                  setAddress(e.target.value);
+                  setLocationDetected(false);
+                  setError("");
+                }}
+                placeholder="e.g. Flat 203, H.No. 5-2-18"
+                className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-sm"
+              />
+            </div>
 
-                  <p className="text-sm text-emerald-700 mt-1 leading-relaxed">
-                    {address}
-                  </p>
-                </div>
-              </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                Building / Street / Area
+              </label>
+              <input
+                type="text"
+                value={addressLine2}
+                onChange={(e) => {
+                  setAddressLine2(e.target.value);
+                  setLocationDetected(false);
+                  setError("");
+                }}
+                placeholder="e.g. Sri Sai Apartments, Main Road, Kukatpally"
+                className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-sm"
+              />
+            </div>
 
-              {/* Postal Code */}
-              <div className="mt-4">
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  Postal Code
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                  Landmark <span className="font-normal text-slate-400">(optional)</span>
                 </label>
-
                 <input
                   type="text"
-                  inputMode="numeric"
-                  maxLength={10}
-                  value={postalCode}
-                  onChange={(e) =>
-                    setPostalCode(
-                      e.target.value.replace(
-                        /\D/g,
-                        ""
-                      )
-                    )
-                  }
-                  placeholder="Enter postal code"
-                  className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition"
+                  value={landmark}
+                  onChange={(e) => setLandmark(e.target.value)}
+                  placeholder="Near metro, mall, temple..."
+                  className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-sm"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                  City / Town
+                </label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Hyderabad"
+                  className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                Pincode
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                value={postalCode}
+                onChange={(e) =>
+                  setPostalCode(e.target.value.replace(/\D/g, ""))
+                }
+                placeholder="Enter 6-digit pincode"
+                className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-sm"
+              />
+            </div>
+          </div>
+
+          {mapError && (
+            <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-3">
+              <p className="text-xs font-semibold text-amber-800">
+                ⚠️ {mapError}
+              </p>
+            </div>
+          )}
+
+          {(addressLine1 || addressLine2 || city || postalCode) && (
+            <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+              <p className="text-xs font-bold text-emerald-800">
+                {locationDetected ? "✅ Location detected" : "📍 Service address"}
+              </p>
+              <p className="text-sm text-emerald-700 mt-1 leading-relaxed">
+                {[
+                  addressLine1,
+                  addressLine2,
+                  landmark ? `Landmark: ${landmark}` : "",
+                  city,
+                  postalCode,
+                ].filter(Boolean).join(", ")}
+              </p>
+            </div>
+          )}
+
+          {latitude !== null && longitude !== null && (
+            <div className="mt-3 rounded-2xl border border-slate-200 overflow-hidden bg-white">
+              <div className="h-40 bg-slate-100">
+                <iframe
+                  title="Selected service location"
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(
+                    `${latitude},${longitude}`
+                  )}&z=17&output=embed`}
+                  className="w-full h-full border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+              <div className="px-3 py-2.5 flex items-center justify-between gap-3">
+                <p className="text-[11px] text-slate-400">
+                  GPS location saved
+                </p>
+                <button
+                  type="button"
+                  onClick={openGoogleMaps}
+                  className="text-xs font-bold text-sky-600"
+                >
+                  Open Maps →
+                </button>
               </div>
             </div>
           )}

@@ -1267,23 +1267,31 @@ export default function MyBookings() {
                       </div>
                     )}
 
-                    {/* Technician */}
+                    {/* Technician Details + Contact */}
                     {booking.technicianName && (
-                      <div className="mt-4 rounded-2xl border border-sky-100 bg-sky-50 p-4">
-                        <p className="text-xs font-bold text-sky-600 uppercase tracking-wide">
-                          Your Professional
-                        </p>
+                      <div className="mt-4 rounded-3xl border border-sky-100 bg-sky-50 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-xs font-bold text-sky-600 uppercase tracking-wide">
+                              Your Professional
+                            </p>
 
-                        <div className="flex items-center gap-3 mt-3">
-                          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-2xl overflow-hidden">
+                            <p className="text-xs text-slate-500 mt-1">
+                              Assigned by QuickSeva
+                            </p>
+                          </div>
+
+                          <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-white text-sky-700 border border-sky-100">
+                            ✓ Assigned
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-3 mt-4">
+                          <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center text-2xl overflow-hidden border border-white shadow-sm shrink-0">
                             {booking.technicianPhoto ? (
                               <img
-                                src={
-                                  booking.technicianPhoto
-                                }
-                                alt={
-                                  booking.technicianName
-                                }
+                                src={booking.technicianPhoto}
+                                alt={booking.technicianName}
                                 className="w-full h-full object-cover"
                               />
                             ) : (
@@ -1291,21 +1299,92 @@ export default function MyBookings() {
                             )}
                           </div>
 
-                          <div className="flex-1">
-                            <p className="font-bold text-slate-900">
-                              {
-                                booking.technicianName
-                              }
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-slate-900 truncate">
+                              {booking.technicianName}
                             </p>
 
                             <p className="text-sm text-slate-600 mt-0.5">
-                              ⭐{" "}
-                              {booking.technicianRating ||
-                                "4.7"}{" "}
-                              rating
+                              ⭐ {booking.technicianRating || "4.7"} rating
                             </p>
+
+                            {booking.technicianPhone && (
+                              <p className="text-xs text-slate-500 mt-1">
+                                📞 {booking.technicianPhone}
+                              </p>
+                            )}
                           </div>
                         </div>
+
+                        {booking.technicianPhone ? (
+                          <div className="grid grid-cols-2 gap-2 mt-4">
+                            {/*<a
+                              href={`tel:+91${String(
+                                booking.technicianPhone
+                              ).replace(/[^\d]/g, "")}`}
+                              className="py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-center font-bold text-sm shadow-sm active:scale-[0.98] transition"
+                            >
+                              📞 Call Professional
+                            </a>
+
+                            <a
+                              href={`https://wa.me/91${String(
+                                booking.technicianPhone
+                              ).replace(/[^\d]/g, "")}?text=${encodeURIComponent(
+                                `Hi ${booking.technicianName}, this is ${
+                                  user?.name || "your QuickSeva customer"
+                                } regarding booking QS-${String(booking.id)
+                                  .slice(-8)
+                                  .toUpperCase()}.`
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="py-3 rounded-2xl bg-green-600 text-white text-center font-bold text-sm shadow-sm active:scale-[0.98] transition"
+                            >
+                              💬 Message
+                            </a>*/}
+                          </div>
+                        ) : (
+                          <div className="mt-4 rounded-2xl bg-white border border-slate-200 p-3">
+                            <p className="text-sm font-bold text-slate-900">
+                              📲 Contact details are not available yet
+                            </p>
+
+                            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                              QuickSeva customer care can connect you with your
+                              assigned professional.
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          <a
+                            href={`tel:+91${supportPhone}`}
+                            className="py-2.5 rounded-2xl bg-slate-900 text-white text-center font-bold text-xs active:scale-[0.98] transition"
+                          >
+                            ☎️ Customer Care
+                          </a>
+
+                          <a
+                            href={`https://wa.me/91${supportPhone}?text=${encodeURIComponent(
+                              `Hello QuickSeva, please connect me with my assigned professional for booking QS-${String(
+                                booking.id
+                              )
+                                .slice(-8)
+                                .toUpperCase()}.`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="py-2.5 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-100 text-center font-bold text-xs active:scale-[0.98] transition"
+                          >
+                            💬 Ask Support to Connect
+                          </a>
+                        </div>
+
+                        <p className="text-[11px] text-slate-500 mt-3 leading-relaxed">
+                          You can contact the professional withQuickSeva customer care to connect
+                          you.
+                        </p>
                       </div>
                     )}
 
