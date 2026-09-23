@@ -1,27 +1,31 @@
-// QuickSeva shared location storage
-// Used by Home.jsx and Booking.jsx so both pages use the same GPS/address data.
+// QuickSeva shared location service
+// Home.jsx and Booking.jsx use this single file so the same
+// location can be shared across the whole app.
 
 export const QS_LOCATION_KEY = "qsLocationData";
 export const QS_LOCATION_TEXT_KEY = "qsLocation";
+export const QS_LOCATION_EVENT = "quickseva-location-updated";
 
-/**
- * Convert any value to a safe trimmed string.
- */
 const cleanText = (value) => {
   if (value === null || value === undefined) return "";
   return String(value).trim();
 };
 
-/**
- * Normalize location data before saving or returning it.
- * Supports both the new shared format and common field names used by Booking.
- */
+const finiteNumberOrNull = (value) => {
+  if (value === null || value === undefined || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+};
+
 export const normalizeLocation = (data = {}) => {
-  const latitude = Number(data.latitude ?? data.lat);
-  const longitude = Number(data.longitude ?? data.lng ?? data.lon);
+  const latitude = finiteNumberOrNull(data.latitude ?? data.lat);
+  const longitude = finiteNumberOrNull(
+    data.longitude ?? data.lng ?? data.lon
+  );
 
   const normalized = {
     address: cleanText(data.address),
+    shortAddress: cleanText(data.shortAddress),
 
     addressLine1: cleanText(
       data.addressLine1 ?? data.house ?? data.houseNumber
@@ -45,20 +49,22 @@ export const normalizeLocation = (data = {}) => {
 
     country: cleanText(data.country),
 
-    latitude: Number.isFinite(latitude) ? latitude : null,
+    latitude,
+    longitude,
 
-    longitude: Number.isFinite(longitude) ? longitude : null,
-
-    accuracy: Number.isFinite(Number(data.accuracy))
-      ? Number(data.accuracy)
-      : null,
+    accuracy: finiteNumberOrNull(data.accuracy),
 
     source: cleanText(data.source) || "manual",
 
-    updatedAt: data.updatedAt || new Date().toISOString(),
+    reverseGeocodeFailed: Boolean(
+      data.reverseGeocodeFailed
+    ),
+
+    updatedAt:
+      data.updatedAt || new Date().toISOString(),
   };
 
-  // Build a readable address if only individual fields are available.
+  // Build readable address when individual fields exist.
   if (!normalized.address) {
     normalized.address = [
       normalized.addressLine1,
@@ -74,16 +80,39 @@ export const normalizeLocation = (data = {}) => {
       .join(", ");
   }
 
+  // Build a shorter display address.
+  if (!normalized.shortAddress) {
+    normalized.shortAddress = [
+      normalized.addressLine2,
+      normalized.city,
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    if (!normalized.shortAddress) {
+      normalized.shortAddress = normalized.address;
+    }
+  }
+
   return normalized;
 };
 
-/**
- * Save the shared location.
- *
- * Also saves qsLocation for compatibility
- * with the existing Home page.
- */
-export const saveSharedLocation = (data) => {
+// Notify Home / Booking when location changes.
+const notifyLocationChanged = (location) => {
+  if (typeof window === "undefined") return;
+
+  window.dispatchEvent(
+    new CustomEvent(QS_LOCATION_EVENT, {
+      detail: location,
+    })
+  );
+};
+
+// ======================================================
+// SAVE LOCATION
+// ======================================================
+
+export const saveLocation = (data) => {
   const location = normalizeLocation(data);
 
   try {
@@ -92,6 +121,7 @@ export const saveSharedLocation = (data) => {
       JSON.stringify(location)
     );
 
+    // Keep the old key for compatibility.
     if (location.address) {
       localStorage.setItem(
         QS_LOCATION_TEXT_KEY,
@@ -100,26 +130,36 @@ export const saveSharedLocation = (data) => {
     }
   } catch (error) {
     console.error(
-      "QuickSeva: Unable to save shared location",
+      "QuickSeva: Unable to save location",
       error
     );
   }
 
+  notifyLocationChanged(location);
+
   return location;
 };
 
-/**
- * Read the shared location from localStorage.
- */
-export const getSharedLocation = () => {
+// New shared API name.
+export const saveSharedLocation = saveLocation;
+
+// ======================================================
+// GET SAVED LOCATION
+// ======================================================
+
+export const getSavedLocation = () => {
   try {
-    const saved = localStorage.getItem(QS_LOCATION_KEY);
+    const saved = localStorage.getItem(
+      QS_LOCATION_KEY
+    );
 
     if (saved) {
-      return normalizeLocation(JSON.parse(saved));
+      return normalizeLocation(
+        JSON.parse(saved)
+      );
     }
 
-    // Backward compatibility with the old qsLocation-only setup.
+    // Backward compatibility with old qsLocation.
     const oldLocation = localStorage.getItem(
       QS_LOCATION_TEXT_KEY
     );
@@ -127,12 +167,14 @@ export const getSharedLocation = () => {
     if (oldLocation) {
       return normalizeLocation({
         address: oldLocation,
+        shortAddress: oldLocation,
+        addressLine1: oldLocation,
         source: "manual",
       });
     }
   } catch (error) {
     console.error(
-      "QuickSeva: Unable to read shared location",
+      "QuickSeva: Unable to read saved location",
       error
     );
   }
@@ -140,41 +182,326 @@ export const getSharedLocation = () => {
   return null;
 };
 
-// Legacy compatibility aliases used by older pages.
-export const getSavedLocation = () => getSharedLocation();
-export const saveLocation = (data) => saveSharedLocation(data);
-export const clearLocation = () => clearSharedLocation();
+// New shared API name.
+export const getSharedLocation = getSavedLocation;
 
-/**
- * Remove the saved shared location.
- */
-export const clearSharedLocation = () => {
+// ======================================================
+// LOCATION SUBSCRIPTION
+// ======================================================
+
+export const subscribeToLocation = (callback) => {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  const handleCustomEvent = (event) => {
+    callback(
+      event?.detail || getSavedLocation()
+    );
+  };
+
+  const handleStorage = (event) => {
+    if (
+      event.key === QS_LOCATION_KEY ||
+      event.key === QS_LOCATION_TEXT_KEY
+    ) {
+      callback(getSavedLocation());
+    }
+  };
+
+  window.addEventListener(
+    QS_LOCATION_EVENT,
+    handleCustomEvent
+  );
+
+  window.addEventListener(
+    "storage",
+    handleStorage
+  );
+
+  return () => {
+    window.removeEventListener(
+      QS_LOCATION_EVENT,
+      handleCustomEvent
+    );
+
+    window.removeEventListener(
+      "storage",
+      handleStorage
+    );
+  };
+};
+
+// ======================================================
+// GPS
+// ======================================================
+
+const getCurrentPosition = () => {
+  return new Promise((resolve, reject) => {
+    if (
+      typeof navigator === "undefined" ||
+      !("geolocation" in navigator)
+    ) {
+      const error = new Error(
+        "Geolocation is not supported by this browser."
+      );
+
+      error.code = 2;
+
+      reject(error);
+
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      resolve,
+      reject,
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 5 * 60 * 1000,
+      }
+    );
+  });
+};
+
+// ======================================================
+// REVERSE GEOCODING
+// GPS COORDINATES → ADDRESS
+// ======================================================
+
+const reverseGeocode = async (
+  latitude,
+  longitude
+) => {
+  const url = new URL(
+    "https://nominatim.openstreetmap.org/reverse"
+  );
+
+  url.searchParams.set(
+    "format",
+    "jsonv2"
+  );
+
+  url.searchParams.set(
+    "lat",
+    latitude
+  );
+
+  url.searchParams.set(
+    "lon",
+    longitude
+  );
+
+  url.searchParams.set(
+    "zoom",
+    "18"
+  );
+
+  url.searchParams.set(
+    "addressdetails",
+    "1"
+  );
+
+  const response = await fetch(
+    url.toString(),
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Reverse geocoding failed: ${response.status}`
+    );
+  }
+
+  return response.json();
+};
+
+// ======================================================
+// DETECT GPS + SAVE ADDRESS
+// ======================================================
+
+export const detectAndSaveCurrentLocation =
+  async () => {
+    // First get GPS coordinates.
+    const position =
+      await getCurrentPosition();
+
+    const {
+      latitude,
+      longitude,
+      accuracy,
+    } = position.coords;
+
+    // Save GPS immediately.
+    // Even if address lookup fails,
+    // Booking still has coordinates.
+    let saved = saveLocation({
+      latitude,
+      longitude,
+      accuracy,
+      source: "gps",
+      reverseGeocodeFailed: true,
+    });
+
+    try {
+      // Convert GPS coordinates into address.
+      const data =
+        await reverseGeocode(
+          latitude,
+          longitude
+        );
+
+      const address =
+        data?.address || {};
+
+      const city =
+        address.city ||
+        address.town ||
+        address.village ||
+        address.municipality ||
+        address.county ||
+        "";
+
+      const state =
+        address.state || "";
+
+      const postalCode =
+        address.postcode || "";
+
+      const area =
+        address.suburb ||
+        address.neighbourhood ||
+        address.residential ||
+        address.quarter ||
+        "";
+
+      const houseNumber =
+        address.house_number || "";
+
+      const road =
+        address.road || "";
+
+      const addressLine1 =
+        [
+          houseNumber,
+          road,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .trim();
+
+      saved = saveLocation({
+        address:
+          data?.display_name || "",
+
+        shortAddress:
+          [
+            area,
+            city,
+          ]
+            .filter(Boolean)
+            .join(", "),
+
+        addressLine1,
+
+        addressLine2:
+          area,
+
+        landmark: "",
+
+        city,
+
+        state,
+
+        postalCode,
+
+        country:
+          address.country || "",
+
+        latitude,
+
+        longitude,
+
+        accuracy,
+
+        source: "gps",
+
+        reverseGeocodeFailed:
+          false,
+      });
+
+      return saved;
+    } catch (error) {
+      console.warn(
+        "QuickSeva: GPS detected but reverse geocoding failed.",
+        error
+      );
+
+      return {
+        ...saved,
+        reverseGeocodeFailed: true,
+      };
+    }
+  };
+
+// ======================================================
+// CLEAR LOCATION
+// ======================================================
+
+export const clearSavedLocation = () => {
   try {
-    localStorage.removeItem(QS_LOCATION_KEY);
-    localStorage.removeItem(QS_LOCATION_TEXT_KEY);
+    localStorage.removeItem(
+      QS_LOCATION_KEY
+    );
+
+    localStorage.removeItem(
+      QS_LOCATION_TEXT_KEY
+    );
   } catch (error) {
     console.error(
-      "QuickSeva: Unable to clear shared location",
+      "QuickSeva: Unable to clear location",
       error
     );
   }
+
+  notifyLocationChanged(null);
 };
 
-/**
- * Check whether usable GPS coordinates exist.
- */
-export const hasGpsLocation = (location) => {
+export const clearSharedLocation =
+  clearSavedLocation;
+
+// ======================================================
+// GPS CHECK
+// ======================================================
+
+export const hasGpsLocation = (
+  location
+) => {
   return (
-    Number.isFinite(Number(location?.latitude)) &&
-    Number.isFinite(Number(location?.longitude))
+    Number.isFinite(
+      Number(location?.latitude)
+    ) &&
+    Number.isFinite(
+      Number(location?.longitude)
+    )
   );
 };
 
-/**
- * Create a Google Maps URL from saved GPS coordinates.
- */
-export const getGoogleMapsUrl = (location) => {
-  if (!hasGpsLocation(location)) {
+// ======================================================
+// GOOGLE MAPS URL
+// ======================================================
+
+export const getGoogleMapsUrl = (
+  location
+) => {
+  if (
+    !hasGpsLocation(location)
+  ) {
     return "";
   }
 
@@ -183,16 +510,31 @@ export const getGoogleMapsUrl = (location) => {
   )}`;
 };
 
+// ======================================================
+// DEFAULT EXPORT
+// ======================================================
+
 export default {
   QS_LOCATION_KEY,
   QS_LOCATION_TEXT_KEY,
+  QS_LOCATION_EVENT,
+
   normalizeLocation,
-  saveSharedLocation,
+
   saveLocation,
-  getSharedLocation,
+  saveSharedLocation,
+
   getSavedLocation,
+  getSharedLocation,
+
+  subscribeToLocation,
+
+  detectAndSaveCurrentLocation,
+
+  clearSavedLocation,
   clearSharedLocation,
-  clearLocation,
+
   hasGpsLocation,
+
   getGoogleMapsUrl,
 };
