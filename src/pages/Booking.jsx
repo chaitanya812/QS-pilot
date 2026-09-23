@@ -544,16 +544,19 @@ export default function Booking() {
 
         {/* Error */}
         {error && (
-          <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4">
+          <div
+            role="alert"
+            className="mb-4 overflow-hidden rounded-2xl border border-red-200 bg-red-50 p-4"
+          >
             <div className="flex gap-3">
               <div className="text-xl">⚠️</div>
 
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <p className="font-bold text-red-800">
                   Something needs your attention
                 </p>
 
-                <p className="text-sm text-red-700 mt-1 whitespace-pre-line">
+                <p className="mt-1 break-words text-sm text-red-700 whitespace-pre-line">
                   {error}
                 </p>
               </div>
