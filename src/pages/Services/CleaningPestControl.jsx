@@ -35,7 +35,7 @@ export default function CleaningPestControl() {
         className="relative h-44 rounded-2xl overflow-hidden shadow mb-5"
         style={{
           backgroundImage:
-            "url(https://images.unsplash.com/photo-1581578731548-c64695cc6952)",
+            "linear-gradient(135deg, rgba(14,165,233,0.7), rgba(16,185,129,0.55)), url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 800 400\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Crect width=\'800\' height=\'400\' fill=\'%23ecfeff\'/%3E%3Ccircle cx=\'180\' cy=\'120\' r=\'90\' fill=\'%2393c5fd\' fill-opacity=\'0.7\'/%3E%3Ccircle cx=\'610\' cy=\'160\' r=\'110\' fill=\'%234ade80\' fill-opacity=\'0.55\'/%3E%3Ccircle cx=\'450\' cy=\'250\' r=\'150\' fill=\'%236ee7b7\' fill-opacity=\'0.35\'/%3E%3C/g%3E%3C/svg%3E')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

@@ -49,7 +49,7 @@ const SERVICES = [
     title: "Super Saving Offers",
     tagline: "Best value services for your washing machine",
     banner:
-      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=80",
+      "linear-gradient(135deg, rgba(34,197,94,0.7), rgba(14,165,233,0.45))",
     items: [
       {
         id: "wm-popular-1",
@@ -80,7 +80,7 @@ const SERVICES = [
     title: "Washing Machine Service",
     tagline: "Professional cleaning & maintenance",
     banner:
-      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=80",
+      "linear-gradient(135deg, rgba(34,197,94,0.7), rgba(14,165,233,0.45))",
     items: [
       {
         id: "wm-service-1",
@@ -111,7 +111,7 @@ const SERVICES = [
     title: "Repair & Fix Issues",
     tagline: "Expert technicians for every problem",
     banner:
-      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=80",
+      "linear-gradient(135deg, rgba(34,197,94,0.7), rgba(14,165,233,0.45))",
     items: [
       {
         id: "wm-repair-1",
@@ -163,7 +163,7 @@ const SERVICES = [
     title: "Installation & Uninstallation",
     tagline: "Hassle-free setup",
     banner:
-      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=80",
+      "linear-gradient(135deg, rgba(34,197,94,0.7), rgba(14,165,233,0.45))",
     items: [
       {
         id: "wm-install-1",

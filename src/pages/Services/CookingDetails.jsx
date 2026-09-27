@@ -36,7 +36,7 @@ export default function CookingDetails() {
         className="relative h-44 rounded-2xl overflow-hidden shadow mb-5"
         style={{
           backgroundImage:
-            "url(https://images.unsplash.com/photo-1600891964599-f61ba0e24092)",
+            "linear-gradient(135deg, rgba(251,146,60,0.72), rgba(239,68,68,0.52)), url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 800 400\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Crect width=\'800\' height=\'400\' fill=\'%23fff7ed\'/%3E%3Ccircle cx=\'180\' cy=\'90\' r=\'90\' fill=\'%23f59e0b\' fill-opacity=\'0.6\'/%3E%3Ccircle cx=\'620\' cy=\'170\' r=\'120\' fill=\'%23fb7185\' fill-opacity=\'0.5\'/%3E%3Ccircle cx=\'430\' cy=\'260\' r=\'140\' fill=\'%23fbbf24\' fill-opacity=\'0.35\'/%3E%3C/g%3E%3C/svg%3E')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

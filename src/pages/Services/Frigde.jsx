@@ -49,7 +49,7 @@ const SERVICES = [
     title: "Super Saving Offers",
     tagline: "Best value fridge services",
     banner:
-      "https://images.unsplash.com/photo-1600959907703-125ba1374c92?auto=format&fit=crop&w=1200&q=80",
+      "linear-gradient(135deg, rgba(56,189,248,0.65), rgba(14,165,233,0.42))",
     items: [
       {
         id: "fr1-1",
@@ -86,7 +86,7 @@ const SERVICES = [
     title: "Home Fridge Services",
     tagline: "Keeps your fridge running smooth",
     banner:
-      "https://images.unsplash.com/photo-1591337676887-a217a6970a8a?auto=format&fit=crop&w=1200&q=80",
+      "linear-gradient(135deg, rgba(45,212,191,0.72), rgba(14,116,144,0.48))",
     items: [
       {
         id: "fr2-1",
@@ -123,7 +123,7 @@ const SERVICES = [
     title: "Repair Services",
     tagline: "Problem? We fix it properly",
     banner:
-      "https://images.unsplash.com/photo-1593504982586-4458f98b5b43?auto=format&fit=crop&w=1200&q=80",
+      "linear-gradient(135deg, rgba(99,102,241,0.72), rgba(59,130,246,0.45))",
     items: [
       {
         id: "fr3-1",
@@ -168,7 +168,7 @@ const SERVICES = [
     title: "Gas & Parts Support",
     tagline: "Handled by verified technicians",
     banner:
-      "https://images.unsplash.com/photo-1581092795360-f12a5c2a9a5a?auto=format&fit=crop&w=1200&q=80",
+      "linear-gradient(135deg, rgba(251,191,36,0.7), rgba(249,115,22,0.45))",
     items: [
       {
         id: "fr4-1",
@@ -205,7 +205,7 @@ const SERVICES = [
     title: "Commercial & Deep Freezer",
     tagline: "Heavy duty cooling solutions",
     banner:
-      "https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=1200&q=80",
+      "linear-gradient(135deg, rgba(14,116,144,0.72), rgba(45,212,191,0.42))",
     items: [
       {
         id: "fr5-1",

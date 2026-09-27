@@ -267,7 +267,7 @@ export default function BikeCarService() {
             className="relative min-h-[250px] rounded-3xl overflow-hidden shadow-lg"
             style={{
               backgroundImage:
-                "url(https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1400&q=85)",
+                "linear-gradient(135deg, rgba(14,116,144,0.72), rgba(59,130,246,0.58)), url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 800 500\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Crect width=\'800\' height=\'500\' fill=\'%23e0f2fe\'/%3E%3Ccircle cx=\'150\' cy=\'130\' r=\'80\' fill=\'%233b82f6\' fill-opacity=\'0.3\'/%3E%3Ccircle cx=\'610\' cy=\'180\' r=\'120\' fill=\'%230ea5e9\' fill-opacity=\'0.38\'/%3E%3Ccircle cx=\'420\' cy=\'330\' r=\'160\' fill=\'%230f172a\' fill-opacity=\'0.28\'/%3E%3C/g%3E%3C/svg%3E')",
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}

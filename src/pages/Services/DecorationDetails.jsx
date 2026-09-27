@@ -35,7 +35,7 @@ export default function DecorationDetails() {
         className="relative h-44 rounded-2xl overflow-hidden shadow mb-5"
         style={{
           backgroundImage:
-            "url(https://images.unsplash.com/photo-1519741497674-611481863552)",
+            "linear-gradient(135deg, rgba(168,85,247,0.68), rgba(236,72,153,0.5)), url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 800 400\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Crect width=\'800\' height=\'400\' fill=\'%23faf5ff\'/%3E%3Ccircle cx=\'170\' cy=\'110\' r=\'80\' fill=\'%23c084fc\' fill-opacity=\'0.7\'/%3E%3Ccircle cx=\'620\' cy=\'160\' r=\'120\' fill=\'%23f472b6\' fill-opacity=\'0.58\'/%3E%3Ccircle cx=\'440\' cy=\'250\' r=\'150\' fill=\'%23a78bfa\' fill-opacity=\'0.32\'/%3E%3C/g%3E%3C/svg%3E')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

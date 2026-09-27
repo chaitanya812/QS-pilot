@@ -266,7 +266,7 @@ export default function BeautySalon() {
             className="relative min-h-[250px] rounded-3xl overflow-hidden shadow-lg"
             style={{
               backgroundImage:
-                "url(https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1400&q=85)",
+                "linear-gradient(135deg, rgba(249,115,22,0.7), rgba(236,72,153,0.65)), url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 800 500\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Crect width=\'800\' height=\'500\' fill=\'%23f8fafc\'/%3E%3Ccircle cx=\'180\' cy=\'120\' r=\'90\' fill=\'%23fbbf24\' fill-opacity=\'0.75\'/%3E%3Ccircle cx=\'600\' cy=\'140\' r=\'110\' fill=\'%23f472b6\' fill-opacity=\'0.6\'/%3E%3Ccircle cx=\'420\' cy=\'300\' r=\'150\' fill=\'%23fb7185\' fill-opacity=\'0.45\'/%3E%3C/g%3E%3C/svg%3E')",
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
