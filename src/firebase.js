@@ -1,27 +1,78 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import {
+  getFirestore,
+  enableIndexedDbPersistence,
+} from "firebase/firestore";
+
+/*
+============================================================
+FIREBASE CONFIGURATION
+============================================================
+*/
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+
+  authDomain:
+    import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+
+  projectId:
+    import.meta.env.VITE_FIREBASE_PROJECT_ID,
+
+  storageBucket:
+    import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+
+  messagingSenderId:
+    import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+
+  appId:
+    import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+/*
+============================================================
+INITIALIZE FIREBASE
+============================================================
+*/
 
-export const db = getFirestore(app);
+export const app =
+  initializeApp(firebaseConfig);
 
-enableIndexedDbPersistence(db).catch((err) => {
-  if (err.code === "failed-precondition") {
-    console.warn("Offline persistence failed because multiple tabs are open.");
-  } else if (err.code === "unimplemented") {
-    console.warn("Offline persistence is not supported in this browser.");
-  } else {
-    console.warn("Offline persistence error:", err.message);
+/*
+============================================================
+FIRESTORE
+============================================================
+*/
+
+export const db =
+  getFirestore(app);
+
+/*
+============================================================
+OFFLINE PERSISTENCE
+============================================================
+*/
+
+enableIndexedDbPersistence(db).catch(
+  (err) => {
+    if (
+      err.code ===
+      "failed-precondition"
+    ) {
+      console.warn(
+        "Offline persistence failed because multiple tabs are open."
+      );
+    } else if (
+      err.code === "unimplemented"
+    ) {
+      console.warn(
+        "Offline persistence is not supported in this browser."
+      );
+    } else {
+      console.warn(
+        "Offline persistence error:",
+        err.message
+      );
+    }
   }
-});
-
-
+);
