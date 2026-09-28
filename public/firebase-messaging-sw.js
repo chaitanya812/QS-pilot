@@ -1,6 +1,6 @@
 /*
 ============================================================
-QUICKSEVA FIREBASE MESSAGING SERVICE WORKER
+QUICKSEVA FIREBASE CLOUD MESSAGING SERVICE WORKER
 ============================================================
 */
 
@@ -11,36 +11,23 @@ importScripts(
 importScripts(
   "https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"
 );
-
-/*
-============================================================
-FIREBASE CONFIGURATION
-============================================================
-
-IMPORTANT:
-
-Replace the values below with the EXACT values from:
-
-src/firebase.js
-*/
-
 firebase.initializeApp({
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyA9Z0oQccEPabyT6no3B-lqiSFlJ1RXBRc",
 
   authDomain:
-    "YOUR_PROJECT.firebaseapp.com",
+    "quickseva-c0c49.firebaseapp.com",
 
   projectId:
-    "YOUR_PROJECT_ID",
+    "quickseva-c0c49",
 
   storageBucket:
-    "YOUR_STORAGE_BUCKET",
+    "quickseva-c0c49.firebasestorage.app",
 
   messagingSenderId:
-    "YOUR_MESSAGING_SENDER_ID",
+    "575202046802",
 
   appId:
-    "YOUR_APP_ID",
+    "1:575202046802:web:ea429919908bbf5ddac08b",
 });
 
 /*
@@ -49,8 +36,7 @@ FIREBASE MESSAGING
 ============================================================
 */
 
-const messaging =
-  firebase.messaging();
+const messaging = firebase.messaging();
 
 /*
 ============================================================
@@ -62,7 +48,7 @@ messaging.onBackgroundMessage(
   function (payload) {
 
     console.log(
-      "[QuickSeva] Background message:",
+      "[QuickSeva] Background message received:",
       payload
     );
 
@@ -72,15 +58,84 @@ messaging.onBackgroundMessage(
     const data =
       payload.data || {};
 
+    /*
+    ----------------------------------------------------------
+    BOOKING INFORMATION
+    ----------------------------------------------------------
+    */
+
+    const service =
+      data.service ||
+      "Service";
+
+    const subService =
+      data.subService ||
+      "";
+
+    const address =
+      data.address ||
+      "Address not provided";
+
+    const date =
+      data.date ||
+      "Date not provided";
+
+    const time =
+      data.time ||
+      "Time not provided";
+
+    const phone =
+      data.phone ||
+      "Phone not provided";
+
+    /*
+    ----------------------------------------------------------
+    TITLE
+    ----------------------------------------------------------
+    */
+
     const title =
       notification.title ||
       data.title ||
       "🔔 New QuickSeva Booking";
 
-    const body =
-      notification.body ||
-      data.body ||
-      "A new booking has arrived.";
+    /*
+    ----------------------------------------------------------
+    BODY
+    ----------------------------------------------------------
+    */
+
+    let body =
+      notification.body;
+
+    if (!body) {
+
+      body =
+        `${service}`;
+
+      if (subService) {
+        body +=
+          ` - ${subService}`;
+      }
+
+      body +=
+        `\n📅 ${date}`;
+
+      body +=
+        `\n⏰ ${time}`;
+
+      body +=
+        `\n📍 ${address}`;
+
+      body +=
+        `\n📞 ${phone}`;
+    }
+
+    /*
+    ----------------------------------------------------------
+    NOTIFICATION OPTIONS
+    ----------------------------------------------------------
+    */
 
     const notificationOptions = {
 
@@ -96,35 +151,54 @@ messaging.onBackgroundMessage(
         data.bookingId ||
         "quickseva-booking",
 
-      requireInteraction: true,
+      requireInteraction:
+        true,
+
+      vibrate: [
+        200,
+        100,
+        200,
+        100,
+        300,
+      ],
 
       data: {
+
         bookingId:
-          data.bookingId || "",
+          data.bookingId ||
+          "",
+
+        service:
+          service,
+
+        subService:
+          subService,
+
+        address:
+          address,
+
+        date:
+          date,
+
+        time:
+          time,
+
+        phone:
+          phone,
 
         url:
           data.url ||
-          "/admin",
-
-        service:
-          data.service || "",
-
-        address:
-          data.address || "",
-
-        date:
-          data.date || "",
-
-        time:
-          data.time || "",
-
-        phone:
-          data.phone || "",
+          "https://www.quicksevaindia.com/admin",
       },
-
     };
 
-    self.registration.showNotification(
+    /*
+    ----------------------------------------------------------
+    SHOW NOTIFICATION
+    ----------------------------------------------------------
+    */
+
+    return self.registration.showNotification(
       title,
       notificationOptions
     );
@@ -141,58 +215,126 @@ self.addEventListener(
   "notificationclick",
   function (event) {
 
+    console.log(
+      "[QuickSeva] Notification clicked."
+    );
+
     event.notification.close();
 
-    const url =
-      event.notification?.data?.url ||
-      "/admin";
+    /*
+    ----------------------------------------------------------
+    GET URL
+    ----------------------------------------------------------
+    */
+
+    const notificationData =
+      event.notification.data || {};
+
+    const targetUrl =
+      notificationData.url ||
+      "https://www.quicksevaindia.com/admin";
 
     event.waitUntil(
 
-      clients
-        .matchAll({
-          type: "window",
-          includeUncontrolled: true,
-        })
-        .then(
-          function (clientList) {
+      clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      })
 
-            /*
-            If admin page is already open,
-            focus it.
-            */
+      .then(
+        function (clientList) {
 
-            for (
-              const client of clientList
-            ) {
+          /*
+          ----------------------------------------------------
+          IF ADMIN PAGE IS ALREADY OPEN
+          ----------------------------------------------------
+          */
 
-              if (
-                client.url.includes(
-                  "/admin"
-                ) &&
-                "focus" in client
-              ) {
-
-                return client.focus();
-              }
-            }
-
-            /*
-            Otherwise open admin page.
-            */
+          for (
+            const client of clientList
+          ) {
 
             if (
-              clients.openWindow
+              client.url.includes(
+                "quicksevaindia.com"
+              ) &&
+              "focus" in client
             ) {
 
-              return clients.openWindow(
-                url
-              );
-            }
+              return client.focus()
+                .then(() => {
 
-            return null;
+                  if (
+                    "navigate" in client &&
+                    client.url !== targetUrl
+                  ) {
+
+                    return client.navigate(
+                      targetUrl
+                    );
+                  }
+
+                  return client;
+                });
+            }
           }
-        )
+
+          /*
+          ----------------------------------------------------
+          OPEN ADMIN DASHBOARD
+          ----------------------------------------------------
+          */
+
+          if (
+            clients.openWindow
+          ) {
+
+            return clients.openWindow(
+              targetUrl
+            );
+          }
+
+          return null;
+        }
+      )
     );
+  }
+);
+
+/*
+============================================================
+SERVICE WORKER ACTIVATION
+============================================================
+*/
+
+self.addEventListener(
+  "activate",
+  function (event) {
+
+    console.log(
+      "[QuickSeva] Firebase messaging service worker activated."
+    );
+
+    event.waitUntil(
+      self.clients.claim()
+    );
+  }
+);
+
+/*
+============================================================
+SERVICE WORKER INSTALL
+============================================================
+*/
+
+self.addEventListener(
+  "install",
+  function (event) {
+
+    console.log(
+      "[QuickSeva] Firebase messaging service worker installed."
+    );
+
+    self.skipWaiting();
   }
 );
