@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "575202046802",
+    "project_id": "quickseva-c0c49",
+    "storage_bucket": "quickseva-c0c49.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:575202046802:android:5dd043750153eacedac08b",
+        "android_client_info": {
+          "package_name": "com.quickseva.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADJw-BBx32pVyM3908r9dHLvzutwtI1ro"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

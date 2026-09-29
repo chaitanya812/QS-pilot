@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">QuickSeva</string>
+    <string name="title_activity_main">QuickSeva</string>
+    <string name="package_name">com.quickseva.app</string>
+    <string name="custom_url_scheme">com.quickseva.app</string>
+</resources>
