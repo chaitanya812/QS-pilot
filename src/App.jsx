@@ -38,6 +38,8 @@ import AdminLogin from "./pages/AdminLogin.jsx";
 ===================================================== */
 import TechnicianDashboard from "./pages/TechnicianDashboard.jsx";
 import TechnicianLogin from "./pages/TechnicianLogin.jsx";
+import TechnicianJobDetails from "./pages/TechnicianJobDetails.jsx";
+import TechnicianProfile from "./pages/TechnicianProfile.jsx";
 
 /* =====================================================
    ROUTE GUARD
@@ -90,8 +92,9 @@ export default function App() {
   return (
     <CartProvider>
       <Routes>
-        {/* PUBLIC */}
+        {/* CUSTOMER */}
         <Route path="/" element={<Home />} />
+        <Route path="/customer" element={<Home />} />
 
         {/* AUTH */}
         <Route path="/login" element={<PhoneLogin />} />
@@ -160,6 +163,8 @@ export default function App() {
         {/* TECHNICIAN DASHBOARD */}
         <Route path="/tech-login" element={<TechnicianLogin />} />
         <Route path="/tech" element={<TechnicianDashboard />} />
+        <Route path="/tech/jobs/:jobId" element={<TechnicianJobDetails />} />
+        <Route path="/tech/profile" element={<TechnicianProfile />} />
 
         {/* ADMIN */}
         <Route path="/admin-login" element={<AdminLogin />} />

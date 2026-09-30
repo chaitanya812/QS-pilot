@@ -1,79 +1,313 @@
-import React, { useState } from "react";
+import React, {
+  useEffect,
+  useState,
+} from "react";
+
+import { useNavigate } from "react-router-dom";
+
+import TechnicianJobCard from "../components/TechnicianJobCard.jsx";
+import TechnicianNavbar from "../components/TechnicianNavbar.jsx";
+import TechnicianStats from "../components/TechnicianStats.jsx";
+
+import {
+  getTechnicianJobs,
+  getTechnicianSession,
+  saveTechnicianJobs,
+  updateTechnicianJobStatus,
+} from "../utils/technicianService.js";
+
 import "../techDashboard.css";
 
 export default function TechnicianDashboard() {
-  const [jobs, setJobs] = useState([
-    {
-      id: 1,
-      customer: "Ramesh",
-      service: "AC Repair",
-      address: "Madhapur, Hyderabad",
-      time: "2:00 PM",
-      status: "Pending",
-    },
-    {
-      id: 2,
-      customer: "Suresh",
-      service: "Plumbing",
-      address: "Banjara Hills",
-      time: "4:30 PM",
-      status: "Pending",
-    },
-  ]);
+  const navigate = useNavigate();
 
-  const updateStatus = (id, newStatus) => {
-    setJobs(prev =>
-      prev.map(job =>
-        job.id === id ? { ...job, status: newStatus } : job
-      )
-    );
+  /* ============================================================
+     TECHNICIAN SESSION
+  ============================================================ */
+
+  const [technician] = useState(
+    () => getTechnicianSession()
+  );
+
+  /* ============================================================
+     JOB STATE
+  ============================================================ */
+
+  const [jobs, setJobs] = useState([]);
+
+  const [loadingJobs, setLoadingJobs] = useState(true);
+
+  const [updatingJobId, setUpdatingJobId] = useState(null);
+
+  /* ============================================================
+     LOAD REAL FIRESTORE JOBS
+  ============================================================ */
+
+  useEffect(() => {
+    async function loadJobs() {
+      try {
+        setLoadingJobs(true);
+
+        /*
+         * Get jobs assigned to the logged-in technician.
+         */
+        const technicianJobs =
+          await getTechnicianJobs(technician);
+
+        setJobs(
+          Array.isArray(technicianJobs)
+            ? technicianJobs
+            : []
+        );
+
+        /*
+         * Keep local cache as backup.
+         */
+        saveTechnicianJobs(
+          Array.isArray(technicianJobs)
+            ? technicianJobs
+            : []
+        );
+
+      } catch (error) {
+        console.error(
+          "[TechnicianDashboard] Failed to load Firestore jobs:",
+          error
+        );
+
+        setJobs([]);
+      } finally {
+        setLoadingJobs(false);
+      }
+    }
+
+    if (technician) {
+      loadJobs();
+    } else {
+      setLoadingJobs(false);
+    }
+  }, [technician]);
+
+  /* ============================================================
+     UPDATE JOB STATUS
+  ============================================================ */
+
+  const updateStatus = async (
+    id,
+    newStatus
+  ) => {
+    try {
+      setUpdatingJobId(String(id));
+
+      /*
+       * Update the real Firestore booking.
+       */
+      const success =
+        await updateTechnicianJobStatus(
+          id,
+          newStatus
+        );
+
+      if (!success) {
+        alert(
+          "Unable to update booking status."
+        );
+
+        return;
+      }
+
+      /*
+       * Update dashboard immediately.
+       */
+      const updatedJobs =
+        jobs.map((job) =>
+          String(job.id) === String(id)
+            ? {
+                ...job,
+                status: newStatus,
+                updatedAt:
+                  new Date().toISOString(),
+              }
+            : job
+        );
+
+      setJobs(updatedJobs);
+
+      /*
+       * Update local backup.
+       */
+      saveTechnicianJobs(updatedJobs);
+
+    } catch (error) {
+      console.error(
+        "[TechnicianDashboard] Status update failed:",
+        error
+      );
+
+      alert(
+        "Something went wrong while updating the job."
+      );
+    } finally {
+      setUpdatingJobId(null);
+    }
   };
 
+  /* ============================================================
+     LOGIN CHECK
+  ============================================================ */
+
+  if (!technician) {
+    return (
+      <main className="tech-empty">
+
+        <h1>
+          Technician login required
+        </h1>
+
+        <button
+          className="tech-primary-action"
+          onClick={() =>
+            navigate("/tech-login")
+          }
+        >
+          Go to Technician Login
+        </button>
+
+      </main>
+    );
+  }
+
+  /* ============================================================
+     ACTIVE JOBS
+  ============================================================ */
+
+  const activeJobs =
+    jobs.filter(
+      (job) =>
+        ![
+          "Completed",
+          "Declined",
+        ].includes(
+          String(job.status)
+        )
+    );
+
+  /* ============================================================
+     DASHBOARD
+  ============================================================ */
+
   return (
-    <div className="tech-container">
-      <header className="tech-header">
-        Technician Dashboard
-      </header>
+    <main className="tech-container">
 
-      <div className="job-list">
-        {jobs.map(job => (
-          <div className="job-card" key={job.id}>
-            <div className="job-row">
-              <h3>{job.service}</h3>
+      {/* ======================================================
+          NAVBAR
+      ====================================================== */}
 
-              <span
-                className={`status ${
-                  job.status === "On the Way" ? "OnWay" : job.status
-                }`}
-              >
-                {job.status}
-              </span>
-            </div>
+      <TechnicianNavbar
+        technician={technician}
+      />
 
-            <p><b>Customer:</b> {job.customer}</p>
-            <p><b>Address:</b> {job.address}</p>
-            <p><b>Time:</b> {job.time}</p>
+      <section className="tech-content">
 
-            <div className="button-group">
-              <button
-                className="btn onway"
-                disabled={job.status !== "Pending"}
-                onClick={() => updateStatus(job.id, "On the Way")}
-              >
-                On The Way
-              </button>
+        {/* ====================================================
+            HEADER
+        ==================================================== */}
 
-              <button
-                className="btn done"
-                disabled={job.status === "Done"}
-                onClick={() => updateStatus(job.id, "Done")}
-              >
-                Done
-              </button>
-            </div>
+        <div className="tech-page-heading">
+
+          <div>
+
+            <p className="tech-eyebrow">
+              TECHNICIAN
+            </p>
+
+            <h1>
+              Assigned Jobs
+            </h1>
+
+            <p className="tech-preview-note">
+              Manage your assigned
+              QuickSeva service jobs.
+            </p>
+
           </div>
-        ))}
-      </div>
-    </div>
+
+          <span className="tech-job-count">
+            {activeJobs.length} active
+          </span>
+
+        </div>
+
+        {/* ====================================================
+            STATS
+        ==================================================== */}
+
+        <TechnicianStats
+          jobs={jobs}
+        />
+
+        {/* ====================================================
+            JOB LIST
+        ==================================================== */}
+
+        <div className="job-list">
+
+          {loadingJobs ? (
+
+            <div className="tech-empty">
+
+              <h2>
+                Loading jobs...
+              </h2>
+
+              <p>
+                Getting your assigned
+                bookings from QuickSeva.
+              </p>
+
+            </div>
+
+          ) : jobs.length === 0 ? (
+
+            <div className="tech-empty">
+
+              <h2>
+                No jobs assigned
+              </h2>
+
+              <p>
+                New assigned bookings
+                will appear here.
+              </p>
+
+            </div>
+
+          ) : (
+
+            jobs.map(
+              (job) => (
+
+                <TechnicianJobCard
+                  key={job.id}
+                  job={job}
+                  onStatusChange={
+                    updateStatus
+                  }
+                  updating={
+                    updatingJobId ===
+                    String(job.id)
+                  }
+                />
+
+              )
+            )
+
+          )}
+
+        </div>
+
+      </section>
+
+    </main>
   );
 }
