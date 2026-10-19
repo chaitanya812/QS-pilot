@@ -1,0 +1,250 @@
+.service-completion-page,
+.service-completion-page * {
+  box-sizing: border-box;
+}
+
+.service-completion-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(
+    145deg,
+    #e0f2fe,
+    #f1f5f9 55%,
+    #ccfbf1
+  );
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  color: #0f172a;
+}
+
+.service-completion-card {
+  width: 100%;
+  max-width: 560px;
+  padding: 34px;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 22px 60px rgba(11, 29, 54, 0.12);
+  text-align: center;
+}
+
+/* Icon */
+
+.service-completion-icon {
+  width: 76px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: #e0f2fe;
+  color: #075985;
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.service-completion-icon.is-completed {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+/* Heading and description */
+
+.service-completion-eyebrow {
+  margin: 0 0 9px;
+  color: #0d9488;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.service-completion-card h1 {
+  margin: 0 0 12px;
+  color: #0b1d36;
+  font-size: clamp(25px, 4vw, 32px);
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+.service-completion-copy {
+  max-width: 440px;
+  margin: 0 auto 22px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+/* Booking details */
+
+.service-completion-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 22px 0;
+  padding: 8px 17px;
+  border: 1px solid #e2e8f0;
+  border-radius: 15px;
+  background: #f8fafc;
+  text-align: left;
+}
+
+.service-completion-details > div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 13px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.service-completion-details > div:last-child {
+  border-bottom: none;
+}
+
+.service-completion-details span {
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.service-completion-details strong {
+  max-width: 62%;
+  color: #0f172a;
+  font-size: 13px;
+  line-height: 1.6;
+  font-weight: 700;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.service-completion-details .completion-status-done {
+  color: #15803d;
+}
+
+.service-completion-details .completion-status-pending {
+  color: #b45309;
+}
+
+/* Completion button */
+
+.service-completion-button {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 12px;
+  background: #16a34a;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.service-completion-button:hover:not(:disabled) {
+  background: #15803d;
+  transform: translateY(-1px);
+}
+
+.service-completion-button:focus-visible {
+  outline: 3px solid #86efac;
+  outline-offset: 3px;
+}
+
+.service-completion-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+/* Success message */
+
+.service-completion-success-message {
+  padding: 15px;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+/* Error message */
+
+.service-completion-error {
+  margin: 16px 0;
+  padding: 13px 15px;
+  border: 1px solid #fecaca;
+  border-radius: 11px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* Footer note */
+
+.service-completion-footnote {
+  margin: 18px 0 0;
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* ========================================
+   MOBILE RESPONSIVENESS
+======================================== */
+
+@media (max-width: 480px) {
+  .service-completion-page {
+    padding: 14px;
+  }
+
+  .service-completion-card {
+    padding: 24px 17px;
+    border-radius: 18px;
+  }
+
+  .service-completion-icon {
+    width: 66px;
+    height: 66px;
+    font-size: 30px;
+  }
+
+  .service-completion-details {
+    padding: 5px 12px;
+  }
+
+  .service-completion-details > div {
+    gap: 10px;
+  }
+
+  .service-completion-details span {
+    font-size: 12px;
+  }
+
+  .service-completion-details strong {
+    max-width: 60%;
+    font-size: 12px;
+  }
+
+  .service-completion-button {
+    font-size: 14px;
+  }
+}
+
+/* Accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+  .service-completion-button {
+    transition: none;
+  }
+}

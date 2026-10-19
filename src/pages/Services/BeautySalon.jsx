@@ -1,9 +1,23 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import "./BeautySalon.css";
+import onCallLogo from "../../assets/On-Call-Logo.jpeg";
 import { useCart } from "../../utils/CartContext";
 import ViewCartBar from "../../components/ViewCartBar";
 
 const SUPPORT_PHONE = "7661045308";
+
+const THEME = {
+  navy: "#0B1D36",
+  teal: "#0D9488",
+  sky: "#0EA5E9",
+  cloud: "#F8FAFC",
+  mist: "#F1F5F9",
+  text: "#0F172A",
+  muted: "#64748B",
+  border: "#DCE5EC",
+};
 
 const BEAUTY_SECTIONS = [
   {
@@ -156,9 +170,21 @@ export default function BeautySalon() {
   const [search, setSearch] = useState("");
   const [bookingId, setBookingId] = useState(null);
 
+  const [activeNeedIndex, setActiveNeedIndex] = useState(0);
+
   const whatsappMessage = encodeURIComponent(
-    "Hi QuickSeva, I need help with Beauty & Salon service."
+    "Hi OnCall, I need help with Beauty & Salon service."
   );
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveNeedIndex((prev) => {
+        return (prev + 1) % QUICK_NEEDS.length;
+      });
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const filteredSections = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -187,11 +213,9 @@ export default function BeautySalon() {
       name: item.name,
       price: Number(item.price),
       qty: 1,
-
       service: "Beauty & Salon",
       category: section.title,
       subService: item.name,
-
       description: item.desc,
       duration: item.time,
       warranty: item.warranty,
@@ -199,7 +223,6 @@ export default function BeautySalon() {
 
     addItem(cartItem);
 
-    // Give CartContext a moment to update before navigation.
     setTimeout(() => {
       navigate("/cart");
       setBookingId(null);
@@ -222,36 +245,47 @@ export default function BeautySalon() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-28">
+    <div className="beauty-page">
       {/* HEADER */}
-      <header className="sticky top-0 z-40 bg-white border-b">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
+
+      <header className="beauty-header">
+        <div className="beauty-header-inner">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl"
+            className="beauty-back-btn"
             aria-label="Go back"
           >
             ←
           </button>
 
-          <div className="flex-1">
-            <p className="text-xs text-slate-500">QuickSeva</p>
-            <h1 className="text-lg font-bold text-slate-900">
-              Beauty & Salon
-            </h1>
+          <div className="beauty-brand">
+            <div className="b-logo-box">
+            
+                          <img
+                            src={onCallLogo}
+                            alt="OnCall Services"
+                            className="b-logo"
+                          />
+            
+                        </div>
+
+            <div>
+              <p>OnCall</p>
+              <h1>Beauty & Salon</h1>
+            </div>
           </div>
 
           <button
             type="button"
             onClick={() => navigate("/cart")}
-            className="relative w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl"
+            className="beauty-cart-btn"
             aria-label="Open cart"
           >
             🛒
 
             {itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-sky-500 text-white text-[10px] font-bold flex items-center justify-center">
+              <span className="beauty-cart-count">
                 {itemCount}
               </span>
             )}
@@ -259,77 +293,71 @@ export default function BeautySalon() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4">
+      <main className="beauty-container">
         {/* HERO */}
-        <section className="mt-4">
-          <div
-            className="relative min-h-[250px] rounded-3xl overflow-hidden shadow-lg"
-            style={{
-              backgroundImage:
-                "linear-gradient(135deg, rgba(249,115,22,0.7), rgba(236,72,153,0.65)), url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 800 500\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Crect width=\'800\' height=\'500\' fill=\'%23f8fafc\'/%3E%3Ccircle cx=\'180\' cy=\'120\' r=\'90\' fill=\'%23fbbf24\' fill-opacity=\'0.75\'/%3E%3Ccircle cx=\'600\' cy=\'140\' r=\'110\' fill=\'%23f472b6\' fill-opacity=\'0.6\'/%3E%3Ccircle cx=\'420\' cy=\'300\' r=\'150\' fill=\'%23fb7185\' fill-opacity=\'0.45\'/%3E%3C/g%3E%3C/svg%3E')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            <div className="absolute inset-0 bg-black/55" />
 
-            <div className="relative z-10 min-h-[250px] p-5 sm:p-7 flex flex-col justify-between text-white">
-              <div className="max-w-xl">
-                <span className="inline-flex px-3 py-1 rounded-full bg-white/15 border border-white/20 text-xs font-semibold backdrop-blur">
-                  ✨ At-home beauty services
-                </span>
+        <section className="beauty-hero">
+          <div className="beauty-hero-background" />
+          <div className="beauty-hero-overlay" />
 
-                <h2 className="text-3xl sm:text-4xl font-extrabold mt-3">
-                  Beauty care,
-                  <br />
-                  at your doorstep.
-                </h2>
+          <div className="beauty-hero-content">
+            <div>
+              <span className="beauty-hero-label">
+                ✨ AT-HOME BEAUTY SERVICES
+              </span>
 
-                <p className="text-sm sm:text-base text-white/85 mt-2">
-                  Book trusted beauty and salon professionals without leaving
-                  home.
-                </p>
-              </div>
+              <h2>
+                Beauty care,
+                <br />
+                <span>at your doorstep.</span>
+              </h2>
 
-              <div className="flex flex-wrap gap-2">
-                <a
-                  href={`tel:+91${SUPPORT_PHONE}`}
-                  className="px-4 py-2.5 bg-white text-slate-900 rounded-xl font-bold shadow"
-                >
-                  📞 Call Support
-                </a>
+              <p>
+                Book trusted beauty and salon professionals
+                without leaving home.
+              </p>
+            </div>
 
-                <a
-                  href={`https://wa.me/91${SUPPORT_PHONE}?text=${whatsappMessage}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-4 py-2.5 bg-green-500 text-white rounded-xl font-bold shadow"
-                >
-                  💬 WhatsApp
-                </a>
-              </div>
+            <div className="beauty-hero-actions">
+              <a
+                href={`tel:+91${SUPPORT_PHONE}`}
+                className="beauty-call-btn"
+              >
+                📞 Call Support
+              </a>
+
+              <a
+                href={`https://wa.me/91${SUPPORT_PHONE}?text=${whatsappMessage}`}
+                target="_blank"
+                rel="noreferrer"
+                className="beauty-whatsapp-btn"
+              >
+                💬 WhatsApp
+              </a>
             </div>
           </div>
         </section>
 
         {/* SEARCH */}
-        <section className="mt-5">
-          <div className="bg-white border rounded-2xl p-3 shadow-sm flex items-center gap-3">
-            <span className="text-xl">🔎</span>
+
+        <section className="beauty-search-section">
+          <div className="beauty-search-box">
+            <span className="beauty-search-icon">
+              🔎
+            </span>
 
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="What beauty service do you need?"
-              className="flex-1 outline-none text-sm text-slate-900 placeholder:text-slate-400"
             />
 
             {search && (
               <button
                 type="button"
                 onClick={() => setSearch("")}
-                className="text-slate-400 font-bold"
+                className="beauty-clear-btn"
               >
                 ✕
               </button>
@@ -338,162 +366,217 @@ export default function BeautySalon() {
         </section>
 
         {/* QUICK NEEDS */}
-        <section className="mt-6">
-          <div className="flex items-end justify-between mb-3">
+
+        <section className="beauty-quick-section">
+          <div className="beauty-section-title">
             <div>
-              <h2 className="text-xl font-bold text-slate-900">
-                What do you need?
-              </h2>
-              <p className="text-sm text-slate-500">
+              <h2>What do you need?</h2>
+
+              <p>
                 Choose your need and book in seconds
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {QUICK_NEEDS.map((need) => (
-              <button
-                key={need.id}
-                type="button"
-                onClick={() => handleQuickNeed(need)}
-                className="bg-white border rounded-2xl p-4 text-left hover:shadow-md transition active:scale-[0.98]"
-              >
-                <div className="w-11 h-11 rounded-xl bg-pink-50 flex items-center justify-center text-2xl">
-                  {need.icon}
-                </div>
+          <div className="beauty-quick-grid">
+            {QUICK_NEEDS.map((need, index) => {
+              const isFlowActive =
+                index === activeNeedIndex;
 
-                <p className="font-bold text-slate-900 mt-3 text-sm">
-                  {need.title}
-                </p>
+              return (
+                <button
+                  key={need.id}
+                  type="button"
+                  onClick={() => handleQuickNeed(need)}
+                  className={`
+                    beauty-quick-card
+                    ${
+                      isFlowActive
+                        ? "oncall-problem-flow-active"
+                        : ""
+                    }
+                  `}
+                  style={{
+                    backgroundColor: isFlowActive
+                      ? "transparent"
+                      : THEME.cloud,
 
-                <p className="text-xs text-slate-500 mt-1">
-                  View services →
-                </p>
-              </button>
-            ))}
+                    borderColor: isFlowActive
+                      ? THEME.teal
+                      : THEME.border,
+
+                    color: isFlowActive
+                      ? "#FFFFFF"
+                      : THEME.text,
+
+                    boxShadow: isFlowActive
+                      ? "0 8px 24px rgba(13,148,136,.25)"
+                      : "0 2px 8px rgba(15,23,42,.04)",
+                  }}
+                >
+                  {/* LEFT → RIGHT FLOW */}
+
+                  {isFlowActive && (
+                    <span
+                      key={activeNeedIndex}
+                      className="oncall-problem-flow-background"
+                    />
+                  )}
+
+                  {/* CONTENT */}
+
+                  <span className="beauty-quick-content">
+                    <span
+                      className="beauty-quick-icon"
+                      style={{
+                        backgroundColor: isFlowActive
+                          ? "rgba(255,255,255,.18)"
+                          : "#FCE7F3",
+                      }}
+                    >
+                      {need.icon}
+                    </span>
+
+                    <span
+                      className="beauty-quick-title"
+                      style={{
+                        color: isFlowActive
+                          ? "#FFFFFF"
+                          : THEME.text,
+                      }}
+                    >
+                      {need.title}
+                    </span>
+
+                    <span
+                      className="beauty-quick-link"
+                      style={{
+                        color: isFlowActive
+                          ? "rgba(255,255,255,.85)"
+                          : THEME.muted,
+                      }}
+                    >
+                      View services →
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </section>
 
         {/* TRUST STRIP */}
-        <section className="grid grid-cols-3 gap-2 mt-5">
-          <div className="bg-white border rounded-xl p-3 text-center">
-            <div className="text-xl">👩‍💼</div>
-            <p className="text-xs font-semibold text-slate-700 mt-1">
-              At Home
-            </p>
+
+        <section className="beauty-trust-strip">
+          <div className="beauty-mini-trust-card">
+            <div>👩‍💼</div>
+            <p>At Home</p>
           </div>
 
-          <div className="bg-white border rounded-xl p-3 text-center">
-            <div className="text-xl">🛡️</div>
-            <p className="text-xs font-semibold text-slate-700 mt-1">
-              Verified
-            </p>
+          <div className="beauty-mini-trust-card">
+            <div>🛡️</div>
+            <p>Verified</p>
           </div>
 
-          <div className="bg-white border rounded-xl p-3 text-center">
-            <div className="text-xl">💰</div>
-            <p className="text-xs font-semibold text-slate-700 mt-1">
-              Clear Price
-            </p>
+          <div className="beauty-mini-trust-card">
+            <div>💰</div>
+            <p>Clear Price</p>
           </div>
         </section>
 
         {/* SERVICES */}
-        <section id="beauty-services" className="mt-7 scroll-mt-24">
+
+        <section
+          id="beauty-services"
+          className="beauty-services-section"
+        >
           {filteredSections.length === 0 ? (
-            <div className="bg-white border rounded-3xl p-8 text-center">
-              <div className="text-5xl">🔎</div>
+            <div className="beauty-empty-state">
+              <div>🔎</div>
 
-              <h3 className="text-lg font-bold text-slate-900 mt-3">
-                No service found
-              </h3>
+              <h3>No service found</h3>
 
-              <p className="text-sm text-slate-500 mt-1">
-                Try searching for haircut, makeup, facial or grooming.
+              <p>
+                Try searching for haircut, makeup, facial
+                or grooming.
               </p>
 
               <button
                 type="button"
                 onClick={() => setSearch("")}
-                className="mt-4 px-5 py-2.5 rounded-xl bg-sky-500 text-white font-bold"
+                className="beauty-show-all-btn"
               >
                 Show All Services
               </button>
             </div>
           ) : (
             filteredSections.map((section) => (
-              <div key={section.title} className="mb-8">
-                <div className="mb-3">
-                  <h2 className="text-xl font-bold text-slate-900">
-                    {section.title}
-                  </h2>
+              <div
+                key={section.title}
+                className="beauty-service-section"
+              >
+                <div className="beauty-service-section-heading">
+                  <h2>{section.title}</h2>
 
-                  <p className="text-sm text-slate-500">
-                    {section.subtitle}
-                  </p>
+                  <p>{section.subtitle}</p>
                 </div>
 
-                <div className="grid gap-3">
+                <div className="beauty-service-list">
                   {section.items.map((item) => (
-                    <div
+                    <article
                       key={item.id}
-                      className="bg-white border rounded-2xl p-4 shadow-sm"
+                      className="beauty-service-card"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-start gap-3">
-                            <div className="w-11 h-11 shrink-0 rounded-xl bg-pink-50 flex items-center justify-center text-xl">
-                              ✨
-                            </div>
-
-                            <div>
-                              <h3 className="font-bold text-slate-900">
-                                {item.name}
-                              </h3>
-
-                              <p className="text-sm text-slate-500 mt-1">
-                                {item.desc}
-                              </p>
-
-                              <div className="flex flex-wrap gap-2 mt-2">
-                                <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-lg">
-                                  ⏱ {item.time}
-                                </span>
-
-                                <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-lg">
-                                  ✓ {item.warranty}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
+                      <div className="beauty-service-main">
+                        <div className="beauty-service-icon">
+                          ✨
                         </div>
 
-                        <div className="sm:text-right sm:min-w-[130px]">
-                          <div className="text-xl font-extrabold text-slate-900">
-                            ₹{Number(item.price).toLocaleString("en-IN")}
+                        <div className="beauty-service-info">
+                          <h3>{item.name}</h3>
+
+                          <p>{item.desc}</p>
+
+                          <div className="beauty-service-meta">
+                            <span>
+                              ⏱ {item.time}
+                            </span>
+
+                            <span>
+                              ✓ {item.warranty}
+                            </span>
                           </div>
-
-                          <p className="text-xs text-slate-400 mt-1">
-                            Starting price
-                          </p>
-
-                          <button
-                            type="button"
-                            disabled={bookingId === item.id}
-                            onClick={() => handleBook(section, item)}
-                            className={`mt-3 w-full sm:w-auto px-5 py-2.5 rounded-xl text-white font-bold shadow-sm transition ${
-                              bookingId === item.id
-                                ? "bg-slate-400 cursor-wait"
-                                : "bg-sky-500 hover:bg-sky-600 active:scale-[0.98]"
-                            }`}
-                          >
-                            {bookingId === item.id
-                              ? "Adding..."
-                              : "Book Now →"}
-                          </button>
                         </div>
                       </div>
-                    </div>
+
+                      <div className="beauty-service-action">
+                        <div className="beauty-price">
+                          ₹
+                          {Number(item.price).toLocaleString(
+                            "en-IN"
+                          )}
+                        </div>
+
+                        <p>Starting price</p>
+
+                        <button
+                          type="button"
+                          disabled={bookingId === item.id}
+                          onClick={() =>
+                            handleBook(section, item)
+                          }
+                          className={
+                            bookingId === item.id
+                              ? "beauty-book-btn loading"
+                              : "beauty-book-btn"
+                          }
+                        >
+                          {bookingId === item.id
+                            ? "Adding..."
+                            : "Book Now →"}
+                        </button>
+                      </div>
+                    </article>
                   ))}
                 </div>
               </div>
@@ -502,39 +585,49 @@ export default function BeautySalon() {
         </section>
 
         {/* HOW IT WORKS */}
-        <section className="mt-8">
-          <div className="bg-white border rounded-3xl p-5">
-            <h2 className="text-xl font-bold text-slate-900">
-              How QuickSeva works
-            </h2>
 
-            <div className="grid sm:grid-cols-3 gap-4 mt-5">
+        <section className="beauty-how-section">
+          <div className="beauty-how-card">
+            <div className="beauty-section-title">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center text-xl">
+                <h2>How OnCall works</h2>
+              </div>
+            </div>
+
+            <div className="beauty-how-grid">
+              <div className="beauty-how-item">
+                <div className="beauty-how-icon">
                   1️⃣
                 </div>
-                <h3 className="font-bold mt-2">Choose a service</h3>
-                <p className="text-xs text-slate-500 mt-1">
+
+                <h3>Choose a service</h3>
+
+                <p>
                   Select the beauty service you need.
                 </p>
               </div>
 
-              <div>
-                <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center text-xl">
+              <div className="beauty-how-item">
+                <div className="beauty-how-icon">
                   2️⃣
                 </div>
-                <h3 className="font-bold mt-2">Choose date & time</h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  Tell us where and when you need the service.
+
+                <h3>Choose date & time</h3>
+
+                <p>
+                  Tell us where and when you need the
+                  service.
                 </p>
               </div>
 
-              <div>
-                <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center text-xl">
+              <div className="beauty-how-item">
+                <div className="beauty-how-icon">
                   3️⃣
                 </div>
-                <h3 className="font-bold mt-2">Relax at home</h3>
-                <p className="text-xs text-slate-500 mt-1">
+
+                <h3>Relax at home</h3>
+
+                <p>
                   Your service professional comes to you.
                 </p>
               </div>
@@ -543,22 +636,23 @@ export default function BeautySalon() {
         </section>
 
         {/* SUPPORT */}
-        <section className="mt-5">
-          <div className="rounded-3xl bg-slate-900 text-white p-5">
-            <p className="text-xs text-slate-300">Need help?</p>
 
-            <h2 className="text-xl font-bold mt-1">
+        <section className="beauty-support-section">
+          <div className="beauty-support-card">
+            <p>Need help?</p>
+
+            <h2>
               Not sure which service you need?
             </h2>
 
-            <p className="text-sm text-slate-300 mt-2">
-              Talk to QuickSeva support and we will help you choose.
-            </p>
+            <span>
+              Talk to OnCall support and we will help you
+              choose.
+            </span>
 
-            <div className="flex flex-wrap gap-2 mt-4">
+            <div className="beauty-support-actions">
               <a
                 href={`tel:+91${SUPPORT_PHONE}`}
-                className="px-4 py-2.5 rounded-xl bg-white text-slate-900 font-bold"
               >
                 📞 Call
               </a>
@@ -567,7 +661,6 @@ export default function BeautySalon() {
                 href={`https://wa.me/91${SUPPORT_PHONE}?text=${whatsappMessage}`}
                 target="_blank"
                 rel="noreferrer"
-                className="px-4 py-2.5 rounded-xl bg-green-500 text-white font-bold"
               >
                 💬 WhatsApp
               </a>

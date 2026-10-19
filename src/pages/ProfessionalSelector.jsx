@@ -37,7 +37,7 @@ export default function ProfessionalSelector({ onSelect }) {
   const handleAuto = () => {
     setMode("auto");
     setSelected(null);
-    onSelect(null); // QuickSeva assigns
+    onSelect(null); // OnCall assigns
   };
 
   const handleSelect = (pro) => {
@@ -67,7 +67,7 @@ export default function ProfessionalSelector({ onSelect }) {
         <div className="flex items-center gap-2">
           <input type="radio" checked={mode === "auto"} readOnly />
           <span className="font-medium">
-            Let QuickSeva assign the best professional (Recommended)
+            Let OnCall assign the best professional (Recommended)
           </span>
         </div>
       </div>
@@ -106,7 +106,7 @@ export default function ProfessionalSelector({ onSelect }) {
       {/* TRUST NOTE */}
       <p className="text-xs text-gray-500 mt-3">
         All professionals are verified, background-checked, and monitored by
-        QuickSeva. Services include a 6-month warranty.
+        OnCall. Services include a 6-month warranty.
       </p>
     </div>
   );

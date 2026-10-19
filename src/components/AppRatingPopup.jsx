@@ -82,7 +82,7 @@ export default function AppRatingPopup() {
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white p-5 rounded-xl w-11/12 max-w-sm">
         <h3 className="font-semibold text-lg mb-2">
-          Enjoying QuickSeva?
+          Enjoying OnCall?
         </h3>
         <p className="text-sm text-gray-500 mb-3">
           Rate your app experience

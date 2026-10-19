@@ -29,7 +29,7 @@ function Home() {
   return (
     <div className="p-6 space-y-8">
       <h1 className="text-3xl font-bold text-gray-900 text-center mb-6">
-        Quickly
+        OnCall
       </h1>
 
       {/* My Booking Button */}

@@ -13,7 +13,7 @@ export default function CookingDetails() {
   /* 📞 SUPPORT CONFIG */
   const supportPhone = "919000000000"; // 🔁 replace with real QS number
   const whatsappMessage = encodeURIComponent(
-    "Hi QuickSeva, I need help with Cooking & Babysitting services."
+    "Hi OnCall, I need help with Cooking & Babysitting services."
   );
 
   return (

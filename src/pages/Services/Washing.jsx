@@ -1,12 +1,25 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
+
 import bannerWashing from "../../assets/washing-banner.jpg";
+import onCallLogo from "../../assets/On-Call-Logo.jpeg";
+
 import { useCart } from "../../utils/CartContext";
 import ViewCartBar from "../../components/ViewCartBar";
 
-/* =========================================================
-   CUSTOMER REVIEWS
-========================================================= */
+import "./Washing.css";
+
+const THEME = {
+  navy: "#0B1D36",
+  teal: "#0D9488",
+  sky: "#0EA5E9",
+  mist: "#F1F5F9",
+  cloud: "#F8FAFC",
+  text: "#0F172A",
+  muted: "#64748B",
+  border: "#DCE5EC",
+};
 
 const REVIEWS = [
   {
@@ -15,7 +28,8 @@ const REVIEWS = [
     rating: 5,
     review:
       "Very good washing machine service. Cleaning done perfectly and machine is working like new.",
-    avatar: "https://randomuser.me/api/portraits/men/12.jpg",
+    avatar:
+      "https://randomuser.me/api/portraits/men/12.jpg",
     date: "3 days ago",
   },
   {
@@ -24,7 +38,8 @@ const REVIEWS = [
     rating: 5,
     review:
       "Technician was polite and professional. Issue resolved within 30 mins. Highly recommended!",
-    avatar: "https://randomuser.me/api/portraits/women/52.jpg",
+    avatar:
+      "https://randomuser.me/api/portraits/women/52.jpg",
     date: "1 week ago",
   },
   {
@@ -33,14 +48,11 @@ const REVIEWS = [
     rating: 4,
     review:
       "Good service and reasonable pricing. Booking experience was smooth.",
-    avatar: "https://randomuser.me/api/portraits/men/45.jpg",
+    avatar:
+      "https://randomuser.me/api/portraits/men/45.jpg",
     date: "2 weeks ago",
   },
 ];
-
-/* =========================================================
-   WASHING MACHINE SERVICES
-========================================================= */
 
 const SERVICES = [
   {
@@ -48,14 +60,13 @@ const SERVICES = [
     icon: "🔥",
     title: "Super Saving Offers",
     tagline: "Best value services for your washing machine",
-    banner:
-      "linear-gradient(135deg, rgba(34,197,94,0.7), rgba(14,165,233,0.45))",
     items: [
       {
         id: "wm-popular-1",
         name: "Full Deep Service (2 Machines)",
         desc: "Complete internal cleaning with high-pressure jet wash",
-        desc1: "Drum deep clean • Filter cleaning • Bacteria removal",
+        desc1:
+          "Drum deep clean • Filter cleaning • Bacteria removal",
         price: "₹999",
         tag: "Bestseller",
         time: "60 - 75 mins",
@@ -64,8 +75,10 @@ const SERVICES = [
       {
         id: "wm-popular-2",
         name: "Jet Cleaning Service (2 Machines)",
-        desc: "Removes dirt, bad smell & improves performance",
-        desc1: "Professional Jet Wash + Interior cleaning",
+        desc:
+          "Removes dirt, bad smell & improves performance",
+        desc1:
+          "Professional Jet Wash + Interior cleaning",
         price: "₹1199",
         tag: "Most Booked",
         time: "45 - 60 mins",
@@ -73,20 +86,18 @@ const SERVICES = [
       },
     ],
   },
-
   {
     id: "service",
     icon: "🧼",
     title: "Washing Machine Service",
     tagline: "Professional cleaning & maintenance",
-    banner:
-      "linear-gradient(135deg, rgba(34,197,94,0.7), rgba(14,165,233,0.45))",
     items: [
       {
         id: "wm-service-1",
         name: "General Service",
         desc: "Basic maintenance for smooth washing",
-        desc1: "External clean • Filter wash • Drum checkup",
+        desc1:
+          "External clean • Filter wash • Drum checkup",
         price: "₹399",
         tag: "Popular",
         time: "30 - 40 mins",
@@ -96,7 +107,8 @@ const SERVICES = [
         id: "wm-service-2",
         name: "Full Deep Cleaning",
         desc: "Recommended every 6 months",
-        desc1: "Internal cleaning • Bacteria removal",
+        desc1:
+          "Internal cleaning • Bacteria removal",
         price: "₹699",
         tag: "Recommended",
         time: "45 - 60 mins",
@@ -104,14 +116,11 @@ const SERVICES = [
       },
     ],
   },
-
   {
     id: "repair",
     icon: "🛠️",
     title: "Repair & Fix Issues",
     tagline: "Expert technicians for every problem",
-    banner:
-      "linear-gradient(135deg, rgba(34,197,94,0.7), rgba(14,165,233,0.45))",
     items: [
       {
         id: "wm-repair-1",
@@ -156,14 +165,11 @@ const SERVICES = [
       },
     ],
   },
-
   {
     id: "install",
     icon: "⚙️",
     title: "Installation & Uninstallation",
     tagline: "Hassle-free setup",
-    banner:
-      "linear-gradient(135deg, rgba(34,197,94,0.7), rgba(14,165,233,0.45))",
     items: [
       {
         id: "wm-install-1",
@@ -185,10 +191,6 @@ const SERVICES = [
   },
 ];
 
-/* =========================================================
-   QUICK PROBLEMS
-========================================================= */
-
 const PROBLEMS = [
   {
     id: "not-spinning",
@@ -206,7 +208,7 @@ const PROBLEMS = [
     id: "leakage",
     icon: "💧",
     title: "Water Leakage",
-    keywords: ["leakage", "water", "leak"],
+    keywords: ["leakage", "leak", "water"],
   },
   {
     id: "noise",
@@ -228,18 +230,13 @@ const PROBLEMS = [
   },
 ];
 
-/* =========================================================
-   HELPER
-========================================================= */
-
 const priceToNumber = (value) => {
-  const number = Number(String(value).replace(/[₹,\s]/g, ""));
+  const number = Number(
+    String(value).replace(/[₹,\s]/g, "")
+  );
+
   return Number.isFinite(number) ? number : 0;
 };
-
-/* =========================================================
-   COMPONENT
-========================================================= */
 
 export default function Washing() {
   const navigate = useNavigate();
@@ -250,9 +247,18 @@ export default function Washing() {
   const [selectedProblem, setSelectedProblem] = useState(null);
   const [bookingId, setBookingId] = useState(null);
 
-  /* =======================================================
-     SEARCH RESULTS
-  ======================================================= */
+  const [activeProblemIndex, setActiveProblemIndex] =
+    useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveProblemIndex((prev) => {
+        return (prev + 1) % PROBLEMS.length;
+      });
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const searchResults = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -285,10 +291,6 @@ export default function Washing() {
     return results;
   }, [search]);
 
-  /* =======================================================
-     BOOK NOW → CART
-  ======================================================= */
-
   const handleBook = (section, item) => {
     if (bookingId) return;
 
@@ -309,7 +311,6 @@ export default function Washing() {
       subService: item.name,
 
       description: item.desc,
-      description2: item.desc1 || "",
       duration: item.time,
       warranty: item.warranty,
 
@@ -324,10 +325,6 @@ export default function Washing() {
       setBookingId(null);
     }, 100);
   };
-
-  /* =======================================================
-     PROBLEM CARD
-  ======================================================= */
 
   const handleProblem = (problem) => {
     setSelectedProblem(problem.id);
@@ -345,41 +342,54 @@ export default function Washing() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-28">
-      {/* =================================================
-          HEADER
-      ================================================= */}
+    <div
+      className="washing-page min-h-screen pb-28"
+      style={{
+        background: THEME.mist,
+      }}
+    >
+      <header className="washing-header sticky top-0 z-50">
+        <div className="max-w-5xl mx-auto px-4 py-2.5 flex items-center gap-3">
 
-      <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl"
+            className="washing-icon-button"
+            aria-label="Go back"
           >
             ←
           </button>
 
-          <div className="flex-1">
-            <p className="text-xs text-slate-500">
-              QuickSeva
-            </p>
+          <div className="flex-1 flex items-center gap-2.5">
+            <div className="washing-logo-box">
+              <img
+                src={onCallLogo}
+                alt="OnCall"
+                className="washing-logo"
+              />
+            </div>
 
-            <h1 className="font-bold text-slate-900">
-              Washing Machine Services
-            </h1>
+            <div>
+              <p className="text-[10px] font-semibold text-[#0D9488]">
+                OnCall
+              </p>
+
+              <h1 className="text-sm sm:text-base font-extrabold text-[#0B1D36]">
+                Washing Machine Services
+              </h1>
+            </div>
           </div>
 
           <button
             type="button"
             onClick={() => navigate("/cart")}
-            className="relative w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center"
+            className="washing-cart-button relative"
             aria-label="Open cart"
           >
             🛒
 
             {itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-sky-500 text-white text-xs font-bold flex items-center justify-center">
+              <span className="washing-cart-count">
                 {itemCount}
               </span>
             )}
@@ -388,39 +398,45 @@ export default function Washing() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4">
-        {/* =================================================
-            HERO
-        ================================================= */}
 
-        <section className="relative mt-4 h-52 sm:h-64 rounded-3xl overflow-hidden shadow-lg">
+        <section className="washing-hero mt-4">
           <img
             src={bannerWashing}
             alt="Washing machine service"
             className="absolute inset-0 w-full h-full object-cover"
           />
 
-          <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/20" />
+          <div className="washing-hero-overlay" />
 
           <div className="relative z-10 h-full p-5 sm:p-7 flex flex-col justify-center text-white">
-            <span className="text-sm font-semibold text-sky-300">
-              QuickSeva Washing Machine Services
-            </span>
 
-            <h2 className="text-2xl sm:text-3xl font-bold mt-1 max-w-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="washing-hero-badge">
+                🧺 OnCall Washing Machine Care
+              </span>
+
+              <span className="washing-live-dot">
+                ●
+              </span>
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl font-extrabold max-w-xl leading-tight">
               Washing machine problem?
               <br />
-              We'll take care of it.
+              <span className="text-[#5EEAD4]">
+                We'll take care of it.
+              </span>
             </h2>
 
-            <p className="text-sm text-white/90 mt-2 max-w-lg">
-              Cleaning, maintenance, repairs, installation and
-              uninstallation at your doorstep.
+            <p className="text-sm text-white/85 mt-2 max-w-lg">
+              Cleaning, repair, installation and maintenance
+              services for your washing machine at your doorstep.
             </p>
 
-            <div className="flex gap-2 mt-4">
+            <div className="flex flex-wrap gap-2 mt-4">
               <a
                 href="tel:7661045308"
-                className="px-4 py-2 rounded-xl bg-green-600 text-white font-semibold shadow"
+                className="washing-hero-button washing-call-button"
               >
                 📞 Call
               </a>
@@ -429,7 +445,7 @@ export default function Washing() {
                 href="https://wa.me/7661045308"
                 target="_blank"
                 rel="noreferrer"
-                className="px-4 py-2 rounded-xl bg-green-500 text-white font-semibold shadow"
+                className="washing-hero-button washing-whatsapp-button"
               >
                 💬 WhatsApp
               </a>
@@ -437,13 +453,9 @@ export default function Washing() {
           </div>
         </section>
 
-        {/* =================================================
-            SEARCH
-        ================================================= */}
-
         <section className="mt-5">
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+          <div className="washing-search-wrapper">
+            <span className="washing-search-icon">
               🔍
             </span>
 
@@ -455,7 +467,7 @@ export default function Washing() {
                 setSelectedProblem(null);
               }}
               placeholder="Search washing machine services or problems..."
-              className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-11 pr-12 outline-none focus:ring-2 focus:ring-sky-400"
+              className="washing-search-input"
             />
 
             {search && (
@@ -465,7 +477,7 @@ export default function Washing() {
                   setSearch("");
                   setSelectedProblem(null);
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-slate-100 text-slate-500"
+                className="washing-search-clear"
               >
                 ×
               </button>
@@ -473,25 +485,24 @@ export default function Washing() {
           </div>
         </section>
 
-        {/* =================================================
-            PROBLEM CARDS
-        ================================================= */}
-
         {!search && (
           <section className="mt-6">
             <div className="mb-3">
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-extrabold text-[#0B1D36]">
                 What's wrong with your washing machine?
               </h2>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-xs sm:text-sm text-[#64748B] mt-1">
                 Select your problem and find the right service
               </p>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {PROBLEMS.map((problem) => {
-                const active =
+              {PROBLEMS.map((problem, index) => {
+                const flowActive =
+                  index === activeProblemIndex;
+
+                const selected =
                   selectedProblem === problem.id;
 
                 return (
@@ -499,23 +510,73 @@ export default function Washing() {
                     key={problem.id}
                     type="button"
                     onClick={() => handleProblem(problem)}
-                    className={`text-left p-4 rounded-2xl border transition ${
-                      active
-                        ? "bg-sky-50 border-sky-400 shadow-sm"
-                        : "bg-white border-slate-200 hover:border-sky-300"
-                    }`}
+                    className={`
+                      washing-problem-card
+                      ${
+                        flowActive
+                          ? "problem-flow-active"
+                          : ""
+                      }
+                      ${
+                        selected
+                          ? "problem-selected"
+                          : ""
+                      }
+                    `}
                   >
-                    <div className="text-2xl">
-                      {problem.icon}
-                    </div>
+                    {flowActive && (
+                      <span
+                        key={activeProblemIndex}
+                        className="problem-flow-background"
+                      />
+                    )}
 
-                    <p className="font-semibold text-slate-900 mt-2">
-                      {problem.title}
-                    </p>
+                    <span className="problem-card-content">
+                      <span
+                        className={`
+                          problem-icon
+                          ${
+                            flowActive
+                              ? "problem-icon-active"
+                              : ""
+                          }
+                        `}
+                      >
+                        {problem.icon}
+                      </span>
 
-                    <p className="text-xs text-slate-500 mt-1">
-                      Find service →
-                    </p>
+                      <span
+                        className={`
+                          block
+                          font-bold
+                          text-sm
+                          mt-3
+                          ${
+                            flowActive
+                              ? "text-white"
+                              : "text-[#0B1D36]"
+                          }
+                        `}
+                      >
+                        {problem.title}
+                      </span>
+
+                      <span
+                        className={`
+                          block
+                          text-[11px]
+                          mt-1
+                          font-medium
+                          ${
+                            flowActive
+                              ? "text-white/80"
+                              : "text-[#64748B]"
+                          }
+                        `}
+                      >
+                        Find service →
+                      </span>
+                    </span>
                   </button>
                 );
               })}
@@ -523,77 +584,73 @@ export default function Washing() {
           </section>
         )}
 
-        {/* =================================================
-            SUPPORT
-        ================================================= */}
+        <section className="mt-6">
+          <div className="washing-support-card">
+            <div className="washing-support-glow" />
 
-        <section className="mt-6 bg-slate-900 rounded-3xl p-5 text-white">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex-1">
-              <p className="text-sky-300 text-sm font-semibold">
-                Need help choosing?
-              </p>
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex-1">
+                <p className="text-[#5EEAD4] text-sm font-bold">
+                  Need help choosing?
+                </p>
 
-              <h3 className="text-lg font-bold mt-1">
-                Not sure what's wrong with your machine?
-              </h3>
+                <h3 className="text-lg font-extrabold mt-1">
+                  Not sure what washing machine service you need?
+                </h3>
 
-              <p className="text-sm text-white/70 mt-1">
-                Talk to QuickSeva and we'll help you choose
-                the right service.
-              </p>
-            </div>
+                <p className="text-sm text-white/70 mt-1">
+                  Talk to OnCall and we'll help you choose
+                  the right service.
+                </p>
+              </div>
 
-            <div className="flex gap-2">
-              <a
-                href="tel:7661045308"
-                className="px-4 py-2 rounded-xl bg-white text-slate-900 font-bold"
-              >
-                Call
-              </a>
+              <div className="flex gap-2">
+                <a
+                  href="tel:7661045308"
+                  className="washing-support-button washing-support-call"
+                >
+                  Call
+                </a>
 
-              <a
-                href="https://wa.me/7661045308"
-                target="_blank"
-                rel="noreferrer"
-                className="px-4 py-2 rounded-xl bg-green-500 text-white font-bold"
-              >
-                WhatsApp
-              </a>
+                <a
+                  href="https://wa.me/7661045308"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="washing-support-button washing-support-whatsapp"
+                >
+                  WhatsApp
+                </a>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* =================================================
-            SEARCH RESULTS
-        ================================================= */}
-
         {search && (
           <section className="mt-6">
             <div className="mb-3">
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-extrabold text-[#0B1D36]">
                 Search results
               </h2>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[#64748B]">
                 {searchResults.length} service
                 {searchResults.length === 1 ? "" : "s"} found
               </p>
             </div>
 
             {searchResults.length === 0 ? (
-              <div className="bg-white border rounded-2xl p-6 text-center">
+              <div className="washing-empty-card">
                 <div className="text-4xl">
                   🔍
                 </div>
 
-                <h3 className="font-bold text-slate-900 mt-3">
+                <h3 className="font-bold text-[#0B1D36] mt-3">
                   No matching service found
                 </h3>
 
-                <p className="text-sm text-slate-500 mt-1">
-                  Try searching for cleaning, spinning,
-                  leakage, power, noise or installation.
+                <p className="text-sm text-[#64748B] mt-1">
+                  Try searching for cleaning, repair,
+                  installation, spinning, leakage or error code.
                 </p>
               </div>
             ) : (
@@ -601,38 +658,38 @@ export default function Washing() {
                 {searchResults.map(({ section, item }) => (
                   <div
                     key={`${section.id}-${item.id}`}
-                    className="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    className="washing-search-result"
                   >
                     <div>
-                      <p className="text-xs text-sky-600 font-semibold">
+                      <p className="text-xs text-[#0D9488] font-bold">
                         {section.title}
                       </p>
 
-                      <h3 className="font-bold text-slate-900 mt-1">
+                      <h3 className="font-extrabold text-[#0B1D36] mt-1">
                         {item.name}
                       </h3>
 
-                      <p className="text-sm text-slate-500 mt-1">
+                      <p className="text-sm text-[#64748B] mt-1">
                         {item.desc}
                       </p>
 
                       {item.desc1 && (
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-[#64748B] mt-1">
                           {item.desc1}
                         </p>
                       )}
 
                       <div className="flex flex-wrap gap-2 mt-2">
-                        <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-lg">
+                        <span className="washing-meta-blue">
                           ⏱ {item.time}
                         </span>
 
-                        <span className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded-lg">
+                        <span className="washing-meta-green">
                           🛡 {item.warranty}
                         </span>
                       </div>
 
-                      <p className="text-lg font-bold text-sky-600 mt-2">
+                      <p className="text-lg font-extrabold text-[#0D9488] mt-2">
                         {item.price}
                       </p>
                     </div>
@@ -643,7 +700,7 @@ export default function Washing() {
                       onClick={() =>
                         handleBook(section, item)
                       }
-                      className="shrink-0 px-5 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 disabled:opacity-60 text-white font-bold"
+                      className="washing-book-button shrink-0"
                     >
                       {bookingId === item.id
                         ? "Adding..."
@@ -656,89 +713,88 @@ export default function Washing() {
           </section>
         )}
 
-        {/* =================================================
-            ALL SERVICES
-        ================================================= */}
-
         <section
           id="washing-services"
           className="mt-8 scroll-mt-24"
         >
           <div className="mb-4">
-            <h2 className="text-xl font-bold text-slate-900">
-              All Washing Machine Services
-            </h2>
+            <div className="flex items-center gap-2">
+              <span className="section-accent-line" />
 
-            <p className="text-sm text-slate-500">
-              Choose the service that matches your machine
+              <h2 className="text-xl font-extrabold text-[#0B1D36]">
+                All Washing Machine Services
+              </h2>
+            </div>
+
+            <p className="text-sm text-[#64748B] mt-1">
+              Choose the service that matches your washing machine
               problem
             </p>
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-7">
             {SERVICES.map((section) => (
-              <section key={section.id}>
-                {/* Section heading */}
-
+              <section
+                key={section.id}
+                className="washing-service-section"
+              >
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-11 h-11 rounded-xl bg-sky-50 flex items-center justify-center text-2xl">
+                  <div className="washing-service-icon">
                     {section.icon}
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-slate-900">
+                    <h3 className="font-extrabold text-[#0B1D36]">
                       {section.title}
                     </h3>
 
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-[#64748B]">
                       {section.tagline}
                     </p>
                   </div>
                 </div>
 
-                {/* Service cards */}
-
                 <div className="space-y-3">
                   {section.items.map((item) => (
                     <article
                       key={item.id}
-                      className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm"
+                      className="washing-service-card"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <h4 className="font-bold text-slate-900">
+                            <h4 className="font-extrabold text-[#0B1D36]">
                               {item.name}
                             </h4>
 
                             {item.tag && (
-                              <span className="text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded-lg font-semibold">
+                              <span className="washing-tag">
                                 ⭐ {item.tag}
                               </span>
                             )}
                           </div>
 
-                          <p className="text-sm text-slate-500 mt-1">
+                          <p className="text-sm text-[#64748B] mt-1">
                             {item.desc}
                           </p>
 
                           {item.desc1 && (
-                            <p className="text-sm text-slate-400 mt-1">
+                            <p className="text-xs text-[#64748B] mt-1">
                               {item.desc1}
                             </p>
                           )}
 
                           <div className="flex flex-wrap gap-2 mt-3">
-                            <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-lg">
+                            <span className="washing-meta-blue">
                               ⏱ {item.time}
                             </span>
 
-                            <span className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded-lg">
+                            <span className="washing-meta-green">
                               🛡 {item.warranty}
                             </span>
                           </div>
 
-                          <p className="text-lg font-bold text-sky-600 mt-3">
+                          <p className="text-lg font-extrabold text-[#0D9488] mt-3">
                             {item.price}
                           </p>
                         </div>
@@ -749,7 +805,7 @@ export default function Washing() {
                           onClick={() =>
                             handleBook(section, item)
                           }
-                          className="w-full sm:w-auto px-6 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 disabled:opacity-60 text-white font-bold shadow-sm"
+                          className="washing-book-button w-full sm:w-auto"
                         >
                           {bookingId === item.id
                             ? "Adding..."
@@ -764,32 +820,30 @@ export default function Washing() {
           </div>
         </section>
 
-        {/* =================================================
-            REVIEWS
-        ================================================= */}
-
         <section className="mt-10">
-          <div className="bg-white rounded-3xl border border-slate-200 p-5">
+          <div className="washing-reviews-card">
             <div className="mb-5">
-              <h2 className="text-xl font-bold text-slate-900">
-                What Customers Say
-              </h2>
+              <div className="flex items-center gap-2">
+                <span className="section-accent-line" />
 
-              <p className="text-sm text-slate-500 mt-1">
-                Real feedback from QuickSeva customers
+                <h2 className="text-xl font-extrabold text-[#0B1D36]">
+                  What Customers Say
+                </h2>
+              </div>
+
+              <p className="text-sm text-[#64748B] mt-1">
+                Real feedback from OnCall customers
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-6">
-              {/* Rating */}
-
               <div className="sm:w-44 shrink-0 text-center sm:text-left">
-                <p className="text-4xl font-bold text-slate-900">
+                <p className="text-4xl font-extrabold text-[#0B1D36]">
                   4.9 ⭐
                 </p>
 
-                <p className="text-xs text-slate-500 mt-1">
-                  Based on 900+ ratings
+                <p className="text-xs text-[#64748B] mt-1">
+                  Based on 800+ ratings
                 </p>
 
                 <div className="mt-3 space-y-1">
@@ -802,9 +856,9 @@ export default function Washing() {
                         {star}★
                       </span>
 
-                      <div className="flex-1 bg-slate-200 rounded-full h-2">
+                      <div className="flex-1 bg-[#E2E8F0] rounded-full h-2 overflow-hidden">
                         <div
-                          className="bg-yellow-400 h-2 rounded-full"
+                          className="rating-bar h-2 rounded-full"
                           style={{
                             width: `${star * 18}%`,
                           }}
@@ -815,27 +869,25 @@ export default function Washing() {
                 </div>
               </div>
 
-              {/* Review cards */}
-
               <div className="flex-1 flex gap-3 overflow-x-auto no-scrollbar pb-2">
                 {REVIEWS.map((review, index) => (
                   <article
                     key={index}
-                    className="min-w-[260px] sm:min-w-[280px] bg-slate-50 border border-slate-200 rounded-2xl p-4"
+                    className="washing-review-item"
                   >
                     <div className="flex items-center gap-3">
                       <img
                         src={review.avatar}
                         alt={review.name}
-                        className="w-11 h-11 rounded-full object-cover border"
+                        className="w-11 h-11 rounded-full object-cover border-2 border-[#CCFBF1]"
                       />
 
                       <div>
-                        <p className="font-bold text-sm text-slate-900">
+                        <p className="font-bold text-sm text-[#0B1D36]">
                           {review.name}
                         </p>
 
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-[#64748B]">
                           {review.city}
                         </p>
                       </div>
@@ -845,15 +897,15 @@ export default function Washing() {
                       ⭐ {review.rating}
                     </p>
 
-                    <p className="text-sm text-slate-700 mt-2">
+                    <p className="text-sm text-[#334155] mt-2">
                       {review.review}
                     </p>
 
-                    <p className="text-xs text-slate-400 mt-3">
+                    <p className="text-xs text-[#94A3B8] mt-3">
                       {review.date}
                     </p>
 
-                    <span className="inline-flex mt-3 bg-green-50 text-green-700 text-xs px-2 py-1 rounded-lg font-semibold">
+                    <span className="inline-flex mt-3 bg-[#ECFDF5] text-[#047857] text-xs px-2 py-1 rounded-lg font-bold">
                       ✔ Verified Booking
                     </span>
                   </article>
@@ -863,76 +915,78 @@ export default function Washing() {
           </div>
         </section>
 
-        {/* =================================================
-            TRUST SECTION
-        ================================================= */}
-
         <section className="mt-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-5">
+          <div className="washing-trust-card">
             <div className="text-center mb-5">
-              <h2 className="text-xl font-bold text-slate-900">
-                Why Choose QuickSeva?
-              </h2>
+              <div className="flex justify-center items-center gap-2">
+                <span className="section-accent-line" />
 
-              <p className="text-sm text-slate-500 mt-1">
+                <h2 className="text-xl font-extrabold text-[#0B1D36]">
+                  Why Choose OnCall?
+                </h2>
+
+                <span className="section-accent-line" />
+              </div>
+
+              <p className="text-sm text-[#64748B] mt-1">
                 Reliable washing machine service at your doorstep
               </p>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="rounded-2xl bg-slate-50 p-4 text-center">
-                <div className="text-2xl">
+              <div className="washing-trust-item">
+                <div className="trust-icon">
                   🛡️
                 </div>
 
-                <p className="font-bold text-sm text-slate-900 mt-2">
+                <p className="font-extrabold text-sm text-[#0B1D36] mt-2">
                   Verified Technicians
                 </p>
 
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-[#64748B] mt-1">
                   Trained service professionals
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 text-center">
-                <div className="text-2xl">
+              <div className="washing-trust-item">
+                <div className="trust-icon">
                   💰
                 </div>
 
-                <p className="font-bold text-sm text-slate-900 mt-2">
+                <p className="font-extrabold text-sm text-[#0B1D36] mt-2">
                   Clear Pricing
                 </p>
 
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-[#64748B] mt-1">
                   Transparent service prices
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 text-center">
-                <div className="text-2xl">
+              <div className="washing-trust-item">
+                <div className="trust-icon">
                   ⚡
                 </div>
 
-                <p className="font-bold text-sm text-slate-900 mt-2">
+                <p className="font-extrabold text-sm text-[#0B1D36] mt-2">
                   Quick Response
                 </p>
 
-                <p className="text-xs text-slate-500 mt-1">
-                  Fast booking confirmation
+                <p className="text-xs text-[#64748B] mt-1">
+                  Fast doorstep assistance
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 text-center">
-                <div className="text-2xl">
-                  ⭐
+              <div className="washing-trust-item">
+                <div className="trust-icon">
+                  🔧
                 </div>
 
-                <p className="font-bold text-sm text-slate-900 mt-2">
-                  Trusted Service
+                <p className="font-extrabold text-sm text-[#0B1D36] mt-2">
+                  Quality Service
                 </p>
 
-                <p className="text-xs text-slate-500 mt-1">
-                  Customer-focused support
+                <p className="text-xs text-[#64748B] mt-1">
+                  Professional workmanship
                 </p>
               </div>
             </div>

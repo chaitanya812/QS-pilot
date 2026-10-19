@@ -3,7 +3,7 @@ import { getFirestore } from "firebase/firestore";
 
 /*
 ============================================================
-QUICKSEVA FIREBASE CONFIGURATION
+ONCALL FIREBASE CONFIGURATION
 ============================================================
 */
 

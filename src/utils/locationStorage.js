@@ -1,4 +1,4 @@
-// QuickSeva shared location service
+// OnCall shared location service
 // Home.jsx and Booking.jsx use this single file so the same
 // location can be shared across the whole app.
 
@@ -130,7 +130,7 @@ export const saveLocation = (data) => {
     }
   } catch (error) {
     console.error(
-      "QuickSeva: Unable to save location",
+      "OnCall: Unable to save location",
       error
     );
   }
@@ -174,7 +174,7 @@ export const getSavedLocation = () => {
     }
   } catch (error) {
     console.error(
-      "QuickSeva: Unable to read saved location",
+      "OnCall: Unable to read saved location",
       error
     );
   }
@@ -438,7 +438,7 @@ export const detectAndSaveCurrentLocation =
       return saved;
     } catch (error) {
       console.warn(
-        "QuickSeva: GPS detected but reverse geocoding failed.",
+        "OnCall: GPS detected but reverse geocoding failed.",
         error
       );
 
@@ -464,7 +464,7 @@ export const clearSavedLocation = () => {
     );
   } catch (error) {
     console.error(
-      "QuickSeva: Unable to clear location",
+      "OnCall: Unable to clear location",
       error
     );
   }

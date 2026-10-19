@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import "./Home.css";
+import onCallLogo from "../assets/On-Call-Logo.jpeg";
 
 // UI
 import QSBottomNav from "../UI/QSBottomNav.jsx";
@@ -8,13 +9,7 @@ import QSDrawer from "../UI/QSDrawer.jsx";
 import QSServiceSkeleton from "../UI/QSServiceSkeleton.jsx";
 import AppRatingPopup from "../components/AppRatingPopup";
 
-// Logo
-import qsLogo from "../assets/QS logo.png";
-
-// =====================================================
-// BANNER IMAGES
-// =====================================================
-
+// Banner images
 import bannerElectrician from "../assets/eletrican banner.png";
 import bannerPlumber from "../assets/plumber-banner.jpg";
 import bannerAC from "../assets/ac-banner.jpg";
@@ -22,18 +17,13 @@ import bannerWashing from "../assets/washing-banner.jpg";
 import bannerFridge from "../assets/fridge-banner.jpg.png";
 import bannerCarpenter from "../assets/carpenter-banner.jpg";
 
-// =====================================================
-// SERVICE IMAGES
-// =====================================================
-
+// Service images
 import imgElectrician from "../assets/electrican.png";
 import imgPlumber from "../assets/plumber service.png";
 import imgAC from "../assets/ac service.png";
 import imgWashing from "../assets/washing service.png";
 import imgFridge from "../assets/Fridge service.png";
 import imgCarpenter from "../assets/carpenter service.png";
-
-// ⭐ NEW LOCAL IMAGES
 import imgBeauty from "../assets/beauty-service.png";
 import imgBikeCar from "../assets/bike-car-service.png";
 
@@ -47,6 +37,8 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [bannerIndex, setBannerIndex] = useState(0);
+  const [activeServiceIndex, setActiveServiceIndex] = useState(0);
+  const [activeWhyIndex, setActiveWhyIndex] = useState(0);
 
   const [problemText, setProblemText] = useState("");
   const [showHelpBox, setShowHelpBox] = useState(false);
@@ -85,19 +77,15 @@ export default function Home() {
   const QS_SUPPORT_PHONE = "7661045308";
 
   const whatsappMessage = encodeURIComponent(
-    "Hi QuickSeva 👋 I want to book a service. Please assist me."
+    "Hi OnCall 👋 I want to book a service. Please assist me."
   );
 
-  // =====================================================
+  // =========================
   // SERVICES
-  // =====================================================
+  // =========================
 
   const categories = useMemo(
     () => [
-      // -------------------------------------------------
-      // ELECTRICIAN
-      // -------------------------------------------------
-
       {
         label: "Electrician",
         shortLabel: "Electrician",
@@ -105,7 +93,6 @@ export default function Home() {
         img: imgElectrician,
         path: "/electrician-plumber",
         bannerImg: bannerElectrician,
-
         keywords: [
           "electrician",
           "electric",
@@ -120,10 +107,6 @@ export default function Home() {
         ],
       },
 
-      // -------------------------------------------------
-      // PLUMBER
-      // -------------------------------------------------
-
       {
         label: "Plumber",
         shortLabel: "Plumber",
@@ -131,7 +114,6 @@ export default function Home() {
         img: imgPlumber,
         path: "/plumber",
         bannerImg: bannerPlumber,
-
         keywords: [
           "plumber",
           "water",
@@ -146,10 +128,6 @@ export default function Home() {
         ],
       },
 
-      // -------------------------------------------------
-      // AC
-      // -------------------------------------------------
-
       {
         label: "AC Service",
         shortLabel: "AC",
@@ -157,7 +135,6 @@ export default function Home() {
         img: imgAC,
         path: "/ac",
         bannerImg: bannerAC,
-
         keywords: [
           "ac",
           "air conditioner",
@@ -171,10 +148,6 @@ export default function Home() {
         ],
       },
 
-      // -------------------------------------------------
-      // WASHING MACHINE
-      // -------------------------------------------------
-
       {
         label: "Washing Machine",
         shortLabel: "Washing",
@@ -182,7 +155,6 @@ export default function Home() {
         img: imgWashing,
         path: "/washing-machine",
         bannerImg: bannerWashing,
-
         keywords: [
           "washing",
           "washing machine",
@@ -194,10 +166,6 @@ export default function Home() {
         ],
       },
 
-      // -------------------------------------------------
-      // FRIDGE
-      // -------------------------------------------------
-
       {
         label: "Fridge Repair",
         shortLabel: "Fridge",
@@ -205,7 +173,6 @@ export default function Home() {
         img: imgFridge,
         path: "/refrigerator",
         bannerImg: bannerFridge,
-
         keywords: [
           "fridge",
           "refrigerator",
@@ -216,10 +183,6 @@ export default function Home() {
         ],
       },
 
-      // -------------------------------------------------
-      // CARPENTER
-      // -------------------------------------------------
-
       {
         label: "Carpenter",
         shortLabel: "Carpenter",
@@ -227,7 +190,6 @@ export default function Home() {
         img: imgCarpenter,
         path: "/carpenter",
         bannerImg: bannerCarpenter,
-
         keywords: [
           "carpenter",
           "wood",
@@ -241,23 +203,13 @@ export default function Home() {
         ],
       },
 
-      // -------------------------------------------------
-      // BEAUTY & SALON
-      // -------------------------------------------------
-
       {
         label: "Beauty Salon",
         shortLabel: "Beauty & Salon",
         icon: "💄",
-
-        // ⭐ LOCAL IMAGE
         img: imgBeauty,
-
         path: "/beauty-salon",
-
-        // ⭐ USE SAME IMAGE IN ROTATING BANNER
         bannerImg: imgBeauty,
-
         keywords: [
           "beauty",
           "salon",
@@ -273,23 +225,13 @@ export default function Home() {
         ],
       },
 
-      // -------------------------------------------------
-      // BIKE & CAR
-      // -------------------------------------------------
-
       {
         label: "Bike & Car Service",
         shortLabel: "Bike & Car",
         icon: "🏍️",
-
-        // ⭐ LOCAL IMAGE
         img: imgBikeCar,
-
         path: "/bike-car",
-
-        // ⭐ USE SAME IMAGE IN ROTATING BANNER
         bannerImg: imgBikeCar,
-
         keywords: [
           "bike",
           "car",
@@ -313,9 +255,9 @@ export default function Home() {
     []
   );
 
-  // =====================================================
+  // =========================
   // LOADING
-  // =====================================================
+  // =========================
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -325,9 +267,9 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
-  // =====================================================
+  // =========================
   // VOICE SUPPORT
-  // =====================================================
+  // =========================
 
   useEffect(() => {
     const SpeechRecognition =
@@ -336,32 +278,60 @@ export default function Home() {
     setVoiceSupported(Boolean(SpeechRecognition));
   }, []);
 
-  // =====================================================
+  // =========================
   // AUTO BANNER
-  // =====================================================
+  // =========================
 
   useEffect(() => {
     if (!categories.length) return;
 
     const interval = setInterval(() => {
-      setBannerIndex(
-        (prev) => (prev + 1) % categories.length
-      );
+      setBannerIndex((prev) => (prev + 1) % categories.length);
     }, 3500);
 
     return () => clearInterval(interval);
   }, [categories.length]);
 
-  // =====================================================
-  // ACTIVE BANNER
-  // =====================================================
+  const activeBanner = categories[bannerIndex] || categories[0];
 
-  const activeBanner =
-    categories[bannerIndex] || categories[0];
 
-  // =====================================================
+  useEffect(() => {
+  if (!categories.length) return;
+
+  const interval = setInterval(() => {
+    setActiveServiceIndex((prev) => {
+      return (prev + 1) % categories.length;
+    });
+  }, 2500);
+
+  return () => clearInterval(interval);
+}, [categories.length]);
+
+
+// =========================
+// WHY ONCALL CLOCKWISE FLOW
+// 1 → 2 → 4 → 3 → 1
+// =========================
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setActiveWhyIndex((prev) => {
+      const clockwiseOrder = [0, 1, 3, 2];
+
+      const currentPosition = clockwiseOrder.indexOf(prev);
+
+      const nextPosition =
+        (currentPosition + 1) % clockwiseOrder.length;
+
+      return clockwiseOrder[nextPosition];
+    });
+  }, 2500);
+
+  return () => clearInterval(interval);
+}, []);
+  // =========================
   // SERVICE DETECTION
-  // =====================================================
+  // =========================
 
   const detectService = (text) => {
     const cleanText = text.toLowerCase().trim();
@@ -393,9 +363,9 @@ export default function Home() {
     return bestService;
   };
 
-  // =====================================================
-  // HANDLE PROBLEM SUBMIT
-  // =====================================================
+  // =========================
+  // HANDLE PROBLEM
+  // =========================
 
   const handleProblemSubmit = () => {
     const text = problemText.trim();
@@ -416,14 +386,13 @@ export default function Home() {
     }
   };
 
-  // =====================================================
+  // =========================
   // VOICE INPUT
-  // =====================================================
+  // =========================
 
   const startVoiceInput = () => {
     const SpeechRecognition =
-      window.SpeechRecognition ||
-      window.webkitSpeechRecognition;
+      window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       alert(
@@ -461,11 +430,7 @@ export default function Home() {
     };
 
     recognition.onerror = (event) => {
-      console.error(
-        "Voice recognition error:",
-        event?.error
-      );
-
+      console.error("Voice recognition error:", event?.error);
       setIsListening(false);
     };
 
@@ -476,18 +441,14 @@ export default function Home() {
     try {
       recognition.start();
     } catch (error) {
-      console.error(
-        "Unable to start voice recognition:",
-        error
-      );
-
+      console.error("Unable to start voice recognition:", error);
       setIsListening(false);
     }
   };
 
-  // =====================================================
+  // =========================
   // FILE SELECTION
-  // =====================================================
+  // =========================
 
   const handleFileSelect = (event) => {
     const file = event.target.files?.[0];
@@ -513,9 +474,9 @@ export default function Home() {
     setShowHelpBox(true);
   };
 
-  // =====================================================
-  // CLEANUP FILE PREVIEW
-  // =====================================================
+  // =========================
+  // CLEANUP
+  // =========================
 
   useEffect(() => {
     return () => {
@@ -525,9 +486,9 @@ export default function Home() {
     };
   }, [filePreview]);
 
-  // =====================================================
+  // =========================
   // LOCATION
-  // =====================================================
+  // =========================
 
   const saveLocation = () => {
     const cleanLocation = locationInput.trim();
@@ -537,18 +498,15 @@ export default function Home() {
       return;
     }
 
-    localStorage.setItem(
-      "qsLocation",
-      cleanLocation
-    );
+    localStorage.setItem("qsLocation", cleanLocation);
 
     setLocation(cleanLocation);
     setShowLocationBox(false);
   };
 
-  // =====================================================
+  // =========================
   // BOOK SERVICE
-  // =====================================================
+  // =========================
 
   const openService = (service) => {
     if (!service?.path) return;
@@ -556,9 +514,9 @@ export default function Home() {
     navigate(service.path);
   };
 
-  // =====================================================
+  // =========================
   // LOGOUT
-  // =====================================================
+  // =========================
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -566,13 +524,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 pb-28">
+    <div className="min-h-screen bg-[#F5F8FA] text-[#0B172A] pb-28">
 
-      {/* =================================================
+      {/* =========================
           HEADER
-      ================================================= */}
+      ========================= */}
 
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-100">
+      <header className="sticky top-0 z-30 bg-[#061B35] text-white shadow-lg">
 
         <div className="px-4 py-3 flex items-center justify-between">
 
@@ -581,13 +539,13 @@ export default function Home() {
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
-            className="w-11 h-11 rounded-xl overflow-hidden bg-gray-100 shadow-sm active:scale-95 transition"
+            className="w-14 h-11 rounded-xl bg-white flex items-center justify-center shadow-sm active:scale-95 transition overflow-hidden"
             aria-label="Open menu"
           >
             <img
-              src={qsLogo}
-              alt="QuickSeva"
-              className="w-full h-full object-cover"
+              src={onCallLogo}
+              alt="OnCall Services"
+              className="w-12 h-10 object-contain"
             />
           </button>
 
@@ -595,16 +553,16 @@ export default function Home() {
 
           <div className="text-center flex-1 px-3">
 
-            <h1 className="text-base sm:text-lg font-bold text-gray-900">
+            <h1 className="text-base sm:text-lg font-bold text-white">
               {user
                 ? `Hi, ${user.name || "there"} 👋`
-                : "Welcome to QuickSeva"}
+                : "Welcome to OnCall"}
             </h1>
 
             <button
               type="button"
               onClick={() => setShowLocationBox(true)}
-              className="text-xs text-gray-500 mt-0.5 max-w-full truncate"
+              className="text-xs text-white/70 mt-0.5 max-w-full truncate"
             >
               📍{" "}
               {location
@@ -614,13 +572,13 @@ export default function Home() {
 
           </div>
 
-          {/* LOGIN / PROFILE */}
+          {/* PROFILE */}
 
           {user ? (
             <button
               type="button"
               onClick={() => navigate("/profile")}
-              className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xl active:scale-95 transition"
+              className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-xl active:scale-95 transition"
               aria-label="Profile"
             >
               👤
@@ -629,29 +587,30 @@ export default function Home() {
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold shadow-sm active:scale-95 transition"
+              className="px-4 py-2 rounded-xl bg-[#00C9A7] text-[#061B35] text-sm font-bold shadow-sm active:scale-95 transition"
             >
               Login
             </button>
           )}
 
         </div>
-
       </header>
+
+      {/* =========================
+          MAIN
+      ========================= */}
 
       <main className="px-4 pt-4">
 
-        {/* =================================================
-            LOCATION CARD
-        ================================================= */}
+        {/* LOCATION */}
 
         <button
           type="button"
           onClick={() => setShowLocationBox(true)}
-          className="w-full bg-white rounded-2xl p-3 shadow-sm border border-gray-100 flex items-center gap-3 text-left active:scale-[0.99] transition"
+          className="w-full bg-white rounded-2xl p-3 shadow-sm border border-[#DCE8EE] flex items-center gap-3 text-left active:scale-[0.99] transition hover:border-[#00C9A7]"
         >
 
-          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-xl">
+          <div className="w-10 h-10 rounded-xl bg-[#E6FFFA] flex items-center justify-center text-xl">
             📍
           </div>
 
@@ -661,25 +620,25 @@ export default function Home() {
               Service location
             </p>
 
-            <p className="font-semibold text-sm truncate">
+            <p className="font-semibold text-sm truncate text-[#061B35]">
               {location || "Add your location"}
             </p>
 
           </div>
 
-          <span className="text-blue-600 font-semibold text-sm">
+          <span className="text-[#00A88F] font-bold text-sm">
             Change
           </span>
 
         </button>
 
-        {/* =================================================
-            MAIN PROBLEM SEARCH
-        ================================================= */}
+        {/* =========================
+            PROBLEM SEARCH
+        ========================= */}
 
-        <section className="mt-4">
+        <section className="mt-5">
 
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-extrabold text-[#061B35]">
             What do you need help with?
           </h2>
 
@@ -687,7 +646,7 @@ export default function Home() {
             Tell us the problem. We'll help you find the right service.
           </p>
 
-          <div className="mt-3 bg-white rounded-2xl border border-gray-200 shadow-sm p-2">
+          <div className="mt-3 bg-white rounded-2xl border-2 border-[#D7E8EA] shadow-sm p-2 focus-within:border-[#00C9A7] transition">
 
             <div className="flex items-center gap-2">
 
@@ -698,9 +657,7 @@ export default function Home() {
               <input
                 type="text"
                 value={problemText}
-                onChange={(e) =>
-                  setProblemText(e.target.value)
-                }
+                onChange={(e) => setProblemText(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     handleProblemSubmit();
@@ -721,7 +678,7 @@ export default function Home() {
                   isListening
                     ? "bg-red-100 text-red-600 animate-pulse"
                     : voiceSupported
-                    ? "bg-blue-50 text-blue-600"
+                    ? "bg-[#E6FFFA] text-[#008F7A]"
                     : "bg-gray-100 text-gray-400"
                 }`}
                 title={
@@ -734,12 +691,12 @@ export default function Home() {
                 {isListening ? "🔴" : "🎤"}
               </button>
 
-              {/* SEARCH */}
+              {/* FIND */}
 
               <button
                 type="button"
                 onClick={handleProblemSubmit}
-                className="px-4 py-3 rounded-xl bg-blue-600 text-white text-sm font-semibold active:scale-95 transition"
+                className="px-5 py-3 rounded-xl bg-[#00C9A7] text-[#061B35] text-sm font-extrabold active:scale-95 transition shadow-sm"
               >
                 Find
               </button>
@@ -748,7 +705,7 @@ export default function Home() {
 
             {isListening && (
               <p className="text-xs text-red-500 px-3 pb-2">
-                Listening... tell Quickly what happened.
+                Listening... tell OnCall what happened.
               </p>
             )}
 
@@ -768,10 +725,8 @@ export default function Home() {
 
             <button
               type="button"
-              onClick={() =>
-                fileInputRef.current?.click()
-              }
-              className="flex-1 bg-white border border-gray-200 rounded-xl py-3 text-sm font-semibold text-gray-700 shadow-sm active:scale-[0.98] transition"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-1 bg-white border border-[#DCE8EE] rounded-xl py-3 text-sm font-semibold text-gray-700 shadow-sm active:scale-[0.98] transition"
             >
               📷 Show us the problem
             </button>
@@ -784,7 +739,7 @@ export default function Home() {
                 setFilePreview("");
                 setShowHelpBox(true);
               }}
-              className="px-4 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 shadow-sm active:scale-[0.98] transition"
+              className="px-4 bg-white border border-[#DCE8EE] rounded-xl text-sm font-semibold text-gray-700 shadow-sm active:scale-[0.98] transition"
             >
               🤷
             </button>
@@ -793,14 +748,14 @@ export default function Home() {
 
         </section>
 
-        {/* =================================================
-            AUTO BANNER
-        ================================================= */}
+        {/* =========================
+            BANNER
+        ========================= */}
 
         <section className="mt-5">
 
           <div
-            className="relative w-full h-44 sm:h-48 rounded-2xl overflow-hidden shadow-md bg-gray-200"
+            className="relative w-full h-48 sm:h-56 rounded-3xl overflow-hidden shadow-lg bg-[#061B35]"
             style={{
               backgroundImage: `url("${activeBanner.bannerImg}")`,
               backgroundSize: "cover",
@@ -808,14 +763,14 @@ export default function Home() {
             }}
           >
 
-            <div className="absolute inset-0 bg-black/55" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#061B35]/90 via-[#061B35]/60 to-transparent" />
 
             <div className="relative z-10 h-full p-4 flex flex-col justify-between text-white">
 
               <div>
 
-                <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-semibold">
-                  {activeBanner.icon} QuickSeva
+                <div className="inline-flex items-center gap-2 bg-[#00C9A7] text-[#061B35] rounded-full px-3 py-1 text-xs font-extrabold shadow-sm">
+                  {activeBanner.icon} OnCall
                 </div>
 
                 <h2 className="text-xl sm:text-2xl font-bold mt-3">
@@ -830,10 +785,8 @@ export default function Home() {
 
               <button
                 type="button"
-                onClick={() =>
-                  openService(activeBanner)
-                }
-                className="self-start px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm shadow-md active:scale-95 transition"
+                onClick={() => openService(activeBanner)}
+                className="self-start px-5 py-2.5 rounded-xl bg-[#00C9A7] text-[#061B35] font-extrabold text-sm shadow-md active:scale-95 transition"
               >
                 Book {activeBanner.shortLabel} →
               </button>
@@ -842,7 +795,7 @@ export default function Home() {
 
           </div>
 
-          {/* BANNER DOTS */}
+          {/* DOTS */}
 
           <div className="flex justify-center gap-1.5 mt-2">
 
@@ -850,13 +803,11 @@ export default function Home() {
               <button
                 key={service.label}
                 type="button"
-                onClick={() =>
-                  setBannerIndex(index)
-                }
+                onClick={() => setBannerIndex(index)}
                 aria-label={`Show ${service.label}`}
                 className={`h-1.5 rounded-full transition-all ${
                   index === bannerIndex
-                    ? "w-6 bg-blue-600"
+                    ? "w-6 bg-[#00C9A7]"
                     : "w-1.5 bg-gray-300"
                 }`}
               />
@@ -866,25 +817,21 @@ export default function Home() {
 
         </section>
 
-        {/* =================================================
+        {/* =========================
             POPULAR SERVICES
-        ================================================= */}
+        ========================= */}
 
         <section className="mt-6">
 
-          <div className="flex items-end justify-between">
+          <div>
 
-            <div>
+            <h2 className="text-lg font-extrabold text-[#061B35]">
+              Popular Services
+            </h2>
 
-              <h2 className="text-lg font-bold text-gray-900">
-                Popular Services
-              </h2>
-
-              <p className="text-xs text-gray-500 mt-0.5">
-                Choose a service or tell us your problem
-              </p>
-
-            </div>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Choose a service or tell us your problem
+            </p>
 
           </div>
 
@@ -895,76 +842,149 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-2 gap-3 mt-3">
 
-              {categories.map((service) => (
+  {categories.map((service, index) => {
 
-                <button
-                  key={service.label}
-                  type="button"
-                  onClick={() =>
-                    openService(service)
-                  }
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden text-left active:scale-[0.97] transition-all"
-                >
+    const isActive = index === activeServiceIndex;
 
-                  <div className="p-3">
+    return (
+      <button
+        key={service.label}
+        type="button"
+        onClick={() => openService(service)}
+        className={`
+          group
+          rounded-2xl
+          overflow-hidden
+          text-left
+          transition-all
+          duration-700
+          active:scale-[0.97]
+          border
+          shadow-sm
+          ${
+            isActive
+              ? "bg-gradient-to-br from-[#061B35] via-[#0B2A4A] to-[#075DA8] border-[#00C9A7] shadow-lg scale-[1.02]"
+              : "bg-white border-[#DCE8EE] hover:border-[#00C9A7] hover:shadow-md"
+          }
+        `}
+      >
 
-                    <div className="w-full aspect-square rounded-xl bg-gray-50 flex items-center justify-center overflow-hidden">
+        <div className="p-3">
 
-                      <img
-                        src={service.img}
-                        alt={service.label}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                        onError={(e) => {
-                          e.currentTarget.style.display =
-                            "none";
-                        }}
-                      />
+          {/* SERVICE IMAGE */}
 
-                    </div>
+          <div
+            className={`
+              w-full
+              aspect-square
+              rounded-xl
+              flex
+              items-center
+              justify-center
+              overflow-hidden
+              transition-all
+              duration-700
+              ${
+                isActive
+                  ? "bg-white/10 ring-1 ring-[#00C9A7]/40"
+                  : "bg-[#F1F8F8]"
+              }
+            `}
+          >
 
-                    <div className="flex items-center gap-1.5 mt-3">
+            <img
+              src={service.img}
+              alt={service.label}
+              className={`
+                w-full
+                h-full
+                object-cover
+                transition-transform
+                duration-700
+                ${
+                  isActive
+                    ? "scale-105"
+                    : "scale-100"
+                }
+              `}
+              loading="lazy"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
+            />
 
-                      <span className="text-base">
-                        {service.icon}
-                      </span>
+          </div>
 
-                      <span className="font-semibold text-sm text-gray-800 truncate">
-                        {service.label}
-                      </span>
+          {/* SERVICE NAME */}
 
-                    </div>
+          <div className="flex items-center gap-1.5 mt-3">
 
-                    <div className="mt-2 text-blue-600 text-xs font-semibold">
-                      Book Service →
-                    </div>
+            <span className="text-base">
+              {service.icon}
+            </span>
 
-                  </div>
+            <span
+              className={`
+                font-bold
+                text-sm
+                truncate
+                transition-colors
+                duration-500
+                ${
+                  isActive
+                    ? "text-white"
+                    : "text-[#061B35]"
+                }
+              `}
+            >
+              {service.label}
+            </span>
 
-                </button>
+          </div>
 
-              ))}
+          {/* BOOK SERVICE */}
 
-            </div>
+          <div
+            className={`
+              mt-2
+              transition-all
+              duration-500
+              ${
+                isActive
+                  ? "text-[#00C9A7] text-sm font-extrabold"
+                  : "text-[#008F7A] text-xs font-bold"
+              }
+            `}
+          >
+            Book Service →
+          </div>
+
+        </div>
+
+      </button>
+    );
+  })}
+
+</div>
           )}
 
         </section>
 
-        {/* =================================================
-            DON'T KNOW WHAT'S WRONG
-        ================================================= */}
+        {/* =========================
+            DON'T KNOW
+        ========================= */}
 
         <section className="mt-5">
 
           <button
             type="button"
             onClick={() => setShowHelpBox(true)}
-            className="w-full rounded-2xl bg-blue-600 text-white p-4 shadow-md text-left active:scale-[0.99] transition"
+            className="w-full rounded-2xl bg-[#061B35] text-white p-4 shadow-md text-left active:scale-[0.99] transition"
           >
 
             <div className="flex items-center gap-3">
 
-              <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 rounded-xl bg-[#00C9A7]/20 flex items-center justify-center text-2xl">
                 🤷
               </div>
 
@@ -974,13 +994,13 @@ export default function Home() {
                   Don't know what's wrong?
                 </h3>
 
-                <p className="text-xs text-blue-100 mt-1">
-                  Describe the problem and Quickly will help you choose.
+                <p className="text-xs text-white/70 mt-1">
+                  Describe the problem and OnCall will help you choose.
                 </p>
 
               </div>
 
-              <span className="text-xl">
+              <span className="text-[#00C9A7] text-xl">
                 →
               </span>
 
@@ -990,159 +1010,426 @@ export default function Home() {
 
         </section>
 
-        {/* =================================================
-            QUICK ACTIONS
-        ================================================= */}
+      {/* =========================
+    QUICK ACTIONS
+========================= */}
 
-        <section className="mt-6">
+<section className="mt-7">
 
-          <h2 className="text-lg font-bold text-gray-900">
-            Quick Actions
-          </h2>
+  <div className="flex items-center justify-between mb-3">
+    <div>
+      <h2 className="text-lg font-extrabold text-[#061B35]">
+        Quick Actions
+      </h2>
 
-          <div className="grid grid-cols-2 gap-3 mt-3">
+      <p className="text-xs text-gray-500 mt-0.5">
+        Manage your OnCall services
+      </p>
+    </div>
 
-            <button
-              type="button"
-              onClick={() => navigate("/my")}
-              className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm text-left active:scale-[0.98] transition"
-            >
-              <span className="text-2xl">
-                📋
-              </span>
+    <div className="w-8 h-1 rounded-full bg-[#00C9A7]" />
+  </div>
 
-              <h3 className="font-semibold text-sm mt-2">
-                My Bookings
-              </h3>
+  <div className="grid grid-cols-2 gap-3">
 
-              <p className="text-xs text-gray-500 mt-1">
-                Track your services
-              </p>
-            </button>
+    {/* MY BOOKINGS */}
 
-            <button
-              type="button"
-              onClick={() => {
-                window.open(
-                  `https://wa.me/${QS_SUPPORT_PHONE}?text=${whatsappMessage}`,
-                  "_blank",
-                  "noopener,noreferrer"
-                );
-              }}
-              className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm text-left active:scale-[0.98] transition"
-            >
-              <span className="text-2xl">
-                💬
-              </span>
+    <button
+      type="button"
+      onClick={() => navigate("/my")}
+      className="
+        group
+        relative
+        overflow-hidden
+        bg-white
+        rounded-2xl
+        p-4
+        text-left
+        border
+        border-[#DCE8EE]
+        shadow-sm
+        transition-all
+        duration-300
+        hover:-translate-y-1
+        hover:border-[#00C9A7]
+        hover:shadow-[0_8px_25px_rgba(0,201,167,0.15)]
+        active:scale-[0.97]
+      "
+    >
 
-              <h3 className="font-semibold text-sm mt-2">
-                Need Help?
-              </h3>
+      {/* TOP GRADIENT LINE */}
 
-              <p className="text-xs text-gray-500 mt-1">
-                Chat with QuickSeva
-              </p>
-            </button>
+      <div className="
+        absolute
+        top-0
+        left-0
+        right-0
+        h-1
+        bg-gradient-to-r
+        from-[#061B35]
+        via-[#075DA8]
+        to-[#00C9A7]
+      " />
 
-          </div>
+      <div className="flex items-start justify-between">
 
-        </section>
+        {/* ICON */}
 
-        {/* =================================================
-            WHY QUICKSEVA
-        ================================================= */}
+        <div className="
+          w-11
+          h-11
+          rounded-xl
+          bg-[#061B35]
+          flex
+          items-center
+          justify-center
+          shadow-sm
+          group-hover:bg-[#00C9A7]
+          transition-colors
+          duration-300
+        ">
+          <span className="text-xl group-hover:scale-110 transition-transform">
+            📋
+          </span>
+        </div>
 
-        <section className="mt-7 bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+        {/* ARROW */}
 
-          <div className="text-center">
+        <span className="
+          text-[#075DA8]
+          text-lg
+          group-hover:text-[#00A88F]
+          group-hover:translate-x-1
+          transition-all
+        ">
+          →
+        </span>
 
-            <h2 className="text-lg font-bold text-gray-900">
-              Why customers use QuickSeva
-            </h2>
+      </div>
 
-            <p className="text-xs text-gray-500 mt-1">
-              Simple, clear and convenient service booking
-            </p>
+      <h3 className="
+        font-extrabold
+        text-sm
+        text-[#061B35]
+        mt-3
+      ">
+        My Bookings
+      </h3>
 
-          </div>
+      <p className="
+        text-xs
+        text-gray-500
+        mt-1
+        leading-relaxed
+      ">
+        Track your services
+      </p>
 
-          <div className="grid grid-cols-2 gap-3 mt-4">
+      <div className="
+        mt-3
+        text-[11px]
+        font-bold
+        text-[#008F7A]
+        group-hover:text-[#00A88F]
+        transition-colors
+      ">
+        View bookings →
+      </div>
 
-            <div className="rounded-xl bg-gray-50 p-4 text-center">
+    </button>
 
-              <div className="text-3xl">
-                ⚡
-              </div>
 
-              <h3 className="font-semibold text-sm text-gray-800 mt-2">
-                Fast Response
-              </h3>
+    {/* NEED HELP */}
 
-              <p className="text-xs text-gray-500 mt-1">
-                Quick booking confirmation
-              </p>
+    <button
+      type="button"
+      onClick={() => {
+        window.open(
+          `https://wa.me/${QS_SUPPORT_PHONE}?text=${whatsappMessage}`,
+          "_blank",
+          "noopener,noreferrer"
+        );
+      }}
+      className="
+        group
+        relative
+        overflow-hidden
+        bg-white
+        rounded-2xl
+        p-4
+        text-left
+        border
+        border-[#DCE8EE]
+        shadow-sm
+        transition-all
+        duration-300
+        hover:-translate-y-1
+        hover:border-[#00C9A7]
+        hover:shadow-[0_8px_25px_rgba(0,201,167,0.15)]
+        active:scale-[0.97]
+      "
+    >
 
-            </div>
+      {/* TOP GRADIENT LINE */}
 
-            <div className="rounded-xl bg-gray-50 p-4 text-center">
+      <div className="
+        absolute
+        top-0
+        left-0
+        right-0
+        h-1
+        bg-gradient-to-r
+        from-[#061B35]
+        via-[#075DA8]
+        to-[#00C9A7]
+      " />
 
-              <div className="text-3xl">
-                👨‍🔧
-              </div>
+      <div className="flex items-start justify-between">
 
-              <h3 className="font-semibold text-sm text-gray-800 mt-2">
-                Verified Providers
-              </h3>
+        {/* ICON */}
 
-              <p className="text-xs text-gray-500 mt-1">
-                Know who is coming
-              </p>
+        <div className="
+          w-11
+          h-11
+          rounded-xl
+          bg-[#061B35]
+          flex
+          items-center
+          justify-center
+          shadow-sm
+          group-hover:bg-[#00C9A7]
+          transition-colors
+          duration-300
+        ">
+          <span className="text-xl group-hover:scale-110 transition-transform">
+            💬
+          </span>
+        </div>
 
-            </div>
+        {/* ARROW */}
 
-            <div className="rounded-xl bg-gray-50 p-4 text-center">
+        <span className="
+          text-[#075DA8]
+          text-lg
+          group-hover:text-[#00A88F]
+          group-hover:translate-x-1
+          transition-all
+        ">
+          →
+        </span>
 
-              <div className="text-3xl">
-                💰
-              </div>
+      </div>
 
-              <h3 className="font-semibold text-sm text-gray-800 mt-2">
-                Clear Pricing
-              </h3>
+      <h3 className="
+        font-extrabold
+        text-sm
+        text-[#061B35]
+        mt-3
+      ">
+        Need Help?
+      </h3>
 
-              <p className="text-xs text-gray-500 mt-1">
-                Know charges before confirming
-              </p>
+      <p className="
+        text-xs
+        text-gray-500
+        mt-1
+        leading-relaxed
+      ">
+        Chat with OnCall
+      </p>
 
-            </div>
+      <div className="
+        mt-3
+        text-[11px]
+        font-bold
+        text-[#008F7A]
+        group-hover:text-[#00A88F]
+        transition-colors
+      ">
+        Chat now →
+      </div>
 
-            <div className="rounded-xl bg-gray-50 p-4 text-center">
+    </button>
 
-              <div className="text-3xl">
-                🛡️
-              </div>
+  </div>
 
-              <h3 className="font-semibold text-sm text-gray-800 mt-2">
-                Service Support
-              </h3>
+</section>
 
-              <p className="text-xs text-gray-500 mt-1">
-                We're here when you need help
-              </p>
+       {/* =========================
+    WHY ONCALL
+========================= */}
 
-            </div>
+<section className="mt-7">
 
-          </div>
+  {/* SECTION HEADER */}
 
-        </section>
+  <div className="text-center mb-4">
 
-        {/* =================================================
-            SUPPORT BANNER
-        ================================================= */}
+    <h2 className="text-lg font-extrabold text-[#061B35]">
+      Why customers use OnCall
+    </h2>
+
+    <p className="text-xs text-gray-500 mt-1">
+      Simple, clear and convenient service booking
+    </p>
+
+  </div>
+
+
+  {/* WHY CARDS */}
+
+  <div className="grid grid-cols-2 gap-3">
+
+    <div
+  className={`
+    oncall-flow-card
+    rounded-2xl
+    p-4
+    text-center
+    min-h-[105px]
+    border
+    transition-all
+    duration-500
+    ${
+      activeWhyIndex === 0
+        ? "active border-[#00C9A7] shadow-lg"
+        : "bg-[#F1F8F8] border-transparent"
+    }
+  `}
+>
+  <div className="oncall-flow-content">
+
+    <div className="text-3xl">
+      ⚡
+    </div>
+
+    <h3 className="font-bold text-sm mt-2">
+      Fast Response
+    </h3>
+
+    <p className="text-xs mt-1 opacity-80">
+      Quick booking confirmation
+    </p>
+
+  </div>
+</div>
+
+
+   <div
+  className={`
+    oncall-flow-card
+    rounded-2xl
+    p-4
+    text-center
+    min-h-[105px]
+    border
+    transition-all
+    duration-500
+    ${
+      activeWhyIndex === 1
+        ? "active border-[#00C9A7] shadow-lg"
+        : "bg-[#F1F8F8] border-transparent"
+    }
+  `}
+>
+  <div className="oncall-flow-content">
+
+    <div className="text-3xl">
+      👨‍🔧
+    </div>
+
+    <h3 className="font-bold text-sm mt-2">
+      Verified Providers
+    </h3>
+
+    <p className="text-xs mt-1 opacity-80">
+      Know who is coming
+    </p>
+
+  </div>
+</div>
+
+
+   <div
+  className={`
+    oncall-flow-card
+    rounded-2xl
+    p-4
+    text-center
+    min-h-[105px]
+    border
+    transition-all
+    duration-500
+    ${
+      activeWhyIndex === 2
+        ? "active border-[#00C9A7] shadow-lg"
+        : "bg-[#F1F8F8] border-transparent"
+    }
+  `}
+>
+  <div className="oncall-flow-content">
+
+    <div className="text-3xl">
+      💰
+    </div>
+
+    <h3 className="font-bold text-sm mt-2">
+      Clear Pricing
+    </h3>
+
+    <p className="text-xs mt-1 opacity-80">
+      Know charges before confirming
+    </p>
+
+  </div>
+</div>
+
+
+   <div
+  className={`
+    oncall-flow-card
+    rounded-2xl
+    p-4
+    text-center
+    min-h-[105px]
+    border
+    transition-all
+    duration-500
+    ${
+      activeWhyIndex === 3
+        ? "active border-[#00C9A7] shadow-lg"
+        : "bg-[#F1F8F8] border-transparent"
+    }
+  `}
+>
+  <div className="oncall-flow-content">
+
+    <div className="text-3xl">
+      🛡️
+    </div>
+
+    <h3 className="font-bold text-sm mt-2">
+      Service Support
+    </h3>
+
+    <p className="text-xs mt-1 opacity-80">
+      We're here when you need help
+    </p>
+
+  </div>
+</div>
+
+  </div>
+
+</section>
+
+        {/* =========================
+            SUPPORT
+        ========================= */}
 
         <section className="mt-5 mb-2">
 
-          <div className="bg-gray-900 rounded-2xl p-4 text-white">
+          <div className="bg-gradient-to-r from-[#061B35] to-[#0B2A4A] rounded-2xl p-4 text-white shadow-md">
 
             <div className="flex items-center gap-3">
 
@@ -1156,7 +1443,7 @@ export default function Home() {
                   Need help booking?
                 </h3>
 
-                <p className="text-xs text-gray-300 mt-1">
+                <p className="text-xs text-white/70 mt-1">
                   Our team can help you choose the right service.
                 </p>
 
@@ -1164,7 +1451,7 @@ export default function Home() {
 
               <a
                 href={`tel:${QS_SUPPORT_PHONE}`}
-                className="px-4 py-2 rounded-xl bg-white text-gray-900 text-xs font-bold active:scale-95 transition"
+                className="px-4 py-2 rounded-xl bg-[#00C9A7] text-[#061B35] text-xs font-extrabold active:scale-95 transition"
               >
                 Call
               </a>
@@ -1177,9 +1464,9 @@ export default function Home() {
 
       </main>
 
-      {/* =================================================
+      {/* =========================
           DRAWER
-      ================================================= */}
+      ========================= */}
 
       <QSDrawer
         open={menuOpen}
@@ -1187,25 +1474,25 @@ export default function Home() {
         user={user}
       />
 
-      {/* =================================================
+      {/* =========================
           BOTTOM NAV
-      ================================================= */}
+      ========================= */}
 
       <QSBottomNav />
 
-      {/* =================================================
+      {/* =========================
           APP RATING
-      ================================================= */}
+      ========================= */}
 
       <AppRatingPopup />
 
-      {/* =================================================
+      {/* =========================
           LOCATION MODAL
-      ================================================= */}
+      ========================= */}
 
       {showLocationBox && (
 
-        <div className="fixed inset-0 z-[100] bg-black/50 flex items-end sm:items-center justify-center p-3">
+        <div className="fixed inset-0 z-[100] bg-[#061B35]/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-3">
 
           <div className="w-full max-w-md bg-white rounded-3xl p-5 shadow-2xl">
 
@@ -1213,7 +1500,7 @@ export default function Home() {
 
               <div>
 
-                <h2 className="text-lg font-bold">
+                <h2 className="text-lg font-extrabold text-[#061B35]">
                   Service Location
                 </h2>
 
@@ -1225,10 +1512,8 @@ export default function Home() {
 
               <button
                 type="button"
-                onClick={() =>
-                  setShowLocationBox(false)
-                }
-                className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center"
+                onClick={() => setShowLocationBox(false)}
+                className="w-9 h-9 rounded-full bg-[#F1F8F8] flex items-center justify-center"
                 aria-label="Close"
               >
                 ✕
@@ -1245,11 +1530,9 @@ export default function Home() {
               <input
                 type="text"
                 value={locationInput}
-                onChange={(e) =>
-                  setLocationInput(e.target.value)
-                }
+                onChange={(e) => setLocationInput(e.target.value)}
                 placeholder="Example: Kukatpally, Hyderabad"
-                className="w-full mt-2 px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-blue-500 text-sm"
+                className="w-full mt-2 px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-[#00C9A7] text-sm"
               />
 
             </div>
@@ -1258,9 +1541,7 @@ export default function Home() {
 
               <button
                 type="button"
-                onClick={() =>
-                  setShowLocationBox(false)
-                }
+                onClick={() => setShowLocationBox(false)}
                 className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-700 font-semibold text-sm"
               >
                 Cancel
@@ -1269,7 +1550,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={saveLocation}
-                className="flex-1 py-3 rounded-xl bg-blue-600 text-white font-semibold text-sm"
+                className="flex-1 py-3 rounded-xl bg-[#00C9A7] text-[#061B35] font-extrabold text-sm"
               >
                 Save Location
               </button>
@@ -1282,13 +1563,13 @@ export default function Home() {
 
       )}
 
-      {/* =================================================
+      {/* =========================
           HELP MODAL
-      ================================================= */}
+      ========================= */}
 
       {showHelpBox && (
 
-        <div className="fixed inset-0 z-[100] bg-black/50 flex items-end sm:items-center justify-center p-3">
+        <div className="fixed inset-0 z-[100] bg-[#061B35]/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-3">
 
           <div className="w-full max-w-md bg-white rounded-3xl p-5 shadow-2xl max-h-[90vh] overflow-y-auto">
 
@@ -1296,8 +1577,8 @@ export default function Home() {
 
               <div>
 
-                <h2 className="text-xl font-bold">
-                  Tell Quickly
+                <h2 className="text-xl font-extrabold text-[#061B35]">
+                  Tell OnCall
                 </h2>
 
                 <p className="text-sm text-gray-500 mt-1">
@@ -1308,10 +1589,8 @@ export default function Home() {
 
               <button
                 type="button"
-                onClick={() =>
-                  setShowHelpBox(false)
-                }
-                className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center"
+                onClick={() => setShowHelpBox(false)}
+                className="w-9 h-9 rounded-full bg-[#F1F8F8] flex items-center justify-center"
                 aria-label="Close"
               >
                 ✕
@@ -1329,12 +1608,10 @@ export default function Home() {
 
               <textarea
                 value={problemText}
-                onChange={(e) =>
-                  setProblemText(e.target.value)
-                }
+                onChange={(e) => setProblemText(e.target.value)}
                 rows={4}
                 placeholder="Example: My AC is running but not cooling..."
-                className="w-full mt-2 p-3 rounded-xl border border-gray-200 outline-none focus:border-blue-500 resize-none text-sm"
+                className="w-full mt-2 p-3 rounded-xl border border-gray-200 outline-none focus:border-[#00C9A7] resize-none text-sm"
               />
 
             </div>
@@ -1349,7 +1626,7 @@ export default function Home() {
                 isListening
                   ? "bg-red-100 text-red-600"
                   : voiceSupported
-                  ? "bg-blue-50 text-blue-700"
+                  ? "bg-[#E6FFFA] text-[#008F7A]"
                   : "bg-gray-100 text-gray-400"
               }`}
             >
@@ -1364,10 +1641,8 @@ export default function Home() {
 
             <button
               type="button"
-              onClick={() =>
-                fileInputRef.current?.click()
-              }
-              className="w-full mt-2 py-3 rounded-xl bg-gray-100 text-gray-700 font-semibold text-sm"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full mt-2 py-3 rounded-xl bg-[#F1F8F8] text-[#061B35] font-semibold text-sm"
             >
               📷 Add Photo / Video
             </button>
@@ -1375,6 +1650,7 @@ export default function Home() {
             {/* PREVIEW */}
 
             {selectedFile && (
+
               <div className="mt-3 rounded-xl bg-gray-50 p-3">
 
                 {filePreview ? (
@@ -1390,6 +1666,7 @@ export default function Home() {
                 )}
 
               </div>
+
             )}
 
             {/* UNKNOWN SERVICE */}
@@ -1401,7 +1678,7 @@ export default function Home() {
                   "I don't know what's wrong. Please help me identify the service."
                 );
               }}
-              className="w-full mt-3 py-3 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm"
+              className="w-full mt-3 py-3 rounded-xl border border-[#DCE8EE] text-[#061B35] font-semibold text-sm"
             >
               🤷 I don't know what's wrong
             </button>
@@ -1414,7 +1691,7 @@ export default function Home() {
                 setShowHelpBox(false);
                 handleProblemSubmit();
               }}
-              className="w-full mt-4 py-3.5 rounded-xl bg-blue-600 text-white font-bold"
+              className="w-full mt-4 py-3.5 rounded-xl bg-[#00C9A7] text-[#061B35] font-extrabold"
             >
               Find My Service →
             </button>
@@ -1425,13 +1702,13 @@ export default function Home() {
 
       )}
 
-      {/* =================================================
+      {/* =========================
           DETECTED SERVICE MODAL
-      ================================================= */}
+      ========================= */}
 
       {showProblemResult && (
 
-        <div className="fixed inset-0 z-[110] bg-black/50 flex items-end sm:items-center justify-center p-3">
+        <div className="fixed inset-0 z-[110] bg-[#061B35]/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-3">
 
           <div className="w-full max-w-md bg-white rounded-3xl p-5 shadow-2xl">
 
@@ -1441,7 +1718,7 @@ export default function Home() {
                 {detectedService?.icon || "🤝"}
               </div>
 
-              <h2 className="text-xl font-bold mt-3">
+              <h2 className="text-xl font-extrabold text-[#061B35] mt-3">
                 {detectedService
                   ? "We found a possible service"
                   : "Let's find the right service"}
@@ -1457,7 +1734,7 @@ export default function Home() {
 
             {detectedService ? (
 
-              <div className="mt-5 rounded-2xl bg-gray-50 p-4">
+              <div className="mt-5 rounded-2xl bg-[#F1F8F8] p-4">
 
                 <div className="flex items-center gap-3">
 
@@ -1473,7 +1750,7 @@ export default function Home() {
                       Suggested service
                     </p>
 
-                    <h3 className="font-bold text-lg">
+                    <h3 className="font-extrabold text-lg text-[#061B35]">
                       {detectedService.label}
                     </h3>
 
@@ -1502,14 +1779,14 @@ export default function Home() {
                       setShowProblemResult(false);
                       openService(service);
                     }}
-                    className="p-3 rounded-xl bg-gray-50 text-left border border-gray-100"
+                    className="p-3 rounded-xl bg-[#F1F8F8] text-left border border-[#DCE8EE]"
                   >
 
                     <span className="text-xl">
                       {service.icon}
                     </span>
 
-                    <p className="text-xs font-semibold mt-1">
+                    <p className="text-xs font-semibold mt-1 text-[#061B35]">
                       {service.label}
                     </p>
 
@@ -1541,7 +1818,7 @@ export default function Home() {
                     setShowProblemResult(false);
                     openService(detectedService);
                   }}
-                  className="flex-1 py-3 rounded-xl bg-blue-600 text-white font-semibold text-sm"
+                  className="flex-1 py-3 rounded-xl bg-[#00C9A7] text-[#061B35] font-extrabold text-sm"
                 >
                   Continue →
                 </button>

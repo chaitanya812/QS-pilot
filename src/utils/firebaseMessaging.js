@@ -1,6 +1,6 @@
 /*
 ============================================================
-QUICKSEVA FIREBASE CLOUD MESSAGING
+ONCALL FIREBASE CLOUD MESSAGING
 ADMIN DEVICE REGISTRATION
 ============================================================
 */
@@ -433,7 +433,7 @@ REGISTER ADMIN DEVICE
 export async function registerAdminDevice() {
 
   console.log(
-    "[FCM] Registering QuickSeva admin device..."
+    "[FCM] Registering OnCall admin device..."
   );
 
   const token =

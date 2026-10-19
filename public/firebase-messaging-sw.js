@@ -1,6 +1,6 @@
 /*
 ============================================================
-QUICKSEVA FIREBASE CLOUD MESSAGING SERVICE WORKER
+ONCALL FIREBASE CLOUD MESSAGING SERVICE WORKER
 ============================================================
 */
 
@@ -42,7 +42,7 @@ const messaging =
   firebase.messaging();
 
 console.log(
-  "[QuickSeva FCM] Service worker loaded."
+  "[OnCall FCM] Service worker loaded."
 );
 
 /*
@@ -55,7 +55,7 @@ messaging.onBackgroundMessage(
   function (payload) {
 
     console.log(
-      "[QuickSeva FCM] Background message:",
+      "[OnCall FCM] Background message:",
       payload
     );
 
@@ -110,7 +110,7 @@ messaging.onBackgroundMessage(
 
     const title =
       notification.title ||
-      "🔔 New QuickSeva Booking";
+      "🔔 New OnCall Booking";
 
     /*
     ========================================================
@@ -228,7 +228,7 @@ self.addEventListener(
   function (event) {
 
     console.log(
-      "[QuickSeva FCM] Notification clicked."
+      "[OnCall FCM] Notification clicked."
     );
 
     event.notification.close();
@@ -309,7 +309,7 @@ self.addEventListener(
   function () {
 
     console.log(
-      "[QuickSeva FCM] Service worker installed."
+      "[OnCall FCM] Service worker installed."
     );
 
     self.skipWaiting();
@@ -327,7 +327,7 @@ self.addEventListener(
   function (event) {
 
     console.log(
-      "[QuickSeva FCM] Service worker activated."
+      "[OnCall FCM] Service worker activated."
     );
 
     event.waitUntil(

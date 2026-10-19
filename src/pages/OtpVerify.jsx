@@ -31,15 +31,18 @@ export default function OtpVerify() {
     try {
       const user = {
         uid: `quickseva_${Date.now()}`,
-        name: "QuickSeva User",
+        name: "OnCall User",
         phone: phone,
       };
 
       // Save login
       login(user);
 
-      // Also save locally for easy access
-      localStorage.setItem("quickseva_user", JSON.stringify(user));
+      // Save locally
+      localStorage.setItem(
+        "quickseva_user",
+        JSON.stringify(user)
+      );
 
       // Remove temporary phone
       localStorage.removeItem("temp_phone");
@@ -55,14 +58,26 @@ export default function OtpVerify() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ backgroundColor: "#F1F5F9" }}
+    >
+
       {/* HEADER */}
-      <div className="bg-qsBlue-500 text-white p-4 rounded-b-3xl shadow">
+      <div
+        className="text-white p-4 rounded-b-3xl shadow-lg"
+        style={{
+          background:
+            "linear-gradient(135deg, #0B1D36 0%, #0D9488 100%)",
+        }}
+      >
         <div className="max-w-md mx-auto flex items-center gap-3">
+
           <button
             type="button"
             onClick={() => nav(-1)}
-            className="w-10 h-10 rounded-full bg-white text-qsBlue-500 shadow flex items-center justify-center"
+            className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center"
+            style={{ color: "#0B1D36" }}
           >
             ←
           </button>
@@ -70,18 +85,37 @@ export default function OtpVerify() {
           <h2 className="text-lg font-semibold">
             OTP Verification
           </h2>
+
         </div>
       </div>
 
       {/* CONTENT */}
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-md bg-white rounded-3xl shadow-lg p-6">
+
+        <div
+          className="w-full max-w-md rounded-3xl shadow-xl p-6"
+          style={{
+            backgroundColor: "#F8FAFC",
+            border: "1px solid #E2E8F0",
+          }}
+        >
+
           {/* ICON */}
-          <div className="w-16 h-16 mx-auto rounded-full bg-blue-100 flex items-center justify-center text-3xl">
+          <div
+            className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center text-3xl"
+            style={{
+              backgroundColor: "#E6FFFB",
+              border: "1px solid #99F6E4",
+            }}
+          >
             🔐
           </div>
 
-          <h1 className="text-2xl font-bold text-center mt-5">
+          {/* TITLE */}
+          <h1
+            className="text-2xl font-bold text-center mt-5"
+            style={{ color: "#0B1D36" }}
+          >
             Verify your number
           </h1>
 
@@ -89,26 +123,75 @@ export default function OtpVerify() {
             Enter the OTP sent to your phone number.
           </p>
 
+          {/* PHONE NUMBER */}
           {phone && (
-            <p className="text-center font-semibold mt-2">
-              +91 {phone}
+            <p
+              className="text-center font-semibold mt-2"
+              style={{ color: "#0D9488" }}
+            >
+              {phone}
             </p>
           )}
 
-          {/* TEST OTP NOTICE */}
-          <div className="mt-6 p-4 rounded-2xl bg-yellow-50 border border-yellow-200">
-            <p className="text-sm text-yellow-800 text-center">
-              🧪 Testing mode
-            </p>
+{/* TEST OTP NOTICE */}
+<div
+  className="mt-6 p-4 rounded-2xl text-left"
+  style={{
+    background:
+      "linear-gradient(135deg, #E6FFFB 0%, #EFF6FF 100%)",
+    border: "1px solid #99F6E4",
+  }}
+>
+  <div className="flex items-center gap-2">
+    <div
+      className="w-8 h-8 rounded-full flex items-center justify-center"
+      style={{
+        backgroundColor: "#0D9488",
+        color: "#FFFFFF",
+      }}
+    >
+      🧪
+    </div>
 
-            <p className="text-center font-bold text-xl mt-1">
-              OTP: 123456
-            </p>
+    <div>
+      <p
+        className="text-sm font-bold"
+        style={{ color: "#0B1D36" }}
+      >
+        Testing Mode
+      </p>
 
-            <p className="text-xs text-yellow-700 text-center mt-1">
-              Firebase SMS is not required for now.
-            </p>
-          </div>
+      <p
+        className="text-xs"
+        style={{ color: "#0D9488" }}
+      >
+        Firebase SMS is temporarily disabled
+      </p>
+    </div>
+  </div>
+
+  <div
+    className="mt-3 p-3 rounded-xl text-center"
+    style={{
+      backgroundColor: "#FFFFFF",
+      border: "1px solid #BAE6FD",
+    }}
+  >
+    <p
+      className="text-xs font-medium"
+      style={{ color: "#64748B" }}
+    >
+      Test OTP
+    </p>
+
+    <p
+      className="text-2xl font-bold tracking-[0.25em] mt-1"
+      style={{ color: "#0B1D36" }}
+    >
+      123456
+    </p>
+  </div>
+</div>
 
           {/* OTP INPUT */}
           <input
@@ -118,29 +201,46 @@ export default function OtpVerify() {
             placeholder="Enter 6-digit OTP"
             value={otp}
             onChange={(e) =>
-              setOtp(e.target.value.replace(/\D/g, ""))
+              setOtp(
+                e.target.value
+                  .replace(/\D/g, "")
+                  .slice(0, 6)
+              )
             }
-            className="w-full mt-6 p-4 border border-gray-300 rounded-2xl text-center text-2xl tracking-[0.5em] font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full mt-6 p-4 rounded-2xl text-center text-2xl tracking-[0.5em] font-bold focus:outline-none"
+            style={{
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #CBD5E1",
+              color: "#0F172A",
+            }}
           />
 
-          {/* VERIFY */}
+          {/* VERIFY BUTTON */}
           <button
             type="button"
             onClick={handleVerify}
-            disabled={loading}
-            className="w-full mt-5 p-4 rounded-2xl bg-gradient-to-r from-qsBlue-400 to-qsBlue-600 text-white font-semibold text-lg shadow-lg disabled:opacity-60"
+            disabled={loading || otp.length !== 6}
+            className="w-full mt-5 p-4 rounded-2xl text-white font-semibold text-lg shadow-lg transition-all duration-300 hover:scale-[1.01] disabled:opacity-60 disabled:cursor-not-allowed"
+            style={{
+              background:
+                "linear-gradient(90deg, #0D9488 0%, #0EA5E9 100%)",
+            }}
           >
-            {loading ? "Verifying..." : "Verify & Continue"}
+            {loading
+              ? "Verifying..."
+              : "Verify & Continue"}
           </button>
 
           {/* CHANGE NUMBER */}
           <button
             type="button"
             onClick={() => nav("/login")}
-            className="w-full mt-4 p-3 text-qsBlue-600 font-medium"
+            className="w-full mt-4 p-3 font-medium transition"
+            style={{ color: "#0D9488" }}
           >
             ← Change phone number
           </button>
+
         </div>
       </div>
     </div>

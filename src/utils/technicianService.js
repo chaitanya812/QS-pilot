@@ -11,7 +11,7 @@ import { db } from "../firebase";
 
 /*
 ============================================================
-QUICKSEVA TECHNICIAN SERVICE
+ONCALL TECHNICIAN SERVICE
 ============================================================
 */
 
@@ -367,7 +367,7 @@ export async function getTechnicianJobs() {
             booking.customerName ||
             booking.name ||
             booking.customer ||
-            "QuickSeva User";
+            "OnCall User";
 
           /*
           Total amount

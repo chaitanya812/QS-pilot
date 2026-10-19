@@ -1,0 +1,1130 @@
+.fridge-page {
+  min-height: 100vh;
+  padding-bottom: 100px;
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.fridge-page *,
+.fridge-page *::before,
+.fridge-page *::after {
+  box-sizing: border-box;
+}
+
+/* HEADER */
+
+.fridge-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid #DCE5EC;
+  backdrop-filter: blur(15px);
+}
+
+.fridge-header-inner {
+  max-width: 1180px;
+  min-height: 62px;
+  margin: auto;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fridge-back-btn,
+.fridge-cart-btn {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 12px;
+  background: #F1F5F9;
+  color: #0B1D36;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 19px;
+}
+
+.fridge-brand {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.fridge-brand-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(
+    135deg,
+    #0B1D36,
+    #0D9488
+  );
+}
+
+.fridge-brand small {
+  display: block;
+  color: #0D9488;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.fridge-brand h1 {
+  margin: 1px 0 0;
+  color: #0B1D36;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.fridge-cart-btn {
+  position: relative;
+}
+
+.fridge-cart-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border: 2px solid white;
+  border-radius: 50px;
+  background: #0EA5E9;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+/* CONTAINER */
+
+.fridge-container {
+  max-width: 1180px;
+  margin: auto;
+  padding: 0 20px;
+}
+
+/* HERO */
+
+.fridge-hero {
+  position: relative;
+  height: 320px;
+  margin-top: 14px;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #0B1D36;
+  box-shadow: 0 15px 35px rgba(11, 29, 54, 0.14);
+}
+
+.fridge-hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fridge-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(11, 29, 54, 0.96),
+    rgba(11, 29, 54, 0.72),
+    rgba(11, 29, 54, 0.18)
+  );
+}
+
+.fridge-hero-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  max-width: 650px;
+  padding: 35px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: white;
+}
+
+.fridge-hero-label {
+  width: fit-content;
+  padding: 6px 11px;
+  border-radius: 50px;
+  background: rgba(13, 148, 136, 0.3);
+  color: #99F6E4;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.fridge-hero-content h2 {
+  margin: 12px 0 0;
+  color: white;
+  font-size: 44px;
+  line-height: 1.06;
+  font-weight: 900;
+}
+
+.fridge-hero-content h2 span {
+  color: #2DD4BF;
+}
+
+.fridge-hero-content p {
+  max-width: 550px;
+  margin: 12px 0 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.fridge-hero-actions {
+  display: flex;
+  gap: 7px;
+  margin-top: 17px;
+}
+
+.fridge-call-btn,
+.fridge-whatsapp-btn {
+  min-height: 40px;
+  padding: 0 15px;
+  border-radius: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.fridge-call-btn {
+  background: #0EA5E9;
+}
+
+.fridge-whatsapp-btn {
+  background: #0D9488;
+}
+
+/* SEARCH */
+
+.fridge-search-section {
+  margin-top: 18px;
+}
+
+.fridge-search-box {
+  position: relative;
+}
+
+.fridge-search-box input {
+  width: 100%;
+  height: 54px;
+  padding: 0 50px 0 45px;
+  border: 1px solid #DCE5EC;
+  border-radius: 15px;
+  outline: none;
+  background: white;
+  color: #0F172A;
+  font-size: 12px;
+  box-shadow: 0 5px 18px rgba(15, 23, 42, 0.04);
+}
+
+.fridge-search-box input:focus {
+  border-color: #0EA5E9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.fridge-search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+}
+
+.fridge-clear-btn {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  width: 32px;
+  height: 32px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 9px;
+  background: #F1F5F9;
+  color: #64748B;
+  cursor: pointer;
+}
+
+/* SECTION */
+
+.fridge-problems-section {
+  margin-top: 25px;
+}
+
+.fridge-section-title {
+  margin-bottom: 13px;
+}
+
+.fridge-section-title h2 {
+  margin: 0;
+  color: #0B1D36;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.fridge-section-title p {
+  margin: 5px 0 0;
+  color: #64748B;
+  font-size: 11px;
+}
+
+/* PROBLEM CARDS */
+
+.fridge-problems-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.fridge-problem-card {
+  min-height: 112px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* EXACT ELECTRICIAN FLOW */
+
+.oncall-problem-flow-background {
+  pointer-events: none;
+
+  background: linear-gradient(
+    90deg,
+    #0B1D36 0%,
+    #075DA8 48%,
+    #0D9488 100%
+  );
+
+  transform-origin: left center;
+
+  animation:
+    onCallProblemFlow
+    2.5s
+    ease-in-out
+    forwards;
+}
+
+@keyframes onCallProblemFlow {
+
+  0% {
+    transform: scaleX(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+
+}
+
+.oncall-problem-flow-active {
+  overflow: hidden;
+}
+
+.oncall-problem-flow-active::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  bottom: 0;
+
+  width: 45px;
+
+  left: -60px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.18),
+    transparent
+  );
+
+  pointer-events: none;
+
+  z-index: 1;
+
+  animation:
+    onCallProblemShine
+    2.5s
+    ease-in-out
+    infinite;
+}
+
+
+@keyframes onCallProblemShine {
+
+  0% {
+    left: -60px;
+  }
+
+  100% {
+    left: 110%;
+  }
+
+}
+
+/* PROBLEM CONTENT */
+
+.fridge-problem-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: all 0.5s;
+}
+
+.fridge-problem-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  transition: color 0.5s;
+}
+
+.fridge-problem-find {
+  display: block;
+  margin-top: 4px;
+  font-size: 9px;
+  transition: color 0.5s;
+}
+
+/* HELP */
+
+.fridge-help-card {
+  margin-top: 22px;
+  padding: 22px;
+  border-radius: 22px;
+  background: linear-gradient(
+    110deg,
+    #0B1D36,
+    #075DA8,
+    #0D9488
+  );
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  color: white;
+}
+
+.fridge-help-content span {
+  color: #5EEAD4;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.fridge-help-content h3 {
+  margin: 5px 0 0;
+  color: white;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.fridge-help-content p {
+  margin: 5px 0 0;
+  color: rgba(255,255,255,0.72);
+  font-size: 11px;
+}
+
+.fridge-help-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.fridge-help-actions a {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.fridge-help-actions a:first-child {
+  background: white;
+  color: #0B1D36;
+}
+
+.fridge-help-actions a:last-child {
+  background: #0D9488;
+  color: white;
+}
+
+/* SEARCH RESULTS */
+
+.fridge-search-results {
+  margin-top: 30px;
+}
+
+.fridge-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fridge-result-card {
+  padding: 16px;
+  border: 1px solid #DCE5EC;
+  border-radius: 17px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.fridge-result-category {
+  color: #0D9488;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.fridge-result-card h3 {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.fridge-result-card p {
+  margin: 4px 0 0;
+  color: #64748B;
+  font-size: 10px;
+}
+
+.fridge-result-card strong {
+  display: block;
+  margin-top: 7px;
+  color: #0D9488;
+  font-size: 18px;
+}
+
+.fridge-result-meta,
+.fridge-service-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.fridge-result-meta span,
+.fridge-service-meta span {
+  padding: 4px 7px;
+  border-radius: 7px;
+  background: #EFF6FF;
+  color: #0369A1;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.fridge-result-meta span:last-child,
+.fridge-service-meta span:last-child {
+  background: #ECFDF5;
+  color: #047857;
+}
+
+/* EMPTY */
+
+.fridge-empty-state {
+  padding: 35px 20px;
+  border: 1px solid #DCE5EC;
+  border-radius: 18px;
+  background: white;
+  text-align: center;
+}
+
+.fridge-empty-state > div {
+  font-size: 35px;
+}
+
+.fridge-empty-state h3 {
+  margin: 9px 0 0;
+  font-size: 15px;
+}
+
+.fridge-empty-state p {
+  margin: 5px 0 0;
+  color: #64748B;
+  font-size: 11px;
+}
+
+/* SERVICES */
+
+.fridge-services-section {
+  margin-top: 34px;
+  scroll-margin-top: 85px;
+}
+
+.fridge-service-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.fridge-service-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.fridge-service-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #E0F2FE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.fridge-service-heading h3 {
+  margin: 0;
+  color: #0B1D36;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.fridge-service-heading p {
+  margin: 3px 0 0;
+  color: #64748B;
+  font-size: 10px;
+}
+
+.fridge-service-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.fridge-service-card {
+  padding: 15px;
+  border: 1px solid #DCE5EC;
+  border-radius: 17px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.fridge-service-info {
+  flex: 1;
+}
+
+.fridge-service-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.fridge-service-name h4 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.fridge-service-tag {
+  padding: 4px 7px;
+  border-radius: 7px;
+  background: #FFF7ED;
+  color: #C2410C;
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.fridge-service-info > p {
+  margin: 4px 0 0;
+  color: #64748B;
+  font-size: 10px;
+}
+
+.fridge-service-info > strong {
+  display: block;
+  margin-top: 7px;
+  color: #0D9488;
+  font-size: 17px;
+}
+
+.fridge-book-btn {
+  min-width: 110px;
+  min-height: 40px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(
+    90deg,
+    #0878C9,
+    #0EA5E9
+  );
+  color: white;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.fridge-book-btn:disabled {
+  opacity: 0.6;
+}
+
+/* REVIEWS */
+
+.fridge-reviews-section {
+  margin-top: 35px;
+  padding: 21px;
+  border: 1px solid #DCE5EC;
+  border-radius: 23px;
+  background: white;
+}
+
+.fridge-reviews-wrapper {
+  display: flex;
+  gap: 22px;
+}
+
+.fridge-rating-box {
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.fridge-rating-box > strong {
+  color: #0B1D36;
+  font-size: 36px;
+  font-weight: 900;
+}
+
+.fridge-rating-box > p {
+  margin: 2px 0 0;
+  color: #64748B;
+  font-size: 9px;
+}
+
+.fridge-rating-bars {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fridge-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.fridge-rating-row > span {
+  width: 22px;
+  color: #64748B;
+  font-size: 8px;
+}
+
+.fridge-rating-row > div {
+  flex: 1;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #E2E8F0;
+}
+
+.fridge-rating-row i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    #0EA5E9,
+    #0D9488
+  );
+}
+
+.fridge-review-list {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.fridge-review-card {
+  min-width: 265px;
+  padding: 15px;
+  border: 1px solid #DCE5EC;
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    #F8FAFC,
+    #F0FDFA
+  );
+}
+
+.fridge-review-user {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.fridge-review-user img {
+  width: 41px;
+  height: 41px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.fridge-review-user h4 {
+  margin: 0;
+  font-size: 11px;
+}
+
+.fridge-review-user span {
+  display: block;
+  margin-top: 2px;
+  color: #64748B;
+  font-size: 8px;
+}
+
+.fridge-review-stars {
+  margin-top: 10px;
+  font-size: 10px;
+}
+
+.fridge-review-card > p {
+  min-height: 45px;
+  margin: 7px 0 0;
+  color: #334155;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.fridge-review-card > small {
+  display: block;
+  margin-top: 7px;
+  color: #94A3B8;
+  font-size: 8px;
+}
+
+.fridge-review-card > label {
+  display: inline-flex;
+  margin-top: 8px;
+  padding: 4px 7px;
+  border-radius: 7px;
+  background: #ECFDF5;
+  color: #047857;
+  font-size: 8px;
+  font-weight: 900;
+}
+
+/* TRUST */
+
+.fridge-trust-section {
+  margin-top: 20px;
+  padding: 22px;
+  border: 1px solid #DCE5EC;
+  border-radius: 23px;
+  background: white;
+}
+
+.fridge-section-title.center {
+  text-align: center;
+}
+
+.fridge-trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
+}
+
+.fridge-trust-card {
+  padding: 17px 10px;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    #F8FAFC,
+    #F0FDFA
+  );
+  text-align: center;
+}
+
+.fridge-trust-card > div {
+  width: 40px;
+  height: 40px;
+  margin: auto;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    #E0F2FE,
+    #CCFBF1
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+}
+
+.fridge-trust-card h3 {
+  margin: 8px 0 0;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.fridge-trust-card p {
+  margin: 4px 0 0;
+  color: #64748B;
+  font-size: 8px;
+}
+
+/* TABLET */
+
+@media (max-width: 900px) {
+  .fridge-problems-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .fridge-trust-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+  .fridge-container {
+    padding: 0 12px;
+  }
+
+  .fridge-hero {
+    height: 270px;
+    border-radius: 21px;
+  }
+
+  .fridge-hero-content {
+    padding: 21px;
+  }
+
+  .fridge-hero-content h2 {
+    font-size: 28px;
+  }
+
+  .fridge-hero-content p {
+    font-size: 10px;
+  }
+
+  .fridge-help-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 19px;
+  }
+
+  .fridge-help-actions {
+    width: 100%;
+  }
+
+  .fridge-help-actions a {
+    flex: 1;
+  }
+
+  .fridge-result-card,
+  .fridge-service-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .fridge-book-btn {
+    width: 100%;
+  }
+
+  .fridge-reviews-wrapper {
+    flex-direction: column;
+  }
+
+  .fridge-rating-box {
+    width: 100%;
+  }
+}
+
+/* SMALL MOBILE */
+
+@media (max-width: 600px) {
+  .fridge-header-inner {
+    min-height: 57px;
+    padding: 7px 11px;
+  }
+
+  .fridge-back-btn,
+  .fridge-cart-btn {
+    width: 39px;
+    height: 39px;
+  }
+
+  .fridge-brand h1 {
+    font-size: 13px;
+  }
+
+  .fridge-brand small {
+    font-size: 8px;
+  }
+
+  .fridge-hero {
+    height: 250px;
+  }
+
+  .fridge-hero-content {
+    padding: 18px;
+  }
+
+  .fridge-hero-content h2 {
+    font-size: 25px;
+  }
+
+  .fridge-hero-content p {
+    font-size: 9px;
+  }
+
+  .fridge-search-box input {
+    height: 48px;
+  }
+
+  .fridge-section-title h2 {
+    font-size: 18px;
+  }
+
+  .fridge-section-title p {
+    font-size: 9px;
+  }
+
+  .fridge-problems-grid {
+    gap: 9px;
+  }
+
+  .fridge-problem-card {
+    min-height: 101px;
+    padding: 11px;
+  }
+
+  .fridge-problem-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+  }
+
+  .fridge-problem-title {
+    font-size: 10px;
+  }
+
+  .fridge-problem-find {
+    font-size: 8px;
+  }
+
+  .fridge-service-card {
+    padding: 13px;
+  }
+
+  .fridge-service-name h4 {
+    font-size: 11px;
+  }
+
+  .fridge-service-info > p {
+    font-size: 9px;
+  }
+
+  .fridge-reviews-section,
+  .fridge-trust-section {
+    padding: 16px;
+  }
+
+  .fridge-review-card {
+    min-width: 240px;
+  }
+
+  .fridge-trust-card {
+    padding: 13px 7px;
+  }
+
+  .fridge-trust-card h3 {
+    font-size: 9px;
+  }
+
+  .fridge-trust-card p {
+    font-size: 7px;
+  }
+}
+
+/* VERY SMALL */
+
+@media (max-width: 380px) {
+  .fridge-container {
+    padding: 0 9px;
+  }
+
+  .fridge-brand-dot {
+    display: none;
+  }
+
+  .fridge-problem-card {
+    min-height: 96px;
+    padding: 9px;
+  }
+
+  .fridge-problem-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+
+  .fridge-problem-title {
+    font-size: 9px;
+  }
+
+  .fridge-problem-find {
+    font-size: 7px;
+  }
+
+  .fridge-hero-content h2 {
+    font-size: 23px;
+  }
+}
+.Fridge-logo-box {
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  overflow: hidden;
+
+  border-radius: 12px;
+
+  background: #061B35;
+
+  box-shadow:
+    0 4px 12px rgba(11,29,54,.15);
+}
+
+.Fridge-logo {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}

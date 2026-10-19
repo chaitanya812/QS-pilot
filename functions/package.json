@@ -1,6 +1,6 @@
 {
   "name": "functions",
-  "description": "QuickSeva Firebase Cloud Functions",
+  "description": "OnCall Firebase Cloud Functions",
   "scripts": {
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",

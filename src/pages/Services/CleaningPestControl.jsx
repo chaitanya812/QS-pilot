@@ -12,7 +12,7 @@ export default function CleaningPestControl() {
   /* 📞 SUPPORT CONFIG */
   const supportPhone = "919000000000"; // 🔁 replace with real QS number
   const whatsappMessage = encodeURIComponent(
-    "Hi QuickSeva, I need help with Cleaning & Pest Control services."
+    "Hi OnCall, I need help with Cleaning & Pest Control services."
   );
 
   return (

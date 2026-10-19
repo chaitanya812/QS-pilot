@@ -9,10 +9,8 @@ import {
   getSavedLocation,
   saveLocation as saveSharedLocation,
 } from "../utils/locationService";
+import "./Booking.css";
 
-// ------------------------------------------------------
-// Firestore-safe cleaner
-// ------------------------------------------------------
 const firestoreSafe = (obj) =>
   JSON.parse(
     JSON.stringify(obj, (_, value) =>
@@ -20,9 +18,6 @@ const firestoreSafe = (obj) =>
     )
   );
 
-// ------------------------------------------------------
-// Date helper
-// ------------------------------------------------------
 const getToday = () => {
   const now = new Date();
   const year = now.getFullYear();
@@ -32,9 +27,6 @@ const getToday = () => {
   return `${year}-${month}-${day}`;
 };
 
-// ------------------------------------------------------
-// Time slots
-// ------------------------------------------------------
 const TIME_SLOTS = [
   "08:00 AM",
   "09:00 AM",
@@ -51,19 +43,13 @@ const TIME_SLOTS = [
   "08:00 PM",
 ];
 
-// ------------------------------------------------------
-// Booking Page
-// ------------------------------------------------------
 export default function Booking() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const { user } = useAuth();
-  const { cart } = useCart();
+  const { clearCart, cart } = useCart();
 
-  // ----------------------------------------------------
-  // Cart
-  // ----------------------------------------------------
   const cartItems = useMemo(() => {
     return Object.values(cart || {}).filter(Boolean);
   }, [cart]);
@@ -77,34 +63,38 @@ export default function Booking() {
     }, 0);
   }, [cartItems]);
 
-  // ----------------------------------------------------
-  // Booking state
-  // ----------------------------------------------------
   const savedLocation = getSavedLocation();
 
   const [postalCode, setPostalCode] = useState(
     savedLocation?.postalCode || ""
   );
+
   const [address, setAddress] = useState(
     savedLocation?.address ||
       savedLocation?.displayName ||
       ""
   );
+
   const [addressLine1, setAddressLine1] = useState(
     savedLocation?.addressLine1 || ""
   );
+
   const [addressLine2, setAddressLine2] = useState(
     savedLocation?.addressLine2 || ""
   );
+
   const [landmark, setLandmark] = useState(
     savedLocation?.landmark || ""
   );
+
   const [city, setCity] = useState(
     savedLocation?.city || ""
   );
+
   const [latitude, setLatitude] = useState(
     savedLocation?.latitude ?? null
   );
+
   const [longitude, setLongitude] = useState(
     savedLocation?.longitude ?? null
   );
@@ -115,26 +105,24 @@ export default function Booking() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [locationDetected, setLocationDetected] = useState(false);
-  const [detectingLocation, setDetectingLocation] = useState(false);
+  const [locationDetected, setLocationDetected] =
+    useState(false);
+
+  const [detectingLocation, setDetectingLocation] =
+    useState(false);
+
   const [mapError, setMapError] = useState("");
 
-  // Optional information passed from previous page
   const problem =
     location?.state?.problem ||
     location?.state?.description ||
     "";
 
-  // ----------------------------------------------------
-  // Shared location data
-  // ----------------------------------------------------
   const applySavedLocation = (data) => {
     if (!data) return;
 
     const detectedAddress = String(
-      data.address ||
-        data.displayName ||
-        ""
+      data.address || data.displayName || ""
     ).trim();
 
     setAddress(detectedAddress);
@@ -145,11 +133,13 @@ export default function Booking() {
     setPostalCode(String(data.postalCode || ""));
     setLatitude(data.latitude ?? null);
     setLongitude(data.longitude ?? null);
+
     setLocationDetected(
       data.source === "gps" &&
         data.latitude != null &&
         data.longitude != null
     );
+
     setError("");
     setMapError("");
   };
@@ -160,12 +150,10 @@ export default function Booking() {
     if (saved) {
       applySavedLocation(saved);
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ----------------------------------------------------
-  // AUTO-DETECT CURRENT LOCATION
-  // ----------------------------------------------------
   const detectCurrentLocation = async () => {
     setDetectingLocation(true);
     setMapError("");
@@ -174,6 +162,7 @@ export default function Booking() {
     try {
       const detected = await detectGPSLocation();
       const saved = saveSharedLocation(detected);
+
       applySavedLocation(saved);
     } catch (locationError) {
       console.error(
@@ -202,9 +191,6 @@ export default function Booking() {
     );
   };
 
-  // ----------------------------------------------------
-  // Validation
-  // ----------------------------------------------------
   const validateBooking = () => {
     if (!user) {
       return "Please login before booking a service.";
@@ -248,9 +234,6 @@ export default function Booking() {
     return "";
   };
 
-  // ----------------------------------------------------
-  // Create booking
-  // ----------------------------------------------------
   const handleSubmit = async () => {
     setError("");
 
@@ -258,10 +241,12 @@ export default function Booking() {
 
     if (validationError) {
       setError(validationError);
+
       window.scrollTo({
         top: 0,
         behavior: "smooth",
       });
+
       return;
     }
 
@@ -269,29 +254,32 @@ export default function Booking() {
       setError(
         "You appear to be offline. Please check your internet connection and try again."
       );
+
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // ----------------------------------------------
-      // Convert cart into clean booking items
-      // ----------------------------------------------
       const bookingItems = cartItems.map((item) => {
         const price = Number(item?.price) || 0;
+
         const qty =
-          Number(item?.qty) > 0 ? Number(item.qty) : 1;
+          Number(item?.qty) > 0
+            ? Number(item.qty)
+            : 1;
 
         return {
-          label: item?.label || item?.name || "Service",
+          label:
+            item?.label ||
+            item?.name ||
+            "Service",
           price,
           qty,
           subtotal: price * qty,
         };
       });
 
-      // Keep Home and Booking on the same shared location record.
       const finalServiceAddress = [
         addressLine1,
         addressLine2,
@@ -328,15 +316,14 @@ export default function Booking() {
             : "manual",
       });
 
-      // ----------------------------------------------
-      // Booking data
-      // ----------------------------------------------
       const rawBookingData = {
         userId: user?.uid || null,
+
         userName:
           user?.name ||
           user?.displayName ||
           "Customer",
+
         phone: user?.phone || null,
 
         items: bookingItems,
@@ -353,10 +340,16 @@ export default function Booking() {
           .filter(Boolean)
           .join(", ")
           .trim(),
+
         latitude:
-          latitude !== null ? Number(latitude) : null,
+          latitude !== null
+            ? Number(latitude)
+            : null,
+
         longitude:
-          longitude !== null ? Number(longitude) : null,
+          longitude !== null
+            ? Number(longitude)
+            : null,
 
         postalCode: postalCode.trim(),
 
@@ -365,14 +358,12 @@ export default function Booking() {
 
         status: "Pending",
 
-        // Useful for admin / technician flow
         technicianId: null,
         technicianName: null,
         technicianPhone: null,
         technicianPhoto: null,
         technicianRating: null,
 
-        // Optional problem description
         problem: problem
           ? String(problem).trim()
           : null,
@@ -381,39 +372,40 @@ export default function Booking() {
         updatedAt: new Date().toISOString(),
       };
 
-      const bookingData = firestoreSafe(rawBookingData);
+      const bookingData =
+        firestoreSafe(rawBookingData);
 
-      console.log("Creating booking:", bookingData);
+      console.log(
+        "Creating booking:",
+        bookingData
+      );
 
-      // ----------------------------------------------
-      // Save to Firestore
-      // ----------------------------------------------
       const bookingRef = await addDoc(
         collection(db, "bookings"),
         bookingData
       );
 
       console.log(
-        "Booking successfully created:",
-        bookingRef.id
-      );
+  "Booking successfully created:",
+  bookingRef.id
+);
 
-      // ----------------------------------------------
-      // Data passed to BookingSuccess
-      // ----------------------------------------------
-      const savedBooking = {
-        id: bookingRef.id,
-        ...bookingData,
-      };
+// Clear the cart only after Firebase saves the booking
+clearCart();
 
-      // ----------------------------------------------
-      // Navigate
-      // ----------------------------------------------
-      navigate("/booking-success", {
-        state: savedBooking,
-      });
+const savedBooking = {
+  id: bookingRef.id,
+  ...bookingData,
+};
+
+navigate("/booking-success", {
+  state: savedBooking,
+});
     } catch (err) {
-      console.error("Booking creation failed:", err);
+      console.error(
+        "Booking creation failed:",
+        err
+      );
 
       let message =
         "We couldn't create your booking. Please try again.";
@@ -421,13 +413,19 @@ export default function Booking() {
       if (!navigator.onLine) {
         message =
           "You are offline. Please check your internet connection.";
-      } else if (err?.code === "permission-denied") {
+      } else if (
+        err?.code === "permission-denied"
+      ) {
         message =
           "Booking permission was denied. Please check your Firebase security rules.";
-      } else if (err?.code === "unauthenticated") {
+      } else if (
+        err?.code === "unauthenticated"
+      ) {
         message =
           "Your login session has expired. Please login again.";
-      } else if (err?.code === "unavailable") {
+      } else if (
+        err?.code === "unavailable"
+      ) {
         message =
           "Firebase is temporarily unavailable. Please try again in a moment.";
       } else if (
@@ -450,182 +448,193 @@ export default function Booking() {
     }
   };
 
-  // ----------------------------------------------------
-  // Empty cart screen
-  // ----------------------------------------------------
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-5">
-        <div className="w-full max-w-md bg-white rounded-3xl shadow-sm border border-slate-200 p-7 text-center">
-          <div className="w-20 h-20 mx-auto rounded-full bg-sky-50 flex items-center justify-center text-4xl">
-            🛒
+      <div className="booking-page">
+        <div className="booking-empty-wrapper">
+          <div className="booking-empty-card">
+            <div className="booking-empty-icon">
+              🛒
+            </div>
+
+            <span className="booking-section-label">
+              BOOKING CART
+            </span>
+
+            <h1>Your cart is empty</h1>
+
+            <p>
+              Add a service first and then continue
+              with your booking.
+            </p>
+
+            <button
+              onClick={() => navigate("/")}
+              className="booking-primary-btn"
+            >
+              Browse Services
+            </button>
+
+            <button
+              onClick={() => navigate(-1)}
+              className="booking-secondary-btn"
+            >
+              Go Back
+            </button>
           </div>
-
-          <h1 className="text-2xl font-bold text-slate-900 mt-5">
-            Your cart is empty
-          </h1>
-
-          <p className="text-slate-500 mt-2 leading-relaxed">
-            Add a service first and then continue
-            with your booking.
-          </p>
-
-          <button
-            onClick={() => navigate("/")}
-            className="w-full mt-6 py-3.5 rounded-2xl bg-sky-500 hover:bg-sky-600 text-white font-bold transition active:scale-[0.98]"
-          >
-            Browse Services
-          </button>
-
-          <button
-            onClick={() => navigate(-1)}
-            className="w-full mt-3 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition"
-          >
-            Go Back
-          </button>
         </div>
       </div>
     );
   }
 
-  // ----------------------------------------------------
-  // Main UI
-  // ----------------------------------------------------
   return (
-    <div className="min-h-screen bg-slate-50 pb-32">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+    <div className="booking-page">
+      {/* HEADER */}
+      <header className="booking-header">
+        <div className="booking-header-inner">
           <button
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-xl transition"
+            className="booking-back-btn"
             aria-label="Go back"
           >
             ←
           </button>
 
-          <div className="flex-1">
-            <h1 className="font-bold text-slate-900">
-              Book Your Service
-            </h1>
+          <div className="booking-brand">
+            
 
-            <p className="text-xs text-slate-500">
-              Just a few details and you're done
-            </p>
+            <div>
+              <div className="booking-brand-name">
+                OnCall
+              </div>
+
+              <div className="booking-brand-subtitle">
+                Service Booking
+              </div>
+            </div>
           </div>
 
-          <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center">
+          <div className="booking-header-icon">
             📋
           </div>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 pt-5">
-        {/* Progress */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
-          <div className="flex items-center justify-between text-xs font-semibold">
-            <span className="text-sky-600">
+      <main className="booking-container">
+        {/* PAGE INTRO */}
+        <section className="booking-intro">
+          <span className="booking-section-label">
+            BOOKING DETAILS
+          </span>
+
+          <h1>Book Your Service</h1>
+
+          <p>
+            Just a few details and you're done
+          </p>
+        </section>
+
+        {/* PROGRESS */}
+        <section className="booking-progress-card">
+          <div className="booking-progress-labels">
+            <span className="active">
               1. Service
             </span>
 
-            <span className="text-sky-600">
+            <span className="active">
               2. Details
             </span>
 
-            <span className="text-slate-400">
+            <span>
               3. Confirmation
             </span>
           </div>
 
-          <div className="h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
-            <div className="h-full w-2/3 bg-sky-500 rounded-full" />
+          <div className="booking-progress-track">
+            <div className="booking-progress-fill" />
           </div>
-        </div>
+        </section>
 
-        {/* Error */}
+        {/* ERROR */}
         {error && (
           <div
+            className="booking-error"
             role="alert"
-            className="mb-4 overflow-hidden rounded-2xl border border-red-200 bg-red-50 p-4"
           >
-            <div className="flex gap-3">
-              <div className="text-xl">⚠️</div>
-
-              <div className="min-w-0 flex-1">
-                <p className="font-bold text-red-800">
-                  Something needs your attention
-                </p>
-
-                <p className="mt-1 break-words text-sm text-red-700 whitespace-pre-line">
-                  {error}
-                </p>
-              </div>
-
-              <button
-                onClick={() => setError("")}
-                className="text-red-500 font-bold"
-                aria-label="Dismiss error"
-              >
-                ×
-              </button>
+            <div className="booking-error-icon">
+              ⚠️
             </div>
+
+            <div className="booking-error-content">
+              <p>
+                Something needs your attention
+              </p>
+
+              <span>{error}</span>
+            </div>
+
+            <button
+              onClick={() => setError("")}
+              aria-label="Dismiss error"
+            >
+              ×
+            </button>
           </div>
         )}
 
-        {/* Customer */}
-        <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 mb-4">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-11 h-11 rounded-2xl bg-sky-50 flex items-center justify-center text-xl">
+        {/* CUSTOMER */}
+        <section className="booking-card">
+          <div className="booking-card-heading">
+            <div className="booking-card-icon blue">
               👤
             </div>
 
             <div>
-              <h2 className="font-bold text-slate-900">
-                Customer Details
-              </h2>
+              <h2>Customer Details</h2>
 
-              <p className="text-xs text-slate-500">
-                Booking will be created for this account
+              <p>
+                Booking will be created for this
+                account
               </p>
             </div>
           </div>
 
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="font-semibold text-slate-900">
+          <div className="booking-customer-box">
+            <strong>
               {user?.name ||
                 user?.displayName ||
                 "Customer"}
-            </p>
+            </strong>
 
             {user?.phone && (
-              <p className="text-sm text-slate-500 mt-1">
-                📱 {user.phone}
-              </p>
+              <span>📱 {user.phone}</span>
             )}
           </div>
         </section>
 
-        {/* Cart */}
-        <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 mb-4">
-          <div className="flex items-center justify-between mb-4">
+        {/* SERVICES */}
+        <section className="booking-card">
+          <div className="booking-card-heading-between">
             <div>
-              <h2 className="font-bold text-slate-900">
-                Selected Services
-              </h2>
+              <h2>Selected Services</h2>
 
-              <p className="text-xs text-slate-500 mt-1">
+              <p>
                 {cartItems.length} service
-                {cartItems.length !== 1 ? "s" : ""}
+                {cartItems.length !== 1
+                  ? "s"
+                  : ""}
               </p>
             </div>
 
-            <span className="px-3 py-1.5 rounded-full bg-sky-50 text-sky-700 text-xs font-bold">
+            <span className="booking-count-badge">
               {cartItems.length} item
-              {cartItems.length !== 1 ? "s" : ""}
+              {cartItems.length !== 1
+                ? "s"
+                : ""}
             </span>
           </div>
 
-          <div className="space-y-3">
+          <div className="booking-service-list">
             {cartItems.map((item, index) => {
               const price =
                 Number(item?.price) || 0;
@@ -638,52 +647,58 @@ export default function Booking() {
               return (
                 <div
                   key={`${item?.label || "service"}-${index}`}
-                  className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50"
+                  className="booking-service-item"
                 >
-                  <div className="min-w-0">
-                    <p className="font-semibold text-slate-800 truncate">
+                  <div className="booking-service-icon">
+                    🛠️
+                  </div>
+
+                  <div className="booking-service-info">
+                    <strong>
                       {item?.label ||
                         item?.name ||
                         "Service"}
-                    </p>
+                    </strong>
 
-                    <p className="text-xs text-slate-500 mt-1">
+                    <span>
                       ₹{price} × {qty}
-                    </p>
+                    </span>
                   </div>
 
-                  <p className="font-bold text-slate-900 whitespace-nowrap">
+                  <strong className="booking-service-price">
                     ₹{price * qty}
-                  </p>
+                  </strong>
                 </div>
               );
             })}
           </div>
 
-          <div className="border-t border-slate-200 mt-4 pt-4 flex justify-between items-center">
-            <span className="font-bold text-slate-700">
-              Total
-            </span>
+          <div className="booking-total-row">
+            <span>Total</span>
 
-            <span className="text-xl font-extrabold text-slate-900">
-              ₹{totalAmount}
-            </span>
+            <strong>
+              ₹
+              {Number(totalAmount).toLocaleString(
+                "en-IN"
+              )}
+            </strong>
           </div>
         </section>
 
-        {/* Service Location */}
-        <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 mb-4">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center text-xl">
+        {/* LOCATION */}
+        <section className="booking-card">
+          <div className="booking-card-heading">
+            <div className="booking-card-icon teal">
               📍
             </div>
+
             <div>
-              <h2 className="font-bold text-slate-900">
-                Where should we send our professional?
+              <h2>
+                Where should we send our
+                professional?
               </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Add your service address
-              </p>
+
+              <p>Add your service address</p>
             </div>
           </div>
 
@@ -691,197 +706,209 @@ export default function Booking() {
             type="button"
             onClick={detectCurrentLocation}
             disabled={detectingLocation}
-            className={`w-full rounded-2xl border px-4 py-3.5 flex items-center gap-3 text-left transition ${
+            className={`booking-location-btn ${
               detectingLocation
-                ? "bg-slate-100 border-slate-200"
-                : "bg-sky-50 border-sky-100 hover:bg-sky-100"
+                ? "detecting"
+                : ""
             }`}
           >
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-lg shadow-sm">
+            <div className="booking-location-icon">
               📍
             </div>
-            <div className="flex-1">
-              <p className={`text-sm font-bold ${
-                detectingLocation ? "text-slate-400" : "text-sky-700"
-              }`}>
+
+            <div>
+              <strong>
                 {detectingLocation
                   ? "Detecting your location..."
                   : "Use my current location"}
-              </p>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Automatically fill your area and pincode
-              </p>
+              </strong>
+
+              <span>
+                Automatically fill your area and
+                pincode
+              </span>
             </div>
-            <span className="text-sky-600 font-bold">›</span>
+
+            <b>→</b>
           </button>
 
-          <div className="flex items-center gap-3 my-4">
-            <div className="h-px bg-slate-200 flex-1" />
-            <span className="text-[11px] font-bold text-slate-400">
-              OR ENTER ADDRESS
-            </span>
-            <div className="h-px bg-slate-200 flex-1" />
+          <div className="booking-divider">
+            <span>OR ENTER ADDRESS</span>
           </div>
 
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-bold text-slate-600 mb-1.5">
+          <div className="booking-form">
+            <div className="booking-field">
+              <label>
                 House / Flat / Office No.
               </label>
+
               <input
                 type="text"
                 value={addressLine1}
                 onChange={(e) => {
-                  setAddressLine1(e.target.value);
+                  setAddressLine1(
+                    e.target.value
+                  );
                   setAddress(e.target.value);
                   setLocationDetected(false);
                   setError("");
                 }}
                 placeholder="e.g. Flat 203, H.No. 5-2-18"
-                className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-sm"
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-600 mb-1.5">
+            <div className="booking-field">
+              <label>
                 Building / Street / Area
               </label>
+
               <input
                 type="text"
                 value={addressLine2}
                 onChange={(e) => {
-                  setAddressLine2(e.target.value);
+                  setAddressLine2(
+                    e.target.value
+                  );
                   setLocationDetected(false);
                   setError("");
                 }}
                 placeholder="e.g. Sri Sai Apartments, Main Road, Kukatpally"
-                className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-sm"
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1.5">
-                  Landmark <span className="font-normal text-slate-400">(optional)</span>
+            <div className="booking-two-columns">
+              <div className="booking-field">
+                <label>
+                  Landmark{" "}
+                  <small>(optional)</small>
                 </label>
+
                 <input
                   type="text"
                   value={landmark}
-                  onChange={(e) => setLandmark(e.target.value)}
+                  onChange={(e) =>
+                    setLandmark(e.target.value)
+                  }
                   placeholder="Near metro, mall, temple..."
-                  className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-sm"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1.5">
-                  City / Town
-                </label>
+              <div className="booking-field">
+                <label>City / Town</label>
+
                 <input
                   type="text"
                   value={city}
-                  onChange={(e) => setCity(e.target.value)}
+                  onChange={(e) =>
+                    setCity(e.target.value)
+                  }
                   placeholder="Hyderabad"
-                  className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-sm"
                 />
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-600 mb-1.5">
-                Pincode
-              </label>
+            <div className="booking-field">
+              <label>Pincode</label>
+
               <input
                 type="text"
                 inputMode="numeric"
                 maxLength={6}
                 value={postalCode}
                 onChange={(e) =>
-                  setPostalCode(e.target.value.replace(/\D/g, ""))
+                  setPostalCode(
+                    e.target.value.replace(
+                      /\D/g,
+                      ""
+                    )
+                  )
                 }
                 placeholder="Enter 6-digit pincode"
-                className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 text-sm"
               />
             </div>
           </div>
 
           {mapError && (
-            <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-3">
-              <p className="text-xs font-semibold text-amber-800">
-                ⚠️ {mapError}
-              </p>
+            <div className="booking-warning">
+              ⚠️ {mapError}
             </div>
           )}
 
-          {(addressLine1 || addressLine2 || city || postalCode) && (
-            <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-              <p className="text-xs font-bold text-emerald-800">
-                {locationDetected ? "✅ Location detected" : "📍 Service address"}
-              </p>
-              <p className="text-sm text-emerald-700 mt-1 leading-relaxed">
+          {(addressLine1 ||
+            addressLine2 ||
+            city ||
+            postalCode) && (
+            <div className="booking-address-preview">
+              <strong>
+                {locationDetected
+                  ? "✅ Location detected"
+                  : "📍 Service address"}
+              </strong>
+
+              <p>
                 {[
                   addressLine1,
                   addressLine2,
-                  landmark ? `Landmark: ${landmark}` : "",
+                  landmark
+                    ? `Landmark: ${landmark}`
+                    : "",
                   city,
                   postalCode,
-                ].filter(Boolean).join(", ")}
+                ]
+                  .filter(Boolean)
+                  .join(", ")}
               </p>
             </div>
           )}
 
-          {latitude !== null && longitude !== null && (
-            <div className="mt-3 rounded-2xl border border-slate-200 overflow-hidden bg-white">
-              <div className="h-40 bg-slate-100">
-                <iframe
-                  title="Selected service location"
-                  src={`https://www.google.com/maps?q=${encodeURIComponent(
-                    `${latitude},${longitude}`
-                  )}&z=17&output=embed`}
-                  className="w-full h-full border-0"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
+          {latitude !== null &&
+            longitude !== null && (
+              <div className="booking-map-card">
+                <div className="booking-map">
+                  <iframe
+                    title="Selected service location"
+                    src={`https://www.google.com/maps?q=${encodeURIComponent(
+                      `${latitude},${longitude}`
+                    )}&z=17&output=embed`}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                </div>
+
+                <div className="booking-map-footer">
+                  <span>
+                    GPS location saved
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={openGoogleMaps}
+                  >
+                    Open Maps →
+                  </button>
+                </div>
               </div>
-              <div className="px-3 py-2.5 flex items-center justify-between gap-3">
-                <p className="text-[11px] text-slate-400">
-                  GPS location saved
-                </p>
-                <button
-                  type="button"
-                  onClick={openGoogleMaps}
-                  className="text-xs font-bold text-sky-600"
-                >
-                  Open Maps →
-                </button>
-              </div>
-            </div>
-          )}
+            )}
         </section>
 
-        {/* Date & Time */}
-        <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 mb-4">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-11 h-11 rounded-2xl bg-violet-50 flex items-center justify-center text-xl">
+        {/* DATE & TIME */}
+        <section className="booking-card">
+          <div className="booking-card-heading">
+            <div className="booking-card-icon sky">
               🗓️
             </div>
 
             <div>
-              <h2 className="font-bold text-slate-900">
-                Schedule Service
-              </h2>
+              <h2>Schedule Service</h2>
 
-              <p className="text-xs text-slate-500 mt-1">
+              <p>
                 Choose when you want the service
               </p>
             </div>
           </div>
 
-          {/* Date */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Preferred Date
-            </label>
+          <div className="booking-field">
+            <label>Preferred Date</label>
 
             <input
               type="date"
@@ -890,17 +917,13 @@ export default function Booking() {
               onChange={(e) =>
                 setDate(e.target.value)
               }
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition"
             />
           </div>
 
-          {/* Time */}
-          <div className="mt-4">
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Preferred Time
-            </label>
+          <div className="booking-time-wrapper">
+            <label>Preferred Time</label>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="booking-time-grid">
               {TIME_SLOTS.map((slot) => {
                 const selected = time === slot;
 
@@ -908,12 +931,14 @@ export default function Booking() {
                   <button
                     key={slot}
                     type="button"
-                    onClick={() => setTime(slot)}
-                    className={`py-2.5 px-2 rounded-xl text-xs sm:text-sm font-semibold border transition ${
+                    onClick={() =>
+                      setTime(slot)
+                    }
+                    className={
                       selected
-                        ? "bg-sky-500 text-white border-sky-500 shadow-sm"
-                        : "bg-white text-slate-700 border-slate-200 hover:border-sky-300 hover:bg-sky-50"
-                    }`}
+                        ? "selected"
+                        : ""
+                    }
                   >
                     {slot}
                   </button>
@@ -922,7 +947,7 @@ export default function Booking() {
             </div>
 
             {time && (
-              <div className="mt-3 rounded-xl bg-sky-50 px-4 py-3 text-sm text-sky-700">
+              <div className="booking-selected-time">
                 🕒 Selected time:{" "}
                 <strong>{time}</strong>
               </div>
@@ -930,76 +955,69 @@ export default function Booking() {
           </div>
         </section>
 
-        {/* Problem */}
+        {/* PROBLEM */}
         {problem && (
-          <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-amber-50 flex items-center justify-center text-xl">
+          <section className="booking-card">
+            <div className="booking-card-heading">
+              <div className="booking-card-icon amber">
                 💬
               </div>
 
               <div>
-                <h2 className="font-bold text-slate-900">
-                  Problem Description
-                </h2>
+                <h2>Problem Description</h2>
 
-                <p className="text-xs text-slate-500 mt-1">
+                <p>
                   Information provided by you
                 </p>
               </div>
             </div>
 
-            <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
+            <div className="booking-problem">
               {problem}
             </div>
           </section>
         )}
 
-        {/* Booking note */}
-        <div className="rounded-2xl bg-sky-50 border border-sky-100 p-4 mb-5">
-          <div className="flex gap-3">
-            <span className="text-xl">
-              💡
-            </span>
+        {/* NEXT */}
+        <div className="booking-next">
+          <div>💡</div>
 
-            <div>
-              <p className="font-bold text-sky-800">
-                What happens next?
-              </p>
+          <div>
+            <strong>What happens next?</strong>
 
-              <p className="text-sm text-sky-700 mt-1 leading-relaxed">
-                Your booking will be sent to Quickly.
-                A technician can then be assigned to
-                your request and you'll be able to
-                follow the booking status.
-              </p>
-            </div>
+            <p>
+              Your booking will be sent to OnCall.
+              A technician can then be assigned to
+              your request and you'll be able to
+              follow the booking status.
+            </p>
           </div>
         </div>
       </main>
 
-      {/* Bottom Booking Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur border-t border-slate-200 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]">
-        <div className="max-w-2xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-slate-500">
-              Booking Total
-            </span>
+      {/* BOTTOM BAR */}
+      <div className="booking-bottom-bar">
+        <div className="booking-bottom-inner">
+          <div className="booking-bottom-total">
+            <span>Booking Total</span>
 
-            <span className="font-extrabold text-slate-900">
-              ₹{totalAmount}
-            </span>
+            <strong>
+              ₹
+              {Number(totalAmount).toLocaleString(
+                "en-IN"
+              )}
+            </strong>
           </div>
 
           <button
             type="button"
             onClick={handleSubmit}
             disabled={isLoading}
-            className={`w-full py-3.5 rounded-2xl text-white font-bold text-base transition active:scale-[0.98] ${
+            className={
               isLoading
-                ? "bg-slate-400 cursor-wait"
-                : "bg-sky-500 hover:bg-sky-600 shadow-lg shadow-sky-500/20"
-            }`}
+                ? "booking-confirm-btn loading"
+                : "booking-confirm-btn"
+            }
           >
             {isLoading
               ? "⏳ Creating Booking..."

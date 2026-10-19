@@ -1,9 +1,23 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import "./BikeCar.css";
+import onCallLogo from "../../assets/On-Call-Logo.jpeg";
 import { useCart } from "../../utils/CartContext";
 import ViewCartBar from "../../components/ViewCartBar";
 
 const SUPPORT_PHONE = "7661045308";
+
+const THEME = {
+  navy: "#0B1D36",
+  teal: "#0D9488",
+  sky: "#0EA5E9",
+  cloud: "#F8FAFC",
+  mist: "#F1F5F9",
+  text: "#0F172A",
+  muted: "#64748B",
+  border: "#DCE5EC",
+};
 
 const BIKE_CAR_SECTIONS = [
   {
@@ -149,16 +163,28 @@ const QUICK_NEEDS = [
   },
 ];
 
-export default function BikeCarService() {
+export default function BikeCar() {
   const navigate = useNavigate();
   const { addItem, itemCount } = useCart();
 
   const [search, setSearch] = useState("");
   const [bookingId, setBookingId] = useState(null);
 
+  const [activeNeedIndex, setActiveNeedIndex] = useState(0);
+
   const whatsappMessage = encodeURIComponent(
-    "Hi QuickSeva, I need help with Bike & Car Service."
+    "Hi OnCall, I need help with Bike & Car Service."
   );
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveNeedIndex((prev) => {
+        return (prev + 1) % QUICK_NEEDS.length;
+      });
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const filteredSections = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -189,11 +215,9 @@ export default function BikeCarService() {
       name: item.name,
       price: Number(item.price),
       qty: 1,
-
       service: "Bike & Car Service",
       category: section.title,
       subService: item.name,
-
       description: item.desc,
       duration: item.time,
       warranty: item.warranty,
@@ -223,36 +247,47 @@ export default function BikeCarService() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-28">
+    <div className="vehicle-page">
       {/* HEADER */}
-      <header className="sticky top-0 z-40 bg-white border-b">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
+
+      <header className="vehicle-header">
+        <div className="vehicle-header-inner">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl"
+            className="vehicle-back-btn"
             aria-label="Go back"
           >
             ←
           </button>
 
-          <div className="flex-1">
-            <p className="text-xs text-slate-500">QuickSeva</p>
-            <h1 className="text-lg font-bold text-slate-900">
-              Bike & Car Service
-            </h1>
+          <div className="vehicle-brand">
+            <div className="bc-logo-box">
+            
+                          <img
+                            src={onCallLogo}
+                            alt="OnCall Services"
+                            className="bc-logo"
+                          />
+            
+                        </div>
+
+            <div>
+              <p>OnCall</p>
+              <h1>Bike & Car Service</h1>
+            </div>
           </div>
 
           <button
             type="button"
             onClick={() => navigate("/cart")}
-            className="relative w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl"
+            className="vehicle-cart-btn"
             aria-label="Open cart"
           >
             🛒
 
             {itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-sky-500 text-white text-[10px] font-bold flex items-center justify-center">
+              <span className="vehicle-cart-count">
                 {itemCount}
               </span>
             )}
@@ -260,78 +295,69 @@ export default function BikeCarService() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4">
+      <main className="vehicle-container">
         {/* HERO */}
-        <section className="mt-4">
-          <div
-            className="relative min-h-[250px] rounded-3xl overflow-hidden shadow-lg"
-            style={{
-              backgroundImage:
-                "linear-gradient(135deg, rgba(14,116,144,0.72), rgba(59,130,246,0.58)), url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 800 500\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Crect width=\'800\' height=\'500\' fill=\'%23e0f2fe\'/%3E%3Ccircle cx=\'150\' cy=\'130\' r=\'80\' fill=\'%233b82f6\' fill-opacity=\'0.3\'/%3E%3Ccircle cx=\'610\' cy=\'180\' r=\'120\' fill=\'%230ea5e9\' fill-opacity=\'0.38\'/%3E%3Ccircle cx=\'420\' cy=\'330\' r=\'160\' fill=\'%230f172a\' fill-opacity=\'0.28\'/%3E%3C/g%3E%3C/svg%3E')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            <div className="absolute inset-0 bg-black/55" />
 
-            <div className="relative z-10 min-h-[250px] p-5 sm:p-7 flex flex-col justify-between text-white">
-              <div className="max-w-xl">
-                <span className="inline-flex px-3 py-1 rounded-full bg-white/15 border border-white/20 text-xs font-semibold backdrop-blur">
-                  🚗 Vehicle care at your doorstep
-                </span>
+        <section className="vehicle-hero">
+          <div className="vehicle-hero-background" />
+          <div className="vehicle-hero-overlay" />
 
-                <h2 className="text-3xl sm:text-4xl font-extrabold mt-3">
-                  Vehicle service,
-                  <br />
-                  made easy.
-                </h2>
+          <div className="vehicle-hero-content">
+            <div className="vehicle-hero-main">
+              <span className="vehicle-hero-label">
+                🚗 VEHICLE CARE AT YOUR DOORSTEP
+              </span>
 
-                <p className="text-sm sm:text-base text-white/85 mt-2">
-                  Book trusted mechanics for bike and car wash, servicing,
-                  maintenance and common repairs.
-                </p>
-              </div>
+              <h2>
+                Vehicle service,
+                <br />
+                <span>made easy.</span>
+              </h2>
 
-              {/* CALL + WHATSAPP */}
-              <div className="flex flex-wrap gap-2">
-                <a
-                  href={`tel:+91${SUPPORT_PHONE}`}
-                  className="px-4 py-2.5 bg-white text-slate-900 rounded-xl font-bold shadow"
-                >
-                  📞 Call Support
-                </a>
+              <p>
+                Book trusted mechanics for bike and car wash,
+                servicing, maintenance and common repairs.
+              </p>
+            </div>
 
-                <a
-                  href={`https://wa.me/91${SUPPORT_PHONE}?text=${whatsappMessage}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-4 py-2.5 bg-green-500 text-white rounded-xl font-bold shadow"
-                >
-                  💬 WhatsApp
-                </a>
-              </div>
+            <div className="vehicle-hero-actions">
+              <a
+                href={`tel:+91${SUPPORT_PHONE}`}
+                className="vehicle-call-btn"
+              >
+                📞 Call Support
+              </a>
+
+              <a
+                href={`https://wa.me/91${SUPPORT_PHONE}?text=${whatsappMessage}`}
+                target="_blank"
+                rel="noreferrer"
+                className="vehicle-whatsapp-btn"
+              >
+                💬 WhatsApp
+              </a>
             </div>
           </div>
         </section>
 
         {/* SEARCH */}
-        <section className="mt-5">
-          <div className="bg-white border rounded-2xl p-3 shadow-sm flex items-center gap-3">
-            <span className="text-xl">🔎</span>
+
+        <section className="vehicle-search-section">
+          <div className="vehicle-search-box">
+            <span className="vehicle-search-icon">🔎</span>
 
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="What vehicle service do you need?"
-              className="flex-1 outline-none text-sm text-slate-900 placeholder:text-slate-400"
             />
 
             {search && (
               <button
                 type="button"
                 onClick={() => setSearch("")}
-                className="text-slate-400 font-bold"
+                className="vehicle-clear-btn"
               >
                 ✕
               </button>
@@ -340,161 +366,217 @@ export default function BikeCarService() {
         </section>
 
         {/* QUICK NEEDS */}
-        <section className="mt-6">
-          <div className="mb-3">
-            <h2 className="text-xl font-bold text-slate-900">
-              What do you need?
-            </h2>
 
-            <p className="text-sm text-slate-500">
-              Choose your problem and find a service quickly
-            </p>
+        <section className="vehicle-quick-section">
+          <div className="vehicle-section-title">
+            <div>
+              <h2>What do you need?</h2>
+
+              <p>
+                Choose your problem and find a service quickly
+              </p>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {QUICK_NEEDS.map((need) => (
-              <button
-                key={need.id}
-                type="button"
-                onClick={() => handleQuickNeed(need)}
-                className="bg-white border rounded-2xl p-4 text-left hover:shadow-md transition active:scale-[0.98]"
-              >
-                <div className="w-11 h-11 rounded-xl bg-sky-50 flex items-center justify-center text-2xl">
-                  {need.icon}
-                </div>
+          <div className="vehicle-quick-grid">
+            {QUICK_NEEDS.map((need, index) => {
+              const isFlowActive =
+                index === activeNeedIndex;
 
-                <p className="font-bold text-slate-900 mt-3 text-sm">
-                  {need.title}
-                </p>
+              return (
+                <button
+                  key={need.id}
+                  type="button"
+                  onClick={() => handleQuickNeed(need)}
+                  className={`
+                    vehicle-quick-card
+                    ${
+                      isFlowActive
+                        ? "oncall-problem-flow-active"
+                        : ""
+                    }
+                  `}
+                  style={{
+                    backgroundColor: isFlowActive
+                      ? "transparent"
+                      : THEME.cloud,
 
-                <p className="text-xs text-slate-500 mt-1">
-                  View services →
-                </p>
-              </button>
-            ))}
+                    borderColor: isFlowActive
+                      ? THEME.teal
+                      : THEME.border,
+
+                    color: isFlowActive
+                      ? "#FFFFFF"
+                      : THEME.text,
+
+                    boxShadow: isFlowActive
+                      ? "0 8px 24px rgba(13,148,136,.25)"
+                      : "0 2px 8px rgba(15,23,42,.04)",
+                  }}
+                >
+                  {/* LEFT → RIGHT FLOW */}
+
+                  {isFlowActive && (
+                    <span
+                      key={activeNeedIndex}
+                      className="oncall-problem-flow-background"
+                    />
+                  )}
+
+                  {/* CONTENT */}
+
+                  <span className="vehicle-quick-content">
+                    <span
+                      className="vehicle-quick-icon"
+                      style={{
+                        backgroundColor: isFlowActive
+                          ? "rgba(255,255,255,.18)"
+                          : "#E0F2FE",
+                      }}
+                    >
+                      {need.icon}
+                    </span>
+
+                    <span
+                      className="vehicle-quick-title"
+                      style={{
+                        color: isFlowActive
+                          ? "#FFFFFF"
+                          : THEME.text,
+                      }}
+                    >
+                      {need.title}
+                    </span>
+
+                    <span
+                      className="vehicle-quick-link"
+                      style={{
+                        color: isFlowActive
+                          ? "rgba(255,255,255,.85)"
+                          : THEME.muted,
+                      }}
+                    >
+                      View services →
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </section>
 
         {/* TRUST STRIP */}
-        <section className="grid grid-cols-3 gap-2 mt-5">
-          <div className="bg-white border rounded-xl p-3 text-center">
-            <div className="text-xl">🔧</div>
-            <p className="text-xs font-semibold text-slate-700 mt-1">
-              Skilled
-            </p>
+
+        <section className="vehicle-trust-strip">
+          <div className="vehicle-mini-trust-card">
+            <div>🔧</div>
+            <p>Skilled</p>
           </div>
 
-          <div className="bg-white border rounded-xl p-3 text-center">
-            <div className="text-xl">🛡️</div>
-            <p className="text-xs font-semibold text-slate-700 mt-1">
-              Verified
-            </p>
+          <div className="vehicle-mini-trust-card">
+            <div>🛡️</div>
+            <p>Verified</p>
           </div>
 
-          <div className="bg-white border rounded-xl p-3 text-center">
-            <div className="text-xl">💰</div>
-            <p className="text-xs font-semibold text-slate-700 mt-1">
-              Clear Price
-            </p>
+          <div className="vehicle-mini-trust-card">
+            <div>💰</div>
+            <p>Clear Price</p>
           </div>
         </section>
 
         {/* SERVICES */}
-        <section id="vehicle-services" className="mt-7 scroll-mt-24">
+
+        <section
+          id="vehicle-services"
+          className="vehicle-services-section"
+        >
           {filteredSections.length === 0 ? (
-            <div className="bg-white border rounded-3xl p-8 text-center">
-              <div className="text-5xl">🔎</div>
+            <div className="vehicle-empty-state">
+              <div>🔎</div>
 
-              <h3 className="text-lg font-bold text-slate-900 mt-3">
-                No service found
-              </h3>
+              <h3>No service found</h3>
 
-              <p className="text-sm text-slate-500 mt-1">
-                Try searching for wash, oil, repair, brake or battery.
+              <p>
+                Try searching for wash, oil, repair, brake or
+                battery.
               </p>
 
               <button
                 type="button"
                 onClick={() => setSearch("")}
-                className="mt-4 px-5 py-2.5 rounded-xl bg-sky-500 text-white font-bold"
+                className="vehicle-show-all-btn"
               >
                 Show All Services
               </button>
             </div>
           ) : (
             filteredSections.map((section) => (
-              <div key={section.title} className="mb-8">
-                <div className="mb-3">
-                  <h2 className="text-xl font-bold text-slate-900">
-                    {section.title}
-                  </h2>
+              <div
+                key={section.title}
+                className="vehicle-service-section"
+              >
+                <div className="vehicle-service-section-heading">
+                  <h2>{section.title}</h2>
 
-                  <p className="text-sm text-slate-500">
-                    {section.subtitle}
-                  </p>
+                  <p>{section.subtitle}</p>
                 </div>
 
-                <div className="grid gap-3">
+                <div className="vehicle-service-list">
                   {section.items.map((item) => (
-                    <div
+                    <article
                       key={item.id}
-                      className="bg-white border rounded-2xl p-4 shadow-sm"
+                      className="vehicle-service-card"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-start gap-3">
-                            <div className="w-11 h-11 shrink-0 rounded-xl bg-sky-50 flex items-center justify-center text-xl">
-                              🔧
-                            </div>
-
-                            <div>
-                              <h3 className="font-bold text-slate-900">
-                                {item.name}
-                              </h3>
-
-                              <p className="text-sm text-slate-500 mt-1">
-                                {item.desc}
-                              </p>
-
-                              <div className="flex flex-wrap gap-2 mt-2">
-                                <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-lg">
-                                  ⏱ {item.time}
-                                </span>
-
-                                <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-lg">
-                                  ✓ {item.warranty}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
+                      <div className="vehicle-service-main">
+                        <div className="vehicle-service-icon">
+                          🔧
                         </div>
 
-                        <div className="sm:text-right sm:min-w-[130px]">
-                          <div className="text-xl font-extrabold text-slate-900">
-                            ₹{Number(item.price).toLocaleString("en-IN")}
+                        <div className="vehicle-service-info">
+                          <h3>{item.name}</h3>
+
+                          <p>{item.desc}</p>
+
+                          <div className="vehicle-service-meta">
+                            <span>
+                              ⏱ {item.time}
+                            </span>
+
+                            <span>
+                              ✓ {item.warranty}
+                            </span>
                           </div>
-
-                          <p className="text-xs text-slate-400 mt-1">
-                            Starting price
-                          </p>
-
-                          <button
-                            type="button"
-                            disabled={bookingId === item.id}
-                            onClick={() => handleBook(section, item)}
-                            className={`mt-3 w-full sm:w-auto px-5 py-2.5 rounded-xl text-white font-bold shadow-sm transition ${
-                              bookingId === item.id
-                                ? "bg-slate-400 cursor-wait"
-                                : "bg-sky-500 hover:bg-sky-600 active:scale-[0.98]"
-                            }`}
-                          >
-                            {bookingId === item.id
-                              ? "Adding..."
-                              : "Book Now →"}
-                          </button>
                         </div>
                       </div>
-                    </div>
+
+                      <div className="vehicle-service-action">
+                        <div className="vehicle-price">
+                          ₹
+                          {Number(item.price).toLocaleString(
+                            "en-IN"
+                          )}
+                        </div>
+
+                        <p>Starting price</p>
+
+                        <button
+                          type="button"
+                          disabled={bookingId === item.id}
+                          onClick={() =>
+                            handleBook(section, item)
+                          }
+                          className={
+                            bookingId === item.id
+                              ? "vehicle-book-btn loading"
+                              : "vehicle-book-btn"
+                          }
+                        >
+                          {bookingId === item.id
+                            ? "Adding..."
+                            : "Book Now →"}
+                        </button>
+                      </div>
+                    </article>
                   ))}
                 </div>
               </div>
@@ -503,46 +585,50 @@ export default function BikeCarService() {
         </section>
 
         {/* HOW IT WORKS */}
-        <section className="mt-8">
-          <div className="bg-white border rounded-3xl p-5">
-            <h2 className="text-xl font-bold text-slate-900">
-              How QuickSeva works
-            </h2>
 
-            <div className="grid sm:grid-cols-3 gap-4 mt-5">
+        <section className="vehicle-how-section">
+          <div className="vehicle-how-card">
+            <div className="vehicle-section-title">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center text-xl">
+                <h2>How OnCall works</h2>
+              </div>
+            </div>
+
+            <div className="vehicle-how-grid">
+              <div className="vehicle-how-item">
+                <div className="vehicle-how-icon">
                   1️⃣
                 </div>
 
-                <h3 className="font-bold mt-2">Choose a service</h3>
+                <h3>Choose a service</h3>
 
-                <p className="text-xs text-slate-500 mt-1">
+                <p>
                   Tell us what your bike or car needs.
                 </p>
               </div>
 
-              <div>
-                <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center text-xl">
+              <div className="vehicle-how-item">
+                <div className="vehicle-how-icon">
                   2️⃣
                 </div>
 
-                <h3 className="font-bold mt-2">Choose date & time</h3>
+                <h3>Choose date & time</h3>
 
-                <p className="text-xs text-slate-500 mt-1">
+                <p>
                   Tell us where and when you need the service.
                 </p>
               </div>
 
-              <div>
-                <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center text-xl">
+              <div className="vehicle-how-item">
+                <div className="vehicle-how-icon">
                   3️⃣
                 </div>
 
-                <h3 className="font-bold mt-2">Get it serviced</h3>
+                <h3>Get it serviced</h3>
 
-                <p className="text-xs text-slate-500 mt-1">
-                  A service professional comes to your location.
+                <p>
+                  A service professional comes to your
+                  location.
                 </p>
               </div>
             </div>
@@ -550,23 +636,22 @@ export default function BikeCarService() {
         </section>
 
         {/* SUPPORT */}
-        <section className="mt-5">
-          <div className="rounded-3xl bg-slate-900 text-white p-5">
-            <p className="text-xs text-slate-300">Need help?</p>
 
-            <h2 className="text-xl font-bold mt-1">
+        <section className="vehicle-support-section">
+          <div className="vehicle-support-card">
+            <p>Need help?</p>
+
+            <h2>
               Not sure what your vehicle needs?
             </h2>
 
-            <p className="text-sm text-slate-300 mt-2">
-              Talk to QuickSeva support and we can help you choose a service.
-            </p>
+            <span>
+              Talk to OnCall support and we can help you
+              choose a service.
+            </span>
 
-            <div className="flex flex-wrap gap-2 mt-4">
-              <a
-                href={`tel:+91${SUPPORT_PHONE}`}
-                className="px-4 py-2.5 rounded-xl bg-white text-slate-900 font-bold"
-              >
+            <div className="vehicle-support-actions">
+              <a href={`tel:+91${SUPPORT_PHONE}`}>
                 📞 Call
               </a>
 
@@ -574,7 +659,6 @@ export default function BikeCarService() {
                 href={`https://wa.me/91${SUPPORT_PHONE}?text=${whatsappMessage}`}
                 target="_blank"
                 rel="noreferrer"
-                className="px-4 py-2.5 rounded-xl bg-green-500 text-white font-bold"
               >
                 💬 WhatsApp
               </a>

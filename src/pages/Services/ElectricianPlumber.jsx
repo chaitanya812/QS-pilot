@@ -1,50 +1,119 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./Electrician.css";
+
+// =========================================================
+// BANNER
+// =========================================================
 
 import bannerElectrician from "../../assets/eletrican banner.png";
+
+// =========================================================
+// SWITCH & SOCKET
+// =========================================================
+
 import allfans from "../../assets/allfans.png";
 import switchs from "../../assets/switch.jpg";
 import switchboards from "../../assets/switchboard.jpg";
 import newbox from "../../assets/newswitchboard.jpg";
+
+// =========================================================
+// FAN
+// =========================================================
+
 import fanrepairs from "../../assets/fan repair.png";
 import regulator from "../../assets/fan regulator.png";
 import karbanfan from "../../assets/Karban fan.png";
+
+// =========================================================
+// LIGHTS
+// =========================================================
+
 import fancylight from "../../assets/Fancylight.png";
 import Blub from "../../assets/blub.png";
 import Tubelight from "../../assets/tubelight.png";
 import Cellinglight from "../../assets/cellinglight.png";
 import Hanglight from "../../assets/hanginglight.png";
 import chandelier from "../../assets/chandler.png";
+
+// =========================================================
+// WIRING
+// =========================================================
+
 import Internal from "../../assets/internal.png";
 import External from "../../assets/external.png";
+
+// =========================================================
+// DOORBELL
+// =========================================================
+
 import Regularbell from "../../assets/regulardoorbell.png";
 import videoDoorbell from "../../assets/videodoorbell.png";
+
+// =========================================================
+// FUSE / METER
+// =========================================================
+
 import Mcb from "../../assets/mcb.png";
 import Inverterfuse from "../../assets/inverterfuse.png";
 import Submeter from "../../assets/submeter.png";
+
+// =========================================================
+// TV
+// =========================================================
+
 import Tvinstall from "../../assets/tvinstall.png";
 import Tvuninstall from "../../assets/tvuninstall.png";
+
+// =========================================================
+// INVERTER
+// =========================================================
+
 import Inverterinstall from "../../assets/inverterinstall.png";
 import InverterService from "../../assets/inverterservice.png";
 import InverterCheck from "../../assets/invertercheckup.png";
 import Inverteruninstall from "../../assets/inverteruninstall.png";
+
+// =========================================================
+// STABILIZER
+// =========================================================
+
 import Stabizer from "../../assets/stabilizer.png";
+
+// =========================================================
+// CART
+// =========================================================
 
 import { useCart } from "../../utils/CartContext";
 
-/* =========================================================
-   SUPPORT
-========================================================= */
+// =========================================================
+// ONCALL PROJECT THEME
+// =========================================================
+
+const THEME = {
+  navy: "#0B1D36",
+  teal: "#0D9488",
+  sky: "#0EA5E9",
+  mist: "#F1F5F9",
+  cloud: "#F8FAFC",
+  text: "#0F172A",
+  muted: "#64748B",
+  border: "#CBD5E1",
+};
+
+// =========================================================
+// SUPPORT
+// =========================================================
 
 const SUPPORT_PHONE = "7661045308";
 
 const whatsappMessage = encodeURIComponent(
-  "Hi QuickSeva, I need help with Electrical service."
+  "Hi OnCall, I need help with Electrical service."
 );
 
-/* =========================================================
-   CUSTOMER REVIEWS
-========================================================= */
+// =========================================================
+// CUSTOMER REVIEWS
+// =========================================================
 
 const REVIEWS = [
   {
@@ -76,16 +145,21 @@ const REVIEWS = [
   },
 ];
 
-/* =========================================================
-   ELECTRICIAN SERVICES
-========================================================= */
+// =========================================================
+// ELECTRICIAN SERVICES
+// =========================================================
 
 const SERVICES = [
+  // =======================================================
+  // SWITCH & SOCKET
+  // =======================================================
+
   {
     id: "ep1",
     icon: "⚡",
     title: "Switch & Socket",
     tagline: "Repair and installation of switches and boards",
+
     items: [
       {
         id: "e1",
@@ -97,6 +171,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: switchboards,
       },
+
       {
         id: "e2",
         name: "Switch / Socket Repair / Replacement",
@@ -107,6 +182,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: switchs,
       },
+
       {
         id: "e3",
         name: "New Switch Box Installation",
@@ -119,11 +195,16 @@ const SERVICES = [
     ],
   },
 
+  // =======================================================
+  // FAN SERVICES
+  // =======================================================
+
   {
     id: "ep2",
     icon: "🌀",
     title: "Fan Services",
     tagline: "Repair, installation and regulator replacement",
+
     items: [
       {
         id: "e4",
@@ -135,6 +216,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: fanrepairs,
       },
+
       {
         id: "e5",
         name: "Exhaust / Pedestal / Tower Fan Installation",
@@ -144,6 +226,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: allfans,
       },
+
       {
         id: "e6",
         name: "Fan Regulator Replacement",
@@ -153,6 +236,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: regulator,
       },
+
       {
         id: "e21",
         name: "Karban Airzone Fan Installation",
@@ -165,11 +249,16 @@ const SERVICES = [
     ],
   },
 
+  // =======================================================
+  // LIGHTS & CHANDELIER
+  // =======================================================
+
   {
     id: "ep3",
     icon: "💡",
     title: "Lights & Chandelier",
     tagline: "Installation and replacement of lights",
+
     items: [
       {
         id: "e7",
@@ -181,6 +270,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: fancylight,
       },
+
       {
         id: "e8",
         name: "Tubelight Installation",
@@ -190,6 +280,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: Tubelight,
       },
+
       {
         id: "e9",
         name: "Bulb Installation",
@@ -199,6 +290,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: Blub,
       },
+
       {
         id: "e10",
         name: "Ceiling Light Installation",
@@ -208,6 +300,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: Cellinglight,
       },
+
       {
         id: "e11",
         name: "Hanging Light Installation",
@@ -217,6 +310,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: Hanglight,
       },
+
       {
         id: "e12",
         name: "Chandelier Installation",
@@ -230,11 +324,16 @@ const SERVICES = [
     ],
   },
 
+  // =======================================================
+  // WIRING
+  // =======================================================
+
   {
     id: "ep4",
     icon: "🧰",
     title: "Wiring Work",
     tagline: "Safe internal and external wiring",
+
     items: [
       {
         id: "e13",
@@ -245,6 +344,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: Internal,
       },
+
       {
         id: "e14",
         name: "External Wiring (Per Meter)",
@@ -257,11 +357,16 @@ const SERVICES = [
     ],
   },
 
+  // =======================================================
+  // DOORBELL
+  // =======================================================
+
   {
     id: "ep5",
     icon: "🔔",
     title: "Doorbell",
     tagline: "Regular and smart video doorbell installation",
+
     items: [
       {
         id: "e15",
@@ -272,6 +377,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: Regularbell,
       },
+
       {
         id: "e16",
         name: "Video Doorbell Installation",
@@ -285,11 +391,16 @@ const SERVICES = [
     ],
   },
 
+  // =======================================================
+  // FUSE & SAFETY
+  // =======================================================
+
   {
     id: "ep6",
     icon: "🛡️",
     title: "Fuse & Safety",
     tagline: "MCB and electrical safety services",
+
     items: [
       {
         id: "e17",
@@ -303,11 +414,16 @@ const SERVICES = [
     ],
   },
 
+  // =======================================================
+  // METER
+  // =======================================================
+
   {
     id: "ep7",
     icon: "⚙️",
     title: "Meter Work",
     tagline: "Sub-meter installation",
+
     items: [
       {
         id: "e18",
@@ -321,11 +437,16 @@ const SERVICES = [
     ],
   },
 
+  // =======================================================
+  // TV
+  // =======================================================
+
   {
     id: "ep8",
     icon: "📺",
     title: "TV Services",
     tagline: "TV installation and safe removal",
+
     items: [
       {
         id: "e19",
@@ -336,6 +457,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: Tvinstall,
       },
+
       {
         id: "e20",
         name: "TV Uninstallation",
@@ -348,11 +470,16 @@ const SERVICES = [
     ],
   },
 
+  // =======================================================
+  // INVERTER
+  // =======================================================
+
   {
     id: "ep9",
     icon: "🔋",
     title: "Inverter",
     tagline: "Installation, service and repair",
+
     items: [
       {
         id: "e22",
@@ -364,6 +491,7 @@ const SERVICES = [
         warranty: "45 Days",
         image: Inverterinstall,
       },
+
       {
         id: "e23",
         name: "Inverter Fuse Replacement",
@@ -373,6 +501,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: Inverterfuse,
       },
+
       {
         id: "e24",
         name: "Inverter Servicing",
@@ -382,6 +511,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: InverterService,
       },
+
       {
         id: "e25",
         name: "Inverter Check-up",
@@ -391,6 +521,7 @@ const SERVICES = [
         warranty: "30 Days",
         image: InverterCheck,
       },
+
       {
         id: "e26",
         name: "Inverter Uninstallation",
@@ -403,11 +534,16 @@ const SERVICES = [
     ],
   },
 
+  // =======================================================
+  // STABILIZER
+  // =======================================================
+
   {
     id: "ep10",
     icon: "⚙️",
     title: "Stabilizer",
     tagline: "Safe voltage protection",
+
     items: [
       {
         id: "e27",
@@ -422,9 +558,9 @@ const SERVICES = [
   },
 ];
 
-/* =========================================================
-   PROBLEMS
-========================================================= */
+// =========================================================
+// PROBLEMS
+// =========================================================
 
 const PROBLEMS = [
   {
@@ -433,30 +569,35 @@ const PROBLEMS = [
     title: "Switch problem",
     search: "switch",
   },
+
   {
     id: "fan",
     icon: "🌀",
     title: "Fan problem",
     search: "fan",
   },
+
   {
     id: "light",
     icon: "💡",
     title: "Light problem",
     search: "light",
   },
+
   {
     id: "power",
     icon: "🔌",
     title: "Power / MCB",
     search: "mcb",
   },
+
   {
     id: "inverter",
     icon: "🔋",
     title: "Inverter problem",
     search: "inverter",
   },
+
   {
     id: "wiring",
     icon: "🧰",
@@ -465,16 +606,16 @@ const PROBLEMS = [
   },
 ];
 
-/* =========================================================
-   HELPERS
-========================================================= */
+// =========================================================
+// HELPER
+// =========================================================
 
 const formatPrice = (price) =>
   `₹${Number(price || 0).toLocaleString("en-IN")}`;
 
-/* =========================================================
-   COMPONENT
-========================================================= */
+// =========================================================
+// COMPONENT
+// =========================================================
 
 export default function ElectricianPlumber() {
   const navigate = useNavigate();
@@ -484,10 +625,11 @@ export default function ElectricianPlumber() {
   const [search, setSearch] = useState("");
   const [selectedProblem, setSelectedProblem] = useState("");
   const [bookingId, setBookingId] = useState(null);
+  const [activeProblemIndex, setActiveProblemIndex] = useState(0);
 
-  /* =======================================================
-     FILTER SERVICES
-  ======================================================= */
+  // =======================================================
+  // FILTER SERVICES
+  // =======================================================
 
   const filteredSections = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -498,12 +640,14 @@ export default function ElectricianPlumber() {
 
     return SERVICES.map((section) => ({
       ...section,
+
       items: section.items.filter((item) => {
         const text = `
           ${section.title}
           ${section.tagline}
           ${item.name}
           ${item.desc}
+          ${item.tag || ""}
         `.toLowerCase();
 
         return text.includes(query);
@@ -511,129 +655,138 @@ export default function ElectricianPlumber() {
     })).filter((section) => section.items.length > 0);
   }, [search]);
 
-  /* =======================================================
-     PROBLEM
-  ======================================================= */
+  // =======================================================
+  // SEARCH
+  // =======================================================
+
+  const handleSearch = (value) => {
+    setSearch(value);
+    setSelectedProblem("");
+  };
 
   const handleProblem = (problem) => {
     setSelectedProblem(problem.id);
     setSearch(problem.search);
-
-    setTimeout(() => {
-      const element = document.getElementById(
-        "electrician-services"
-      );
-
-      if (element) {
-        element.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
-    }, 100);
   };
-
-  /* =======================================================
-     BOOK NOW
-
-     Book Now
-          ↓
-     Add to Cart
-          ↓
-       /cart
-          ↓
-      Continue
-          ↓
-      /booking
-  ======================================================= */
-
-  const handleBook = (section, item) => {
-    if (bookingId) {
-      return;
-    }
-
-    setBookingId(item.id);
-
-    const cartItem = {
-      id: item.id,
-      key: item.id,
-
-      label: item.name,
-      name: item.name,
-
-      price: Number(item.price),
-      qty: 1,
-
-      service: "Electrician",
-      category: section.title,
-      subService: item.name,
-
-      description: item.desc,
-      duration: item.time,
-      warranty: item.warranty,
-
-      image: item.image,
-      tag: item.tag || "",
-    };
-
-    addItem(cartItem);
-
-    setTimeout(() => {
-      navigate("/cart");
-      setBookingId(null);
-    }, 100);
-  };
-
-  /* =======================================================
-     CLEAR SEARCH
-  ======================================================= */
 
   const clearSearch = () => {
     setSearch("");
     setSelectedProblem("");
   };
 
-  /* =======================================================
-     UI
-  ======================================================= */
+  // =======================================================
+  // BOOK SERVICE
+  // =======================================================
+
+  const handleBook = (section, item) => {
+    setBookingId(item.id);
+
+    addItem({
+      id: item.id,
+      name: item.name,
+      service: "Electrician",
+      category: section.title,
+      price: item.price,
+      image: item.image,
+      quantity: 1,
+    });
+
+    setTimeout(() => {
+      navigate("/cart");
+    }, 250);
+  };
+
+  // =======================================================
+  // PROBLEM CARD FLOW
+  //
+  // 1 → 2 → 3 → 4 → 5 → 6 → 1
+  // =======================================================
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveProblemIndex((prev) => {
+        return (prev + 1) % PROBLEMS.length;
+      });
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // =======================================================
+  // JSX
+  // =======================================================
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-28">
-
-      {/* ===================================================
+    <div
+      className="electrician-page min-h-screen pb-28"
+      style={{
+        backgroundColor: THEME.mist,
+        color: THEME.text,
+      }}
+    >
+      {/* =================================================
           HEADER
-      =================================================== */}
+      ================================================= */}
 
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
-
+      <header
+        className="sticky top-0 z-40 border-b backdrop-blur"
+        style={{
+          backgroundColor: "rgba(255,255,255,0.96)",
+          borderColor: THEME.border,
+        }}
+      >
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+          
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl"
+            className="electrician-icon-btn"
+            style={{
+              backgroundColor: THEME.mist,
+              color: THEME.navy,
+            }}
           >
             ←
           </button>
 
-          <div className="flex-1">
-            <p className="text-xs text-slate-500">
-              QuickSeva
-            </p>
-
-            <h1 className="font-bold text-slate-900">
+          <div className="text-center">
+            <h1
+              className="font-bold text-lg"
+              style={{
+                color: THEME.navy,
+              }}
+            >
               Electrician
             </h1>
+
+            <p
+              className="text-xs"
+              style={{
+                color: THEME.muted,
+              }}
+            >
+              Professional electrical services
+            </p>
           </div>
 
           <button
             type="button"
             onClick={() => navigate("/cart")}
-            className="relative w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center text-xl"
+            className="electrician-icon-btn relative"
+            style={{
+              backgroundColor: "#E0F2FE",
+              color: THEME.sky,
+            }}
           >
             🛒
 
             {itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-sky-500 text-white text-[10px] font-bold flex items-center justify-center">
+              <span
+                className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center"
+                style={{
+                  backgroundColor: THEME.teal,
+                }}
+              >
                 {itemCount}
               </span>
             )}
@@ -641,252 +794,384 @@ export default function ElectricianPlumber() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 pt-4">
+      {/* =================================================
+          HERO
+      ================================================= */}
 
-        {/* =================================================
-            HERO
-        ================================================= */}
-
-        <section className="relative overflow-hidden rounded-3xl shadow-lg">
-
+      <section className="relative">
+        <div className="relative h-[230px] sm:h-[300px] overflow-hidden">
+          
           <img
             src={bannerElectrician}
-            alt="Electrician service"
-            className="w-full h-56 sm:h-72 object-cover"
+            alt="Electrician Services"
+            className="absolute inset-0 w-full h-full object-cover"
           />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(90deg, rgba(11,29,54,.94), rgba(11,29,54,.55), rgba(13,148,136,.15))",
+            }}
+          />
 
-          <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+          <div className="relative z-10 max-w-5xl mx-auto px-5 h-full flex items-center">
+            <div className="max-w-xl text-white">
 
-            <div className="inline-flex bg-white/15 backdrop-blur px-3 py-1 rounded-full text-xs mb-2">
-              ✓ Verified Professionals
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-3"
+                style={{
+                  backgroundColor: "rgba(14,165,233,.18)",
+                  border: "1px solid rgba(255,255,255,.25)",
+                }}
+              >
+                ⚡ Trusted OnCall Service
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl font-extrabold leading-tight">
+                Expert Electricians
+
+                <span
+                  className="block"
+                  style={{
+                    color: "#67E8F9",
+                  }}
+                >
+                  At Your Doorstep
+                </span>
+              </h2>
+
+              <p className="mt-3 text-sm sm:text-base text-white/85">
+                Fast, reliable and professional electrical services for
+                your home.
+              </p>
             </div>
-
-            <h2 className="text-2xl sm:text-3xl font-bold">
-              Electrical problem?
-              <br />
-              We'll take care of it.
-            </h2>
-
-            <p className="text-sm text-white/90 mt-1">
-              Choose your problem or select a service below.
-            </p>
-
           </div>
-        </section>
+        </div>
+      </section>
+
+      {/* =================================================
+          MAIN
+      ================================================= */}
+
+      <main className="max-w-5xl mx-auto px-4">
 
         {/* =================================================
             SEARCH
         ================================================= */}
 
-        <section className="mt-4">
+        <section className="-mt-6 relative z-20">
+          <div
+            className="rounded-2xl p-3 shadow-xl border"
+            style={{
+              backgroundColor: THEME.cloud,
+              borderColor: THEME.border,
+            }}
+          >
+            <div className="relative">
 
-          <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">
+                🔍
+              </span>
 
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">
-              🔍
-            </span>
+              <input
+                value={search}
+                onChange={(e) => handleSearch(e.target.value)}
+                placeholder="Search electrician services..."
+                className="w-full pl-11 pr-10 py-3.5 rounded-xl outline-none border text-sm"
+                style={{
+                  backgroundColor: THEME.mist,
+                  borderColor: THEME.border,
+                  color: THEME.text,
+                }}
+              />
 
-            <input
-              type="text"
-              value={search}
-              onChange={(event) => {
-                setSearch(event.target.value);
-                setSelectedProblem("");
-              }}
-              placeholder="Search electrical problem or service..."
-              className="w-full bg-white border border-slate-200 rounded-2xl pl-11 pr-12 py-4 outline-none focus:ring-2 focus:ring-sky-400 shadow-sm"
-            />
+              {search && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-lg"
+                  style={{
+                    color: THEME.muted,
+                  }}
+                >
+                  ×
+                </button>
+              )}
 
-            {search && (
-              <button
-                type="button"
-                onClick={clearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-slate-100"
-              >
-                ×
-              </button>
-            )}
-
+            </div>
           </div>
-
         </section>
 
         {/* =================================================
-            PROBLEMS
+            PROBLEM SELECTOR
         ================================================= */}
 
-        {!search && (
-          <section className="mt-5">
+        <section className="mt-7">
 
-            <div className="mb-3">
+          <div className="mb-4">
+            <h2
+              className="font-bold text-lg"
+              style={{
+                color: THEME.text,
+              }}
+            >
+              What do you need help with?
+            </h2>
 
-              <h2 className="font-bold text-lg text-slate-900">
-                What's wrong with your electrical system?
-              </h2>
+            <p
+              className="text-xs mt-1"
+              style={{
+                color: THEME.muted,
+              }}
+            >
+              Select your problem to find the right service
+            </p>
+          </div>
 
-              <p className="text-sm text-slate-500">
-                Pick your problem — we'll show the right service.
-              </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
 
-            </div>
+            {PROBLEMS.map((problem, index) => {
+              const isFlowActive =
+                index === activeProblemIndex;
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              const isSelected =
+                selectedProblem === problem.id;
 
-              {PROBLEMS.map((problem) => (
+              return (
                 <button
                   key={problem.id}
                   type="button"
                   onClick={() => handleProblem(problem)}
-                  className={`text-left bg-white border rounded-2xl p-4 shadow-sm transition active:scale-[0.98] ${
-                    selectedProblem === problem.id
-                      ? "border-sky-500 ring-2 ring-sky-100"
-                      : "border-slate-200"
-                  }`}
+                  className={`
+                    relative
+                    overflow-hidden
+                    text-left
+                    rounded-2xl
+                    border
+                    p-4
+                    transition-all
+                    duration-500
+                    active:scale-[0.98]
+                    ${
+                      isFlowActive
+                        ? "oncall-problem-flow-active"
+                        : ""
+                    }
+                  `}
+                  style={{
+                    backgroundColor: isFlowActive
+                      ? "transparent"
+                      : THEME.cloud,
+
+                    borderColor: isFlowActive
+                      ? THEME.teal
+                      : isSelected
+                      ? THEME.sky
+                      : THEME.border,
+
+                    color: isFlowActive
+                      ? "#FFFFFF"
+                      : THEME.text,
+
+                    boxShadow: isFlowActive
+                      ? "0 8px 24px rgba(13,148,136,.25)"
+                      : isSelected
+                      ? "0 8px 24px rgba(14,165,233,.18)"
+                      : "0 2px 8px rgba(15,23,42,.04)",
+                  }}
                 >
 
-                  <div className="text-2xl mb-2">
-                    {problem.icon}
-                  </div>
+                  {/* LEFT → RIGHT FLOW */}
 
-                  <p className="font-semibold text-sm text-slate-900">
-                    {problem.title}
-                  </p>
+                  {isFlowActive && (
+                    <span
+                      key={activeProblemIndex}
+                      className="absolute inset-0 z-0 oncall-problem-flow-background"
+                    />
+                  )}
 
-                  <p className="text-xs text-sky-600 mt-1">
-                    Find service →
-                  </p>
+                  {/* CONTENT */}
 
+                  <span className="relative z-10 block">
+
+                    <span
+                      className="w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3 transition-all duration-500"
+                      style={{
+                        backgroundColor: isFlowActive
+                          ? "rgba(255,255,255,.18)"
+                          : isSelected
+                          ? "rgba(14,165,233,.20)"
+                          : "#E0F2FE",
+                      }}
+                    >
+                      {problem.icon}
+                    </span>
+
+                    <span
+                      className="block font-semibold text-sm transition-colors duration-500"
+                      style={{
+                        color: isFlowActive
+                          ? "#FFFFFF"
+                          : THEME.text,
+                      }}
+                    >
+                      {problem.title}
+                    </span>
+
+                  </span>
                 </button>
-              ))}
+              );
+            })}
 
-            </div>
-
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* =================================================
             SUPPORT
         ================================================= */}
 
-        <section className="mt-5 bg-slate-900 rounded-2xl p-4 text-white">
+        <section className="mt-7">
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div
+            className="rounded-3xl p-5 sm:p-6 text-white overflow-hidden relative"
+            style={{
+              backgroundColor: THEME.navy,
+            }}
+          >
 
-            <div>
+            <div
+              className="absolute -right-12 -top-12 w-40 h-40 rounded-full opacity-30"
+              style={{
+                backgroundColor: THEME.teal,
+              }}
+            />
 
-              <p className="font-bold">
-                Not sure what service you need?
+            <div
+              className="absolute -left-16 -bottom-16 w-44 h-44 rounded-full opacity-20"
+              style={{
+                backgroundColor: THEME.sky,
+              }}
+            />
+
+            <div className="relative z-10">
+
+              <p
+                className="text-xs font-bold uppercase tracking-wider"
+                style={{
+                  color: "#67E8F9",
+                }}
+              >
+                Need help?
               </p>
 
-              <p className="text-sm text-slate-300">
-                Talk to QuickSeva support and explain your problem.
+              <h3 className="text-xl font-bold mt-1">
+                Not sure which service to choose?
+              </h3>
+
+              <p className="text-sm text-white/70 mt-2">
+                Our support team can help you identify the right
+                electrician service.
               </p>
 
-            </div>
+              <div className="flex flex-wrap gap-3 mt-4">
 
-            <div className="flex gap-2">
+                <a
+                  href={`tel:${SUPPORT_PHONE}`}
+                  className="px-4 py-2.5 rounded-xl font-bold text-sm text-white"
+                  style={{
+                    backgroundColor: THEME.teal,
+                  }}
+                >
+                  📞 Call Support
+                </a>
 
-              <a
-                href={`tel:${SUPPORT_PHONE}`}
-                className="px-4 py-2 rounded-xl bg-emerald-500 font-semibold text-sm"
-              >
-                📞 Call
-              </a>
-
-              <a
-                href={`https://wa.me/91${SUPPORT_PHONE}?text=${whatsappMessage}`}
-                target="_blank"
-                rel="noreferrer"
-                className="px-4 py-2 rounded-xl bg-green-500 font-semibold text-sm"
-              >
-                WhatsApp
-              </a>
-
-            </div>
-
-          </div>
-
-        </section>
-
-        {/* =================================================
-            SEARCH RESULT
-        ================================================= */}
-
-        {search && (
-          <section className="mt-6">
-
-            <div className="flex items-center justify-between mb-3">
-
-              <div>
-
-                <h2 className="font-bold text-lg">
-                  Services for "{search}"
-                </h2>
-
-                <p className="text-sm text-slate-500">
-                  Choose the service that matches your problem.
-                </p>
+                <a
+                  href={`https://wa.me/91${SUPPORT_PHONE}?text=${whatsappMessage}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-4 py-2.5 rounded-xl font-bold text-sm text-white"
+                  style={{
+                    backgroundColor: "#128C7E",
+                  }}
+                >
+                  WhatsApp
+                </a>
 
               </div>
-
-              <button
-                type="button"
-                onClick={clearSearch}
-                className="text-sm text-sky-600 font-semibold"
-              >
-                Clear
-              </button>
-
             </div>
-
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* =================================================
             SERVICES
         ================================================= */}
 
-        <section
-          id="electrician-services"
-          className="mt-6"
-        >
+        <section className="mt-8">
 
-          {!search && (
-            <div className="mb-4">
+          <div className="mb-5">
 
-              <h2 className="text-xl font-bold text-slate-900">
-                All Electrical Services
-              </h2>
+            <h2
+              className="text-2xl font-extrabold"
+              style={{
+                color: THEME.text,
+              }}
+            >
+              Electrical Services
+            </h2>
 
-              <p className="text-sm text-slate-500">
-                Transparent pricing. Verified technicians.
-              </p>
+            <p
+              className="text-sm mt-1"
+              style={{
+                color: THEME.muted,
+              }}
+            >
+              Choose a service and book a professional electrician.
+            </p>
 
-            </div>
-          )}
+          </div>
+
+          {/* NO RESULTS */}
 
           {filteredSections.length === 0 ? (
 
-            <div className="bg-white rounded-2xl border p-8 text-center">
+            <div
+              className="rounded-3xl border p-8 text-center"
+              style={{
+                backgroundColor: THEME.cloud,
+                borderColor: THEME.border,
+              }}
+            >
 
-              <div className="text-4xl mb-3">
+              <div className="text-5xl mb-4">
                 🔍
               </div>
 
-              <h3 className="font-bold text-lg">
-                We couldn't find that service
+              <h3
+                className="font-bold text-lg"
+                style={{
+                  color: THEME.text,
+                }}
+              >
+                No services found
               </h3>
 
-              <p className="text-sm text-slate-500 mt-1">
+              <p
+                className="text-sm mt-2"
+                style={{
+                  color: THEME.muted,
+                }}
+              >
                 Try another search or call us for help.
               </p>
 
               <button
                 type="button"
                 onClick={clearSearch}
-                className="mt-4 px-5 py-3 rounded-xl bg-sky-500 text-white font-semibold"
+                className="mt-5 px-5 py-3 rounded-xl text-white font-bold"
+                style={{
+                  backgroundColor: THEME.sky,
+                }}
               >
                 Show all services
               </button>
@@ -895,124 +1180,209 @@ export default function ElectricianPlumber() {
 
           ) : (
 
-            <div className="space-y-8">
+            <div className="space-y-9">
 
               {filteredSections.map((section) => (
 
                 <section key={section.id}>
 
-                  <div className="flex items-center gap-3 mb-3">
+                  {/* CATEGORY */}
 
-                    <div className="w-11 h-11 rounded-2xl bg-sky-50 flex items-center justify-center text-2xl">
+                  <div className="flex items-center gap-3 mb-4">
+
+                    <div
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #E0F2FE, #CCFBF1)",
+                      }}
+                    >
                       {section.icon}
                     </div>
 
                     <div>
 
-                      <h3 className="font-bold text-lg text-slate-900">
+                      <h3
+                        className="font-bold text-lg"
+                        style={{
+                          color: THEME.text,
+                        }}
+                      >
                         {section.title}
                       </h3>
 
-                      <p className="text-xs text-slate-500">
+                      <p
+                        className="text-xs"
+                        style={{
+                          color: THEME.muted,
+                        }}
+                      >
                         {section.tagline}
                       </p>
 
                     </div>
-
                   </div>
 
-                  <div className="grid gap-3">
+                  {/* SERVICE CARDS */}
+
+                  <div className="grid gap-4">
 
                     {section.items.map((item) => (
 
                       <article
                         key={item.id}
-                        className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm"
+                        className="electrician-service-card rounded-2xl border overflow-hidden transition-all"
+                        style={{
+                          backgroundColor: THEME.cloud,
+                          borderColor: THEME.border,
+                          boxShadow:
+                            "0 4px 16px rgba(15,23,42,.05)",
+                        }}
                       >
 
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col sm:flex-row">
 
-                          <div>
+                          {/* IMAGE */}
+
+                          <div className="sm:w-40 h-40 sm:h-auto shrink-0 overflow-hidden">
+
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-full h-full object-cover electrician-service-image"
+                            />
+
+                          </div>
+
+                          {/* CONTENT */}
+
+                          <div className="p-4 flex-1">
 
                             <div className="flex flex-wrap items-center gap-2">
 
-                              <h4 className="font-bold text-slate-900">
+                              <h4
+                                className="font-bold"
+                                style={{
+                                  color: THEME.text,
+                                }}
+                              >
                                 {item.name}
                               </h4>
 
                               {item.tag && (
-                                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-semibold">
+
+                                <span
+                                  className="text-xs px-2.5 py-1 rounded-full font-bold"
+                                  style={{
+                                    backgroundColor: "#E0F2FE",
+                                    color: "#0369A1",
+                                  }}
+                                >
                                   ⭐ {item.tag}
                                 </span>
+
                               )}
 
                             </div>
 
-                            <p className="text-sm text-slate-600 mt-1">
+                            <p
+                              className="text-sm mt-1"
+                              style={{
+                                color: "#475569",
+                              }}
+                            >
                               {item.desc}
                             </p>
 
+                            {/* META */}
+
                             <div className="flex flex-wrap gap-2 mt-3">
 
-                              <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1.5 rounded-lg">
+                              <span
+                                className="text-xs px-2.5 py-1.5 rounded-lg"
+                                style={{
+                                  backgroundColor: THEME.mist,
+                                  color: THEME.text,
+                                }}
+                              >
                                 ⏱ {item.time}
                               </span>
 
-                              <span className="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1.5 rounded-lg">
+                              <span
+                                className="text-xs px-2.5 py-1.5 rounded-lg"
+                                style={{
+                                  backgroundColor: "#CCFBF1",
+                                  color: "#0F766E",
+                                }}
+                              >
                                 🛡 {item.warranty}
                               </span>
 
                             </div>
 
-                          </div>
+                            {/* PRICE + BUTTON */}
 
-                          <div className="flex items-center justify-between gap-3 pt-3 border-t">
+                            <div
+                              className="flex items-center justify-between gap-3 mt-4 pt-4 border-t"
+                              style={{
+                                borderColor: THEME.border,
+                              }}
+                            >
 
-                            <div>
+                              <div>
 
-                              <p className="text-xs text-slate-500">
-                                Starting from
-                              </p>
+                                <p
+                                  className="text-xs"
+                                  style={{
+                                    color: THEME.muted,
+                                  }}
+                                >
+                                  Starting from
+                                </p>
 
-                              <p className="text-xl font-bold text-slate-900">
-                                {formatPrice(item.price)}
-                              </p>
+                                <p
+                                  className="text-xl font-extrabold"
+                                  style={{
+                                    color: THEME.navy,
+                                  }}
+                                >
+                                  {formatPrice(item.price)}
+                                </p>
+
+                              </div>
+
+                              <button
+                                type="button"
+                                disabled={bookingId === item.id}
+                                onClick={() =>
+                                  handleBook(section, item)
+                                }
+                                className="px-5 py-3 rounded-xl font-bold text-white shadow-sm transition active:scale-95"
+                                style={{
+                                  backgroundColor:
+                                    bookingId === item.id
+                                      ? "#94A3B8"
+                                      : THEME.sky,
+                                }}
+                              >
+                                {bookingId === item.id
+                                  ? "Opening..."
+                                  : "Book Now →"}
+                              </button>
 
                             </div>
-
-                            <button
-                              type="button"
-                              disabled={bookingId === item.id}
-                              onClick={() =>
-                                handleBook(section, item)
-                              }
-                              className={`px-5 py-3 rounded-xl font-bold text-white shadow-sm transition ${
-                                bookingId === item.id
-                                  ? "bg-slate-400"
-                                  : "bg-sky-500 hover:bg-sky-600 active:scale-95"
-                              }`}
-                            >
-                              {bookingId === item.id
-                                ? "Opening..."
-                                : "Book Now →"}
-                            </button>
-
                           </div>
-
                         </div>
-
                       </article>
 
                     ))}
 
                   </div>
-
                 </section>
 
               ))}
 
             </div>
-
           )}
 
         </section>
@@ -1022,19 +1392,36 @@ export default function ElectricianPlumber() {
         ================================================= */}
 
         {!search && (
+
           <section className="mt-10">
 
-            <div className="bg-white rounded-3xl border p-5 shadow-sm">
+            <div
+              className="rounded-3xl border p-5 shadow-sm"
+              style={{
+                backgroundColor: THEME.cloud,
+                borderColor: THEME.border,
+              }}
+            >
 
               <div className="flex items-center gap-4">
 
                 <div>
 
-                  <p className="text-3xl font-bold">
+                  <p
+                    className="text-3xl font-bold"
+                    style={{
+                      color: THEME.navy,
+                    }}
+                  >
                     4.9 ⭐
                   </p>
 
-                  <p className="text-xs text-slate-500">
+                  <p
+                    className="text-xs"
+                    style={{
+                      color: THEME.muted,
+                    }}
+                  >
                     Based on 1,200+ ratings
                   </p>
 
@@ -1049,31 +1436,42 @@ export default function ElectricianPlumber() {
                       className="flex items-center gap-2"
                     >
 
-                      <span className="text-xs w-5">
+                      <span
+                        className="text-xs w-5"
+                        style={{
+                          color: THEME.text,
+                        }}
+                      >
                         {star}★
                       </span>
 
-                      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className="flex-1 h-2 rounded-full overflow-hidden"
+                        style={{
+                          backgroundColor: THEME.mist,
+                        }}
+                      >
 
                         <div
-                          className="h-full bg-emerald-500 rounded-full"
+                          className="h-full rounded-full"
                           style={{
                             width: `${Math.min(
                               100,
                               star * 18
                             )}%`,
+                            backgroundColor: THEME.teal,
                           }}
                         />
 
                       </div>
-
                     </div>
 
                   ))}
 
                 </div>
-
               </div>
+
+              {/* REVIEW CARDS */}
 
               <div className="flex gap-3 overflow-x-auto mt-5 pb-2">
 
@@ -1081,7 +1479,11 @@ export default function ElectricianPlumber() {
 
                   <div
                     key={review.name}
-                    className="min-w-[270px] bg-slate-50 border rounded-2xl p-4"
+                    className="min-w-[270px] rounded-2xl border p-4"
+                    style={{
+                      backgroundColor: THEME.mist,
+                      borderColor: THEME.border,
+                    }}
                   >
 
                     <div className="flex items-center gap-3">
@@ -1094,11 +1496,21 @@ export default function ElectricianPlumber() {
 
                       <div>
 
-                        <p className="font-semibold text-sm">
+                        <p
+                          className="font-semibold text-sm"
+                          style={{
+                            color: THEME.text,
+                          }}
+                        >
                           {review.name}
                         </p>
 
-                        <p className="text-xs text-slate-500">
+                        <p
+                          className="text-xs"
+                          style={{
+                            color: THEME.muted,
+                          }}
+                        >
                           {review.city}
                         </p>
 
@@ -1110,15 +1522,31 @@ export default function ElectricianPlumber() {
                       {"⭐".repeat(review.rating)}
                     </p>
 
-                    <p className="text-sm text-slate-700 mt-2">
+                    <p
+                      className="text-sm mt-2"
+                      style={{
+                        color: "#475569",
+                      }}
+                    >
                       {review.review}
                     </p>
 
-                    <p className="text-xs text-slate-400 mt-2">
+                    <p
+                      className="text-xs mt-2"
+                      style={{
+                        color: "#94A3B8",
+                      }}
+                    >
                       {review.date}
                     </p>
 
-                    <span className="inline-block mt-3 text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">
+                    <span
+                      className="inline-block mt-3 text-xs px-2 py-1 rounded-full font-medium"
+                      style={{
+                        backgroundColor: "#CCFBF1",
+                        color: "#0F766E",
+                      }}
+                    >
                       ✓ Verified Booking
                     </span>
 
@@ -1134,42 +1562,81 @@ export default function ElectricianPlumber() {
         )}
 
         {/* =================================================
-            TRUST
+            TRUST SECTION
         ================================================= */}
 
         <section className="mt-6 grid grid-cols-3 gap-2">
 
-          <div className="bg-white border rounded-2xl p-3 text-center">
+          {/* VERIFIED */}
+
+          <div
+            className="border rounded-2xl p-3 text-center"
+            style={{
+              backgroundColor: THEME.cloud,
+              borderColor: THEME.border,
+            }}
+          >
 
             <div className="text-xl">
               🛡️
             </div>
 
-            <p className="text-xs font-semibold mt-1">
+            <p
+              className="text-xs font-semibold mt-1"
+              style={{
+                color: THEME.text,
+              }}
+            >
               Verified Pros
             </p>
 
           </div>
 
-          <div className="bg-white border rounded-2xl p-3 text-center">
+          {/* PRICING */}
+
+          <div
+            className="border rounded-2xl p-3 text-center"
+            style={{
+              backgroundColor: THEME.cloud,
+              borderColor: THEME.border,
+            }}
+          >
 
             <div className="text-xl">
               💰
             </div>
 
-            <p className="text-xs font-semibold mt-1">
+            <p
+              className="text-xs font-semibold mt-1"
+              style={{
+                color: THEME.text,
+              }}
+            >
               Clear Pricing
             </p>
 
           </div>
 
-          <div className="bg-white border rounded-2xl p-3 text-center">
+          {/* RATING */}
+
+          <div
+            className="border rounded-2xl p-3 text-center"
+            style={{
+              backgroundColor: THEME.cloud,
+              borderColor: THEME.border,
+            }}
+          >
 
             <div className="text-xl">
               ⭐
             </div>
 
-            <p className="text-xs font-semibold mt-1">
+            <p
+              className="text-xs font-semibold mt-1"
+              style={{
+                color: THEME.text,
+              }}
+            >
               Rated Service
             </p>
 
@@ -1184,6 +1651,7 @@ export default function ElectricianPlumber() {
       ================================================= */}
 
       {itemCount > 0 && (
+
         <div className="fixed bottom-4 left-4 right-4 z-50">
 
           <div className="max-w-2xl mx-auto">
@@ -1191,14 +1659,25 @@ export default function ElectricianPlumber() {
             <button
               type="button"
               onClick={() => navigate("/cart")}
-              className="w-full bg-slate-900 text-white rounded-2xl px-5 py-4 shadow-2xl flex items-center justify-between"
+              className="w-full text-white rounded-2xl px-5 py-4 shadow-2xl flex items-center justify-between transition active:scale-[0.99]"
+              style={{
+                backgroundColor: THEME.navy,
+              }}
             >
 
               <div className="text-left">
 
-                <p className="text-xs text-slate-300">
+                <p
+                  className="text-xs"
+                  style={{
+                    color: "#CBD5E1",
+                  }}
+                >
                   {itemCount}{" "}
-                  {itemCount === 1 ? "service" : "services"} in cart
+                  {itemCount === 1
+                    ? "service"
+                    : "services"}{" "}
+                  in cart
                 </p>
 
                 <p className="font-bold">
@@ -1207,14 +1686,18 @@ export default function ElectricianPlumber() {
 
               </div>
 
-              <span className="font-bold">
+              <span
+                className="font-bold"
+                style={{
+                  color: "#67E8F9",
+                }}
+              >
                 View Cart →
               </span>
 
             </button>
 
           </div>
-
         </div>
       )}
 

@@ -126,7 +126,7 @@ export default function LiveTracking() {
       {/* FOOTER NOTE */}
       <p className="text-xs text-gray-500 mt-3 text-center">
         Live tracking updates every few seconds.
-        Powered by QuickSeva.
+        Powered by OnCall.
       </p>
     </div>
   );

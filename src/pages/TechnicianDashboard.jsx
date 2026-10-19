@@ -227,7 +227,7 @@ export default function TechnicianDashboard() {
 
             <p className="tech-preview-note">
               Manage your assigned
-              QuickSeva service jobs.
+              OnCall service jobs.
             </p>
 
           </div>
@@ -262,7 +262,7 @@ export default function TechnicianDashboard() {
 
               <p>
                 Getting your assigned
-                bookings from QuickSeva.
+                bookings from OnCall.
               </p>
 
             </div>

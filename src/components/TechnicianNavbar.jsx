@@ -13,7 +13,7 @@ export default function TechnicianNavbar({ technician }) {
 
   return (
     <header className="tech-header">
-      <Link className="tech-brand" to="/">QuickSeva</Link>
+      <Link className="tech-brand" to="/">OnCall</Link>
       <nav className="tech-nav" aria-label="Technician navigation">
         <Link className={location.pathname === "/tech" ? "is-active" : ""} to="/tech">
           Assigned Jobs

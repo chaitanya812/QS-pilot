@@ -1,0 +1,46 @@
+@keyframes onCallFlow {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  100% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+.oncall-flow-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.oncall-flow-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    #061B35 0%,
+    #075DA8 50%,
+    #00C9A7 100%
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  z-index: -1;
+}
+
+.oncall-flow-card.active::before {
+  animation: onCallFlow 2.5s ease-in-out forwards;
+}
+
+.oncall-flow-content {
+  position: relative;
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+
+.oncall-flow-card.active .oncall-flow-content {
+  color: white;
+}

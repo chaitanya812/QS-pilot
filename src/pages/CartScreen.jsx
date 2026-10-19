@@ -1,8 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useCart } from "../utils/CartContext";
+import "./CartScreen.css";
 
+import { useCart } from "../utils/CartContext";
 import CartItem from "../components/CartItem";
 
 export default function CartScreen() {
@@ -22,178 +23,201 @@ export default function CartScreen() {
       return;
     }
 
-    /*
-     * Cart is already stored in CartContext.
-     *
-     * Booking page will read the current cart.
-     */
     navigate("/booking");
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-32">
+    <div className="cart-page">
 
       {/* HEADER */}
 
-      <header className="sticky top-0 z-40 bg-white border-b">
-
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
+      <header className="cart-header">
+        <div className="cart-header-inner">
 
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl"
+            className="cart-back-btn"
+            aria-label="Go back"
           >
             ←
           </button>
 
-          <div className="flex-1">
+          <div className="cart-brand">
+            <div className="cart-brand-dot" />
 
-            <p className="text-xs text-slate-500">
-              QuickSeva
-            </p>
+            <div>
+              <p>OnCall</p>
 
-            <h1 className="text-lg font-bold text-slate-900">
-              Your Cart
-            </h1>
-
+              <h1>Your Cart</h1>
+            </div>
           </div>
 
           {items.length > 0 && (
             <button
               type="button"
               onClick={clearCart}
-              className="text-sm text-red-500 font-semibold"
+              className="cart-clear-btn"
             >
               Clear
             </button>
           )}
 
         </div>
-
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 pt-5">
+      <main className="cart-container">
 
-        {/* EMPTY */}
+        {/* EMPTY CART */}
 
         {items.length === 0 ? (
-          <div className="bg-white rounded-3xl border p-8 text-center mt-8">
+          <section className="cart-empty-card">
 
-            <div className="text-6xl mb-4">
+            <div className="cart-empty-icon">
               🛒
             </div>
 
-            <h2 className="text-xl font-bold text-slate-900">
+            <span className="cart-empty-label">
+              YOUR CART
+            </span>
+
+            <h2>
               Your cart is empty
             </h2>
 
-            <p className="text-sm text-slate-500 mt-2">
+            <p>
               Select a service to continue with your booking.
             </p>
 
             <button
               type="button"
               onClick={() => navigate("/ac")}
-              className="mt-5 px-6 py-3 rounded-xl bg-sky-500 text-white font-bold"
+              className="cart-browse-btn"
             >
-              Browse AC Services
+              Browse AC Services →
             </button>
 
             <button
               type="button"
               onClick={() => navigate("/")}
-              className="block mx-auto mt-3 text-sm text-sky-600 font-semibold"
+              className="cart-home-btn"
             >
               Go to Home
             </button>
 
-          </div>
+          </section>
         ) : (
 
           <>
+
             {/* TITLE */}
 
-            <div className="mb-4">
+            <section className="cart-title-section">
 
-              <h2 className="text-xl font-bold text-slate-900">
-                Selected Services
-              </h2>
+              <div>
+                <span>
+                  BOOKING CART
+                </span>
 
-              <p className="text-sm text-slate-500">
-                {itemCount}{" "}
-                {itemCount === 1
-                  ? "service"
-                  : "services"}{" "}
-                selected
-              </p>
+                <h2>
+                  Selected Services
+                </h2>
 
-            </div>
+                <p>
+                  {itemCount}{" "}
+                  {itemCount === 1
+                    ? "service"
+                    : "services"}{" "}
+                  selected
+                </p>
+              </div>
+
+              <div className="cart-count-badge">
+                {itemCount}
+              </div>
+
+            </section>
 
             {/* ITEMS */}
 
-            <div className="space-y-3">
+            <section className="cart-items-section">
 
               {items.map((item) => (
-                <CartItem
+                <div
                   key={
                     item.key ||
                     item.id ||
                     item.label
                   }
-                  item={item}
-                />
+                  className="cart-item-wrapper"
+                >
+                  <CartItem item={item} />
+                </div>
               ))}
 
-            </div>
+            </section>
 
-            {/* SUMMARY */}
+            {/* PRICE SUMMARY */}
 
-            <section className="bg-white rounded-2xl border p-5 mt-5">
+            <section className="cart-summary-card">
 
-              <h3 className="font-bold text-slate-900 mb-4">
-                Price Summary
-              </h3>
+              <div className="cart-summary-heading">
+                <div>
+                  <span>
+                    ORDER DETAILS
+                  </span>
 
-              <div className="flex justify-between text-sm text-slate-600">
+                  <h3>
+                    Price Summary
+                  </h3>
+                </div>
+
+                <div className="cart-summary-icon">
+                  ₹
+                </div>
+              </div>
+
+              <div className="cart-summary-row">
 
                 <span>
                   Services
                 </span>
 
-                <span>
+                <strong>
                   ₹
                   {Number(total).toLocaleString(
                     "en-IN"
                   )}
-                </span>
+                </strong>
 
               </div>
 
-              <div className="flex justify-between text-sm text-slate-600 mt-2">
+              <div className="cart-summary-row">
 
                 <span>
                   Service charge
                 </span>
 
-                <span className="text-emerald-600">
+                <strong className="cart-included">
                   Included
-                </span>
+                </strong>
 
               </div>
 
-              <div className="border-t mt-4 pt-4 flex justify-between">
+              <div className="cart-summary-divider" />
 
-                <span className="font-bold text-slate-900">
+              <div className="cart-total-row">
+
+                <span>
                   Total
                 </span>
 
-                <span className="text-xl font-bold text-slate-900">
+                <strong>
                   ₹
                   {Number(total).toLocaleString(
                     "en-IN"
                   )}
-                </span>
+                </strong>
 
               </div>
 
@@ -201,45 +225,39 @@ export default function CartScreen() {
 
             {/* TRUST */}
 
-            <div className="grid grid-cols-3 gap-2 mt-4">
+            <section className="cart-trust-grid">
 
-              <div className="bg-white border rounded-xl p-3 text-center">
-
-                <div>
+              <div className="cart-trust-card">
+                <div className="cart-trust-icon">
                   🛡️
                 </div>
 
-                <p className="text-xs font-semibold mt-1">
+                <p>
                   Verified
                 </p>
-
               </div>
 
-              <div className="bg-white border rounded-xl p-3 text-center">
-
-                <div>
+              <div className="cart-trust-card">
+                <div className="cart-trust-icon">
                   💰
                 </div>
 
-                <p className="text-xs font-semibold mt-1">
+                <p>
                   Clear Price
                 </p>
-
               </div>
 
-              <div className="bg-white border rounded-xl p-3 text-center">
-
-                <div>
+              <div className="cart-trust-card">
+                <div className="cart-trust-icon">
                   ⭐
                 </div>
 
-                <p className="text-xs font-semibold mt-1">
+                <p>
                   Trusted
                 </p>
-
               </div>
 
-            </div>
+            </section>
 
           </>
         )}
@@ -250,29 +268,29 @@ export default function CartScreen() {
 
       {items.length > 0 && (
 
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-2xl">
+        <div className="cart-checkout-bar">
 
-          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <div className="cart-checkout-inner">
 
-            <div className="flex-1">
+            <div className="cart-checkout-total">
 
-              <p className="text-xs text-slate-500">
+              <p>
                 Total
               </p>
 
-              <p className="text-xl font-bold text-slate-900">
+              <strong>
                 ₹
                 {Number(total).toLocaleString(
                   "en-IN"
                 )}
-              </p>
+              </strong>
 
             </div>
 
             <button
               type="button"
               onClick={handleContinue}
-              className="px-6 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold shadow-sm"
+              className="cart-continue-btn"
             >
               Continue →
             </button>

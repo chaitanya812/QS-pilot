@@ -68,7 +68,7 @@ export default function TechnicianLogin() {
           </h2>
 
           <p className="text-gray-500 text-sm mt-1">
-            Login to manage your assigned QuickSeva jobs
+            Login to manage your assigned OnCall jobs
           </p>
 
         </div>

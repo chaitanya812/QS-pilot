@@ -14,13 +14,17 @@ const {
   getMessaging,
 } = require("firebase-admin/messaging");
 
+const { 
+  defineSecret
+ } = require("firebase-functions/params");
+ 
 initializeApp();
 
 const db = getFirestore();
 
 /*
 ============================================================
-QUICKSEVA - NEW BOOKING ADMIN NOTIFICATION
+ONCALL - NEW BOOKING ADMIN NOTIFICATION
 ============================================================
 */
 
@@ -128,7 +132,7 @@ exports.notifyAdminNewBooking = onDocumentCreated(
       */
 
       const title =
-        "🔔 New QuickSeva Booking";
+        "🔔 New OnCall Booking";
 
       const body =
         `${service}` +

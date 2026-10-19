@@ -1,8 +1,28 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import bannerPlumber from "../../assets/plumber-banner.jpg";
+import onCallLogo from "../../assets/On-Call-Logo.jpeg";
+
 import { useCart } from "../../utils/CartContext";
 import ViewCartBar from "../../components/ViewCartBar";
+
+import "./Plumber.css";
+
+/* =========================================================
+   THEME
+========================================================= */
+
+const THEME = {
+  navy: "#0B1D36",
+  teal: "#0D9488",
+  sky: "#0EA5E9",
+  mist: "#F1F5F9",
+  cloud: "#F8FAFC",
+  text: "#0F172A",
+  muted: "#64748B",
+  border: "#DCE5EC",
+};
 
 /* =========================================================
    CUSTOMER REVIEWS
@@ -13,24 +33,30 @@ const REVIEWS = [
     name: "Ramesh",
     city: "Hyderabad",
     rating: 5,
-    review: "Quick leak fix and professional work. Highly recommended!",
-    avatar: "https://randomuser.me/api/portraits/men/28.jpg",
+    review:
+      "Quick leak fix and professional work. Highly recommended!",
+    avatar:
+      "https://randomuser.me/api/portraits/men/28.jpg",
     date: "2 days ago",
   },
   {
     name: "Sana",
     city: "Madhapur",
     rating: 5,
-    review: "Affordable pricing and very neat work.",
-    avatar: "https://randomuser.me/api/portraits/women/36.jpg",
+    review:
+      "Affordable pricing and very neat work.",
+    avatar:
+      "https://randomuser.me/api/portraits/women/36.jpg",
     date: "1 week ago",
   },
   {
     name: "Akash",
     city: "Kondapur",
     rating: 4,
-    review: "Good plumber and fast response.",
-    avatar: "https://randomuser.me/api/portraits/men/45.jpg",
+    review:
+      "Good plumber and fast response.",
+    avatar:
+      "https://randomuser.me/api/portraits/men/45.jpg",
     date: "3 weeks ago",
   },
 ];
@@ -224,7 +250,10 @@ const PROBLEMS = [
 ========================================================= */
 
 const priceToNumber = (value) => {
-  const number = Number(String(value).replace(/[₹,\s]/g, ""));
+  const number = Number(
+    String(value).replace(/[₹,\s]/g, "")
+  );
+
   return Number.isFinite(number) ? number : 0;
 };
 
@@ -240,6 +269,24 @@ export default function Plumber() {
   const [search, setSearch] = useState("");
   const [selectedProblem, setSelectedProblem] = useState(null);
   const [bookingId, setBookingId] = useState(null);
+
+  /* =======================================================
+     ACTIVE PROBLEM CARD
+     1 → 2 → 3 → 4 → 5 → 6 → 1
+  ======================================================= */
+
+  const [activeProblemIndex, setActiveProblemIndex] =
+    useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveProblemIndex((prev) => {
+        return (prev + 1) % PROBLEMS.length;
+      });
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   /* =======================================================
      SEARCH
@@ -338,80 +385,123 @@ export default function Plumber() {
   ======================================================= */
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-28">
+    <div
+      className="plumber-page min-h-screen pb-28"
+      style={{
+        background: THEME.mist,
+      }}
+    >
       {/* =================================================
           HEADER
       ================================================= */}
 
-      <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
+      <header className="plumber-header sticky top-0 z-50">
+        <div className="max-w-5xl mx-auto px-4 py-2.5 flex items-center gap-3">
+
+          {/* BACK */}
+
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl"
+            className="plumber-icon-button"
+            aria-label="Go back"
           >
             ←
           </button>
 
-          <div className="flex-1">
-            <p className="text-xs text-slate-500">QuickSeva</p>
+          {/* LOGO + TITLE */}
 
-            <h1 className="font-bold text-slate-900">
-              Plumber Services
-            </h1>
+          <div className="flex-1 flex items-center gap-2.5">
+
+            <div className="plumber-logo-box">
+              <img
+                src={onCallLogo}
+                alt="OnCall"
+                className="plumber-logo"
+              />
+            </div>
+
+            <div>
+              <p className="text-[10px] font-semibold text-[#0D9488]">
+                OnCall
+              </p>
+
+              <h1 className="text-sm sm:text-base font-extrabold text-[#0B1D36]">
+                Plumber Services
+              </h1>
+            </div>
+
           </div>
+
+          {/* CART */}
 
           <button
             type="button"
             onClick={() => navigate("/cart")}
-            className="relative w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center"
+            className="plumber-cart-button relative"
             aria-label="Open cart"
           >
             🛒
 
             {itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-sky-500 text-white text-xs font-bold flex items-center justify-center">
+              <span className="plumber-cart-count">
                 {itemCount}
               </span>
             )}
           </button>
+
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-4">
+
         {/* =================================================
             HERO
         ================================================= */}
 
-        <section className="relative mt-4 h-52 sm:h-64 rounded-3xl overflow-hidden shadow-lg">
+        <section className="plumber-hero mt-4">
+
           <img
             src={bannerPlumber}
             alt="Plumber service"
             className="absolute inset-0 w-full h-full object-cover"
           />
 
-          <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/20" />
+          <div className="plumber-hero-overlay" />
 
           <div className="relative z-10 h-full p-5 sm:p-7 flex flex-col justify-center text-white">
-            <span className="text-sm font-semibold text-sky-300">
-              QuickSeva Plumbing Services
-            </span>
 
-            <h2 className="text-2xl sm:text-3xl font-bold mt-1 max-w-xl">
+            <div className="flex items-center gap-2 mb-2">
+
+              <span className="plumber-hero-badge">
+                🔧 OnCall Plumbing
+              </span>
+
+              <span className="plumber-live-dot">
+                ●
+              </span>
+
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl font-extrabold max-w-xl leading-tight">
               Plumbing problem?
               <br />
-              We'll take care of it.
+              <span className="text-[#5EEAD4]">
+                We'll take care of it.
+              </span>
             </h2>
 
-            <p className="text-sm text-white/90 mt-2 max-w-lg">
-              Leakage repair, tap installation, drain blockage, basin,
-              shower and complete plumbing services at your doorstep.
+            <p className="text-sm text-white/85 mt-2 max-w-lg">
+              Leakage repair, tap installation, drain blockage,
+              basin, shower and complete plumbing services at
+              your doorstep.
             </p>
 
-            <div className="flex gap-2 mt-4">
+            <div className="flex flex-wrap gap-2 mt-4">
+
               <a
                 href="tel:7661045308"
-                className="px-4 py-2 rounded-xl bg-green-600 text-white font-semibold shadow"
+                className="plumber-hero-button plumber-call-button"
               >
                 📞 Call
               </a>
@@ -420,11 +510,13 @@ export default function Plumber() {
                 href="https://wa.me/7661045308"
                 target="_blank"
                 rel="noreferrer"
-                className="px-4 py-2 rounded-xl bg-green-500 text-white font-semibold shadow"
+                className="plumber-hero-button plumber-whatsapp-button"
               >
                 💬 WhatsApp
               </a>
+
             </div>
+
           </div>
         </section>
 
@@ -433,8 +525,10 @@ export default function Plumber() {
         ================================================= */}
 
         <section className="mt-5">
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+
+          <div className="plumber-search-wrapper">
+
+            <span className="plumber-search-icon">
               🔍
             </span>
 
@@ -446,7 +540,7 @@ export default function Plumber() {
                 setSelectedProblem(null);
               }}
               placeholder="Search plumbing services or problems..."
-              className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-11 pr-12 outline-none focus:ring-2 focus:ring-sky-400"
+              className="plumber-search-input"
             />
 
             {search && (
@@ -456,12 +550,14 @@ export default function Plumber() {
                   setSearch("");
                   setSelectedProblem(null);
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-slate-100 text-slate-500"
+                className="plumber-search-clear"
               >
                 ×
               </button>
             )}
+
           </div>
+
         </section>
 
         {/* =================================================
@@ -470,46 +566,111 @@ export default function Plumber() {
 
         {!search && (
           <section className="mt-6">
+
             <div className="mb-3">
-              <h2 className="text-lg font-bold text-slate-900">
+
+              <h2 className="text-lg font-extrabold text-[#0B1D36]">
                 What's wrong with your plumbing?
               </h2>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-xs sm:text-sm text-[#64748B] mt-1">
                 Select your problem and find the right service
               </p>
+
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {PROBLEMS.map((problem) => {
-                const active = selectedProblem === problem.id;
+
+              {PROBLEMS.map((problem, index) => {
+
+                const flowActive =
+                  index === activeProblemIndex;
+
+                const selected =
+                  selectedProblem === problem.id;
 
                 return (
                   <button
                     key={problem.id}
                     type="button"
                     onClick={() => handleProblem(problem)}
-                    className={`text-left p-4 rounded-2xl border transition ${
-                      active
-                        ? "bg-sky-50 border-sky-400 shadow-sm"
-                        : "bg-white border-slate-200 hover:border-sky-300"
-                    }`}
+                    className={`
+                      plumber-problem-card
+                      ${
+                        flowActive
+                          ? "problem-flow-active"
+                          : ""
+                      }
+                      ${
+                        selected
+                          ? "problem-selected"
+                          : ""
+                      }
+                    `}
                   >
-                    <div className="text-2xl">
-                      {problem.icon}
-                    </div>
 
-                    <p className="font-semibold text-slate-900 mt-2">
-                      {problem.title}
-                    </p>
+                    {flowActive && (
+                      <span
+                        key={activeProblemIndex}
+                        className="problem-flow-background"
+                      />
+                    )}
 
-                    <p className="text-xs text-slate-500 mt-1">
-                      Find service →
-                    </p>
+                    <span className="problem-card-content">
+
+                      <span
+                        className={`
+                          problem-icon
+                          ${
+                            flowActive
+                              ? "problem-icon-active"
+                              : ""
+                          }
+                        `}
+                      >
+                        {problem.icon}
+                      </span>
+
+                      <span
+                        className={`
+                          block
+                          font-bold
+                          text-sm
+                          mt-3
+                          ${
+                            flowActive
+                              ? "text-white"
+                              : "text-[#0B1D36]"
+                          }
+                        `}
+                      >
+                        {problem.title}
+                      </span>
+
+                      <span
+                        className={`
+                          block
+                          text-[11px]
+                          mt-1
+                          font-medium
+                          ${
+                            flowActive
+                              ? "text-white/80"
+                              : "text-[#64748B]"
+                          }
+                        `}
+                      >
+                        Find service →
+                      </span>
+
+                    </span>
+
                   </button>
                 );
               })}
+
             </div>
+
           </section>
         )}
 
@@ -517,40 +678,55 @@ export default function Plumber() {
             SUPPORT
         ================================================= */}
 
-        <section className="mt-6 bg-slate-900 rounded-3xl p-5 text-white">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex-1">
-              <p className="text-sky-300 text-sm font-semibold">
-                Need help choosing?
-              </p>
+        <section className="mt-6">
 
-              <h3 className="text-lg font-bold mt-1">
-                Not sure what plumbing service you need?
-              </h3>
+          <div className="plumber-support-card">
 
-              <p className="text-sm text-white/70 mt-1">
-                Talk to QuickSeva and we'll help you choose the right service.
-              </p>
+            <div className="plumber-support-glow" />
+
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-4">
+
+              <div className="flex-1">
+
+                <p className="text-[#5EEAD4] text-sm font-bold">
+                  Need help choosing?
+                </p>
+
+                <h3 className="text-lg font-extrabold mt-1">
+                  Not sure what plumbing service you need?
+                </h3>
+
+                <p className="text-sm text-white/70 mt-1">
+                  Talk to OnCall and we'll help you choose
+                  the right service.
+                </p>
+
+              </div>
+
+              <div className="flex gap-2">
+
+                <a
+                  href="tel:7661045308"
+                  className="plumber-support-button plumber-support-call"
+                >
+                  Call
+                </a>
+
+                <a
+                  href="https://wa.me/7661045308"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="plumber-support-button plumber-support-whatsapp"
+                >
+                  WhatsApp
+                </a>
+
+              </div>
+
             </div>
 
-            <div className="flex gap-2">
-              <a
-                href="tel:7661045308"
-                className="px-4 py-2 rounded-xl bg-white text-slate-900 font-bold"
-              >
-                Call
-              </a>
-
-              <a
-                href="https://wa.me/7661045308"
-                target="_blank"
-                rel="noreferrer"
-                className="px-4 py-2 rounded-xl bg-green-500 text-white font-bold"
-              >
-                WhatsApp
-              </a>
-            </div>
           </div>
+
         </section>
 
         {/* =================================================
@@ -559,79 +735,100 @@ export default function Plumber() {
 
         {search && (
           <section className="mt-6">
+
             <div className="mb-3">
-              <h2 className="text-lg font-bold text-slate-900">
+
+              <h2 className="text-lg font-extrabold text-[#0B1D36]">
                 Search results
               </h2>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[#64748B]">
                 {searchResults.length} service
                 {searchResults.length === 1 ? "" : "s"} found
               </p>
+
             </div>
 
             {searchResults.length === 0 ? (
-              <div className="bg-white border rounded-2xl p-6 text-center">
-                <div className="text-4xl">🔍</div>
 
-                <h3 className="font-bold text-slate-900 mt-3">
+              <div className="plumber-empty-card">
+
+                <div className="text-4xl">
+                  🔍
+                </div>
+
+                <h3 className="font-bold text-[#0B1D36] mt-3">
                   No matching service found
                 </h3>
 
-                <p className="text-sm text-slate-500 mt-1">
-                  Try searching for tap, leakage, blockage, basin,
-                  shower or installation.
+                <p className="text-sm text-[#64748B] mt-1">
+                  Try searching for tap, leakage, blockage,
+                  basin, shower or installation.
                 </p>
+
               </div>
+
             ) : (
+
               <div className="space-y-3">
+
                 {searchResults.map(({ section, item }) => (
+
                   <div
                     key={`${section.id}-${item.id}`}
-                    className="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    className="plumber-search-result"
                   >
+
                     <div>
-                      <p className="text-xs text-sky-600 font-semibold">
+
+                      <p className="text-xs text-[#0D9488] font-bold">
                         {section.title}
                       </p>
 
-                      <h3 className="font-bold text-slate-900 mt-1">
+                      <h3 className="font-extrabold text-[#0B1D36] mt-1">
                         {item.name}
                       </h3>
 
-                      <p className="text-sm text-slate-500 mt-1">
+                      <p className="text-sm text-[#64748B] mt-1">
                         {item.desc}
                       </p>
 
                       <div className="flex flex-wrap gap-2 mt-2">
-                        <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-lg">
+
+                        <span className="plumber-meta-blue">
                           ⏱ {item.time}
                         </span>
 
-                        <span className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded-lg">
+                        <span className="plumber-meta-green">
                           🛡 {item.warranty}
                         </span>
+
                       </div>
 
-                      <p className="text-lg font-bold text-sky-600 mt-2">
+                      <p className="text-lg font-extrabold text-[#0D9488] mt-2">
                         {item.price}
                       </p>
+
                     </div>
 
                     <button
                       type="button"
                       disabled={bookingId === item.id}
                       onClick={() => handleBook(section, item)}
-                      className="shrink-0 px-5 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 disabled:opacity-60 text-white font-bold"
+                      className="plumber-book-button shrink-0"
                     >
                       {bookingId === item.id
                         ? "Adding..."
                         : "Book Now"}
                     </button>
+
                   </div>
+
                 ))}
+
               </div>
             )}
+
           </section>
         )}
 
@@ -643,95 +840,135 @@ export default function Plumber() {
           id="plumber-services"
           className="mt-8 scroll-mt-24"
         >
-          <div className="mb-4">
-            <h2 className="text-xl font-bold text-slate-900">
-              All Plumbing Services
-            </h2>
 
-            <p className="text-sm text-slate-500">
-              Choose the service that matches your plumbing problem
+          <div className="mb-4">
+
+            <div className="flex items-center gap-2">
+
+              <span className="section-accent-line" />
+
+              <h2 className="text-xl font-extrabold text-[#0B1D36]">
+                All Plumbing Services
+              </h2>
+
+            </div>
+
+            <p className="text-sm text-[#64748B] mt-1">
+              Choose the service that matches your plumbing
+              problem
             </p>
+
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-7">
+
             {SERVICES.map((section) => (
-              <section key={section.id}>
-                {/* Section heading */}
+
+              <section
+                key={section.id}
+                className="plumber-service-section"
+              >
+
+                {/* SECTION HEADING */}
 
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-11 h-11 rounded-xl bg-sky-50 flex items-center justify-center text-2xl">
+
+                  <div className="plumber-service-icon">
                     {section.icon}
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-slate-900">
+
+                    <h3 className="font-extrabold text-[#0B1D36]">
                       {section.title}
                     </h3>
 
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-[#64748B]">
                       {section.tagline}
                     </p>
+
                   </div>
+
                 </div>
 
-                {/* Service cards */}
+                {/* SERVICE ITEMS */}
 
                 <div className="space-y-3">
+
                   {section.items.map((item) => (
+
                     <article
                       key={item.id}
-                      className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm"
+                      className="plumber-service-card"
                     >
+
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+
                         <div className="flex-1">
+
                           <div className="flex flex-wrap items-center gap-2">
-                            <h4 className="font-bold text-slate-900">
+
+                            <h4 className="font-extrabold text-[#0B1D36]">
                               {item.name}
                             </h4>
 
                             {item.tag && (
-                              <span className="text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded-lg font-semibold">
+                              <span className="plumber-tag">
                                 ⭐ {item.tag}
                               </span>
                             )}
+
                           </div>
 
-                          <p className="text-sm text-slate-500 mt-1">
+                          <p className="text-sm text-[#64748B] mt-1">
                             {item.desc}
                           </p>
 
                           <div className="flex flex-wrap gap-2 mt-3">
-                            <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-lg">
+
+                            <span className="plumber-meta-blue">
                               ⏱ {item.time}
                             </span>
 
-                            <span className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded-lg">
+                            <span className="plumber-meta-green">
                               🛡 {item.warranty}
                             </span>
+
                           </div>
 
-                          <p className="text-lg font-bold text-sky-600 mt-3">
+                          <p className="text-lg font-extrabold text-[#0D9488] mt-3">
                             {item.price}
                           </p>
+
                         </div>
 
                         <button
                           type="button"
                           disabled={bookingId === item.id}
-                          onClick={() => handleBook(section, item)}
-                          className="w-full sm:w-auto px-6 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 disabled:opacity-60 text-white font-bold shadow-sm"
+                          onClick={() =>
+                            handleBook(section, item)
+                          }
+                          className="plumber-book-button w-full sm:w-auto"
                         >
                           {bookingId === item.id
                             ? "Adding..."
                             : "Book Now"}
                         </button>
+
                       </div>
+
                     </article>
+
                   ))}
+
                 </div>
+
               </section>
+
             ))}
+
           </div>
+
         </section>
 
         {/* =================================================
@@ -739,98 +976,132 @@ export default function Plumber() {
         ================================================= */}
 
         <section className="mt-10">
-          <div className="bg-white rounded-3xl border border-slate-200 p-5">
-            <div className="mb-5">
-              <h2 className="text-xl font-bold text-slate-900">
-                What Customers Say
-              </h2>
 
-              <p className="text-sm text-slate-500 mt-1">
-                Real feedback from QuickSeva customers
+          <div className="plumber-reviews-card">
+
+            <div className="mb-5">
+
+              <div className="flex items-center gap-2">
+
+                <span className="section-accent-line" />
+
+                <h2 className="text-xl font-extrabold text-[#0B1D36]">
+                  What Customers Say
+                </h2>
+
+              </div>
+
+              <p className="text-sm text-[#64748B] mt-1">
+                Real feedback from OnCall customers
               </p>
+
             </div>
 
             <div className="flex flex-col sm:flex-row gap-6">
-              {/* Rating */}
+
+              {/* RATING */}
 
               <div className="sm:w-44 shrink-0 text-center sm:text-left">
-                <p className="text-4xl font-bold text-slate-900">
+
+                <p className="text-4xl font-extrabold text-[#0B1D36]">
                   4.9 ⭐
                 </p>
 
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-[#64748B] mt-1">
                   Based on 800+ ratings
                 </p>
 
                 <div className="mt-3 space-y-1">
+
                   {[5, 4, 3, 2, 1].map((star) => (
+
                     <div
                       key={star}
                       className="flex items-center gap-2"
                     >
+
                       <span className="text-xs w-5">
                         {star}★
                       </span>
 
-                      <div className="flex-1 bg-slate-200 rounded-full h-2">
+                      <div className="flex-1 bg-[#E2E8F0] rounded-full h-2 overflow-hidden">
+
                         <div
-                          className="bg-yellow-400 h-2 rounded-full"
+                          className="rating-bar h-2 rounded-full"
                           style={{
                             width: `${star * 18}%`,
                           }}
                         />
+
                       </div>
+
                     </div>
+
                   ))}
+
                 </div>
+
               </div>
 
-              {/* Reviews */}
+              {/* REVIEWS */}
 
               <div className="flex-1 flex gap-3 overflow-x-auto no-scrollbar pb-2">
+
                 {REVIEWS.map((review, index) => (
+
                   <article
                     key={index}
-                    className="min-w-[260px] sm:min-w-[280px] bg-slate-50 border border-slate-200 rounded-2xl p-4"
+                    className="plumber-review-item"
                   >
+
                     <div className="flex items-center gap-3">
+
                       <img
                         src={review.avatar}
                         alt={review.name}
-                        className="w-11 h-11 rounded-full object-cover border"
+                        className="w-11 h-11 rounded-full object-cover border-2 border-[#CCFBF1]"
                       />
 
                       <div>
-                        <p className="font-bold text-sm text-slate-900">
+
+                        <p className="font-bold text-sm text-[#0B1D36]">
                           {review.name}
                         </p>
 
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-[#64748B]">
                           {review.city}
                         </p>
+
                       </div>
+
                     </div>
 
                     <p className="text-yellow-500 text-sm mt-3">
                       ⭐ {review.rating}
                     </p>
 
-                    <p className="text-sm text-slate-700 mt-2">
+                    <p className="text-sm text-[#334155] mt-2">
                       {review.review}
                     </p>
 
-                    <p className="text-xs text-slate-400 mt-3">
+                    <p className="text-xs text-[#94A3B8] mt-3">
                       {review.date}
                     </p>
 
-                    <span className="inline-flex mt-3 bg-green-50 text-green-700 text-xs px-2 py-1 rounded-lg font-semibold">
+                    <span className="inline-flex mt-3 bg-[#ECFDF5] text-[#047857] text-xs px-2 py-1 rounded-lg font-bold">
                       ✔ Verified Booking
                     </span>
+
                   </article>
+
                 ))}
+
               </div>
+
             </div>
+
           </div>
+
         </section>
 
         {/* =================================================
@@ -838,71 +1109,115 @@ export default function Plumber() {
         ================================================= */}
 
         <section className="mt-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-5">
-            <div className="text-center mb-5">
-              <h2 className="text-xl font-bold text-slate-900">
-                Why Choose QuickSeva?
-              </h2>
 
-              <p className="text-sm text-slate-500 mt-1">
+          <div className="plumber-trust-card">
+
+            <div className="text-center mb-5">
+
+              <div className="flex justify-center items-center gap-2">
+
+                <span className="section-accent-line" />
+
+                <h2 className="text-xl font-extrabold text-[#0B1D36]">
+                  Why Choose OnCall?
+                </h2>
+
+                <span className="section-accent-line" />
+
+              </div>
+
+              <p className="text-sm text-[#64748B] mt-1">
                 Reliable plumbing service at your doorstep
               </p>
+
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="rounded-2xl bg-slate-50 p-4 text-center">
-                <div className="text-2xl">🛡️</div>
 
-                <p className="font-bold text-sm text-slate-900 mt-2">
+              {/* TRUST 1 */}
+
+              <div className="plumber-trust-item">
+
+                <div className="trust-icon">
+                  🛡️
+                </div>
+
+                <p className="font-extrabold text-sm text-[#0B1D36] mt-2">
                   Verified Technicians
                 </p>
 
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-[#64748B] mt-1">
                   Trained service professionals
                 </p>
+
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 text-center">
-                <div className="text-2xl">💰</div>
+              {/* TRUST 2 */}
 
-                <p className="font-bold text-sm text-slate-900 mt-2">
+              <div className="plumber-trust-item">
+
+                <div className="trust-icon">
+                  💰
+                </div>
+
+                <p className="font-extrabold text-sm text-[#0B1D36] mt-2">
                   Clear Pricing
                 </p>
 
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-[#64748B] mt-1">
                   Transparent service prices
                 </p>
+
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 text-center">
-                <div className="text-2xl">⚡</div>
+              {/* TRUST 3 */}
 
-                <p className="font-bold text-sm text-slate-900 mt-2">
+              <div className="plumber-trust-item">
+
+                <div className="trust-icon">
+                  ⚡
+                </div>
+
+                <p className="font-extrabold text-sm text-[#0B1D36] mt-2">
                   Quick Response
                 </p>
 
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-[#64748B] mt-1">
                   Fast booking confirmation
                 </p>
+
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 text-center">
-                <div className="text-2xl">⭐</div>
+              {/* TRUST 4 */}
 
-                <p className="font-bold text-sm text-slate-900 mt-2">
+              <div className="plumber-trust-item">
+
+                <div className="trust-icon">
+                  ⭐
+                </div>
+
+                <p className="font-extrabold text-sm text-[#0B1D36] mt-2">
                   Trusted Service
                 </p>
 
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-[#64748B] mt-1">
                   Customer-focused support
                 </p>
+
               </div>
+
             </div>
+
           </div>
+
         </section>
+
       </main>
 
+      {/* CART BAR */}
+
       <ViewCartBar />
+
     </div>
   );
 }

@@ -12,7 +12,7 @@ export default function DecorationDetails() {
   /* 📞 SUPPORT CONFIG */
   const supportPhone = "919000000000"; // 🔁 replace with real QS number
   const whatsappMessage = encodeURIComponent(
-    "Hi QuickSeva, I need help with Decoration & Events services."
+    "Hi OnCall, I need help with Decoration & Events services."
   );
 
   return (

@@ -1,9 +1,4 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-
+import React, { useEffect, useRef, useState } from "react";
 import {
   collection,
   onSnapshot,
@@ -13,417 +8,183 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
-import {
-  db,
-} from "../firebase";
-
-import {
-  openWhatsAppForTechnician,
-} from "../utils/whatsapp";
+import { db } from "../firebase";
+import "./AdminDashboardLocal.css";
 
 export default function AdminDashboardLocal() {
+  const [bookings, setBookings] = useState([]);
+  const [technicians, setTechnicians] = useState([]);
+  const [form, setForm] = useState({});
 
-  const [
-    bookings,
-    setBookings,
-  ] = useState([]);
+  const audioContextRef = useRef(null);
+  const soundEnabledRef = useRef(false);
+  const initialBookingsLoadedRef = useRef(false);
+  const previousBookingIdsRef = useRef(new Set());
 
-  const [
-    technicians,
-    setTechnicians,
-  ] = useState([]);
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [newBookingAlert, setNewBookingAlert] = useState(null);
+  const enableNotificationSound = async () => {
+    try {
+      if (!audioContextRef.current) {
+        const AudioContext =
+          window.AudioContext || window.webkitAudioContext;
 
-  const [
-    form,
-    setForm,
-  ] = useState({});
-
-  /*
-  ==========================================================
-  SOUND SYSTEM
-  ==========================================================
-  */
-
-  const audioContextRef =
-    useRef(null);
-
-  const soundEnabledRef =
-    useRef(false);
-
-  const initialBookingsLoadedRef =
-    useRef(false);
-
-  const previousBookingIdsRef =
-    useRef(new Set());
-
-  const [
-    soundEnabled,
-    setSoundEnabled,
-  ] = useState(false);
-
-  const [
-    newBookingAlert,
-    setNewBookingAlert,
-  ] = useState(null);
-
-  /*
-  ==========================================================
-  ENABLE NOTIFICATION SOUND
-  ==========================================================
-  */
-
-  const enableNotificationSound =
-    async () => {
-
-      try {
-
-        if (
-          !audioContextRef.current
-        ) {
-
-          const AudioContext =
-            window.AudioContext ||
-            window.webkitAudioContext;
-
-          if (!AudioContext) {
-
-            alert(
-              "Your browser does not support notification sounds."
-            );
-
-            return;
-          }
-
-          audioContextRef.current =
-            new AudioContext();
-        }
-
-        if (
-          audioContextRef.current.state ===
-          "suspended"
-        ) {
-
-          await audioContextRef.current.resume();
-        }
-
-        playNotificationSound();
-
-        soundEnabledRef.current =
-          true;
-
-        setSoundEnabled(true);
-
-        console.log(
-          "[QuickSeva] Notification sound enabled."
-        );
-
-      } catch (error) {
-
-        console.error(
-          "[QuickSeva] Failed to enable sound:",
-          error
-        );
-
-        alert(
-          "Unable to enable notification sound. Please try again."
-        );
-      }
-    };
-
-  /*
-  ==========================================================
-  PLAY NOTIFICATION SOUND
-  ==========================================================
-  */
-
-  const playNotificationSound =
-    () => {
-
-      try {
-
-        const audioContext =
-          audioContextRef.current;
-
-        if (!audioContext) {
+        if (!AudioContext) {
+          alert(
+            "Your browser does not support notification sounds."
+          );
           return;
         }
 
-        if (
-          audioContext.state ===
-          "suspended"
-        ) {
+        audioContextRef.current = new AudioContext();
+      }
 
-          audioContext.resume();
+      if (audioContextRef.current.state === "suspended") {
+        await audioContextRef.current.resume();
+      }
+
+      playNotificationSound();
+
+      soundEnabledRef.current = true;
+      setSoundEnabled(true);
+
+      console.log("[OnCall] Notification sound enabled.");
+    } catch (error) {console.error(
+        "[OnCall] Failed to enable sound:",
+        error
+      );
+
+      alert(
+        "Unable to enable notification sound. Please try again."
+      );
+    }
+  };
+  const playNotificationSound = () => {
+    try {
+      const audioContext = audioContextRef.current;
+
+      if (!audioContext) return;
+
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.type = "sine";
+
+      oscillator.frequency.setValueAtTime(
+        880,
+        audioContext.currentTime
+      );
+      oscillator.frequency.setValueAtTime(
+        1174,
+        audioContext.currentTime + 0.12
+      );
+
+      oscillator.frequency.setValueAtTime(
+        880,
+        audioContext.currentTime + 0.24
+      );
+
+      gainNode.gain.setValueAtTime(
+        0.0001,
+        audioContext.currentTime
+      );
+
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.35,
+        audioContext.currentTime + 0.03
+      );
+
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.0001,
+        audioContext.currentTime + 0.5
+      );
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (error) {
+      console.error(
+        "[OnCall] Sound playback failed:",
+        error
+      );
+    }
+  };
+  useEffect(() => {
+    const q = query(
+      collection(db, "bookings"),
+      orderBy("createdAt", "desc")
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const newBookings = snapshot.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        }));
+
+        if (!initialBookingsLoadedRef.current) {
+          newBookings.forEach((booking) => {
+            previousBookingIdsRef.current.add(booking.id);
+          });
+
+          initialBookingsLoadedRef.current = true;
+          setBookings(newBookings);
+          return;
         }
 
-        const oscillator =
-          audioContext.createOscillator();
-
-        const gainNode =
-          audioContext.createGain();
-
-        oscillator.type =
-          "sine";
-
-        /*
-        ------------------------------------------------------
-        QUICKSEVA ALERT TONE
-        ------------------------------------------------------
-        */
-
-        oscillator.frequency.setValueAtTime(
-          880,
-          audioContext.currentTime
+        const newlyCreatedBookings = newBookings.filter(
+          (booking) =>
+            !previousBookingIdsRef.current.has(booking.id)
         );
+        if (newlyCreatedBookings.length > 0) {
+          const latestBooking = newlyCreatedBookings[0];
 
-        oscillator.frequency.setValueAtTime(
-          1174,
-          audioContext.currentTime + 0.12
-        );
+          console.log(
+            "[OnCall] NEW BOOKING DETECTED:",
+            latestBooking
+          );
 
-        oscillator.frequency.setValueAtTime(
-          880,
-          audioContext.currentTime + 0.24
-        );
+          if (soundEnabledRef.current) {
+            playNotificationSound();
+          } else {
+            console.warn(
+              "[OnCall] Sound is not enabled. Click Enable Sound."
+            );
+          }
 
-        /*
-        ------------------------------------------------------
-        VOLUME
-        ------------------------------------------------------
-        */
+          setNewBookingAlert(latestBooking);
 
-        gainNode.gain.setValueAtTime(
-          0.0001,
-          audioContext.currentTime
-        );
+          setTimeout(() => {
+            setNewBookingAlert(null);
+          }, 7000);
+        }
 
-        gainNode.gain.exponentialRampToValueAtTime(
-          0.35,
-          audioContext.currentTime + 0.03
-        );
+        newBookings.forEach((booking) => {
+          previousBookingIdsRef.current.add(booking.id);
+        });
 
-        gainNode.gain.exponentialRampToValueAtTime(
-          0.0001,
-          audioContext.currentTime + 0.5
-        );
-
-        oscillator.connect(
-          gainNode
-        );
-
-        gainNode.connect(
-          audioContext.destination
-        );
-
-        oscillator.start(
-          audioContext.currentTime
-        );
-
-        oscillator.stop(
-          audioContext.currentTime + 0.5
-        );
-
-      } catch (error) {
-
+        setBookings(newBookings);
+      },
+      (error) => {
         console.error(
-          "[QuickSeva] Sound playback failed:",
+          "Booking listener error:",
           error
         );
       }
-    };
-
-  /*
-  ==========================================================
-  LOAD BOOKINGS
-  ==========================================================
-  */
-
-  useEffect(() => {
-
-    const q =
-      query(
-        collection(
-          db,
-          "bookings"
-        ),
-        orderBy(
-          "createdAt",
-          "desc"
-        )
-      );
-
-    const unsubscribe =
-      onSnapshot(
-        q,
-        (snapshot) => {
-
-          const newBookings =
-            snapshot.docs.map(
-              (d) => ({
-                id: d.id,
-                ...d.data(),
-              })
-            );
-
-          /*
-          ----------------------------------------------------
-          INITIAL LOAD
-          ----------------------------------------------------
-          */
-
-          if (
-            !initialBookingsLoadedRef.current
-          ) {
-
-            newBookings.forEach(
-              (booking) => {
-
-                previousBookingIdsRef.current.add(
-                  booking.id
-                );
-              }
-            );
-
-            initialBookingsLoadedRef.current =
-              true;
-
-            setBookings(
-              newBookings
-            );
-
-            return;
-          }
-
-          /*
-          ----------------------------------------------------
-          FIND NEW BOOKINGS
-          ----------------------------------------------------
-          */
-
-          const newlyCreatedBookings =
-            newBookings.filter(
-              (booking) =>
-                !previousBookingIdsRef.current.has(
-                  booking.id
-                )
-            );
-
-          /*
-          ----------------------------------------------------
-          NEW BOOKING FOUND
-          ----------------------------------------------------
-          */
-
-          if (
-            newlyCreatedBookings.length >
-            0
-          ) {
-
-            const latestBooking =
-              newlyCreatedBookings[0];
-
-            console.log(
-              "[QuickSeva] NEW BOOKING DETECTED:",
-              latestBooking
-            );
-
-            /*
-            --------------------------------------------------
-            PLAY SOUND
-            --------------------------------------------------
-            */
-
-            if (
-              soundEnabledRef.current
-            ) {
-
-              playNotificationSound();
-
-            } else {
-
-              console.warn(
-                "[QuickSeva] Sound is not enabled. Click Enable Sound."
-              );
-            }
-
-            /*
-            --------------------------------------------------
-            SHOW DASHBOARD ALERT
-            --------------------------------------------------
-            */
-
-            setNewBookingAlert(
-              latestBooking
-            );
-
-            setTimeout(
-              () => {
-
-                setNewBookingAlert(
-                  null
-                );
-
-              },
-              7000
-            );
-          }
-
-          /*
-          ----------------------------------------------------
-          UPDATE BOOKING IDS
-          ----------------------------------------------------
-          */
-
-          newBookings.forEach(
-            (booking) => {
-
-              previousBookingIdsRef.current.add(
-                booking.id
-              );
-            }
-          );
-
-          /*
-          ----------------------------------------------------
-          UPDATE BOOKINGS
-          ----------------------------------------------------
-          */
-
-          setBookings(
-            newBookings
-          );
-
-        },
-        (error) => {
-
-          console.error(
-            "Booking listener error:",
-            error
-          );
-        }
-      );
-
-    /*
-    ========================================================
-    LOAD TECHNICIANS
-    ========================================================
-    */
+    );
 
     try {
-
-      const techs =
-        JSON.parse(
-          localStorage.getItem(
-            "technicians"
-          ) || "[]"
-        );
-
-      setTechnicians(
-        techs
+      const techs = JSON.parse(
+        localStorage.getItem("technicians") || "[]"
       );
-
+      setTechnicians(techs);
     } catch (error) {
-
       console.error(
         "Technician loading error:",
         error
@@ -432,842 +193,543 @@ export default function AdminDashboardLocal() {
       setTechnicians([]);
     }
 
-    return () =>
-      unsubscribe();
-
+    return () => unsubscribe();
   }, []);
+  const assignTechnician = async (booking, tech) => {
+    if (!booking?.id || !tech?.name) {
+      alert("Booking or technician details are missing.");
+      return;
+    }
 
-  /*
-  ==========================================================
-  ASSIGN TECHNICIAN
-  ==========================================================
-  */
+    const rawPhone =
+      booking.phone ||
+      booking.mobile ||
+      booking.customerPhone ||
+      booking.customer?.phone ||
+      booking.user?.phone ||
+      booking.userPhone ||
+      "";
 
-  const assignTechnician =
-    async (
-      booking,
-      tech
-    ) => {
+    const clientPhone = String(rawPhone).replace(/\\D/g, "");
+    if (!clientPhone) {
+      alert("The customer's phone number is missing. Add a phone number before assigning a technician.");
+      return;
+    }
+    const whatsappPhone =
+      clientPhone.length === 10 ? `91${clientPhone}` : clientPhone;
+      const completionToken =
+      typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-      try {
+    const completionUrl =
+      `${window.location.origin}/service-completion/${encodeURIComponent(booking.id)}` +
+      `?token=${encodeURIComponent(completionToken)}`;
 
-        await updateDoc(
-          doc(
-            db,
-            "bookings",
-            booking.id
-          ),
-          {
+    const serviceName = getServiceName(booking);
+    const amount = getBookingAmount(booking);
+    const bookingDate =
+      booking.date || booking.bookingDate || booking.serviceDate || "Not provided";
+    const bookingTime =
+      booking.time || booking.bookingTime || booking.serviceTime || "Not provided";
+    const address =
+      booking.address ||
+      booking.fullAddress ||
+      booking.location ||
+      booking.customerAddress ||
+      booking.customer?.address ||
+      "Not provided";
+      const message = [
+      `Hello ${booking.name || booking.customerName || booking.userName || booking.customer?.name || "Customer"}!`,
+      "",
+      "Your OnCall service technician has been assigned.",
+      "",
+      `Booking ID: ${booking.id}`,
+      `Service: ${serviceName}`,
+      `Technician: ${tech.name}`,
+      `Technician phone: ${tech.phone || "Not provided"}`,
+      `Booking date: ${bookingDate}`,
+      `Booking time: ${bookingTime}`,
+      `Address: ${address}`,
+      `Total amount: ₹${amount.toLocaleString("en-IN")}`,
+      "",
+      "After the service is finished, please open this link and tap “Service Completed” to update your booking status:",
+      completionUrl,
+      "",
+      "Thank you for choosing OnCall!",
+    ].join("\\n");
+    const whatsappUrl =
+      `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`;
 
-            status:
-              "Assigned",
+    // Open synchronously from the selection interaction to reduce popup blocking.
+    const whatsappWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
 
-            technicianId:
-              tech.id,
+    try {
+      await updateDoc(doc(db, "bookings", booking.id), {
+        status: "Assigned",
+        technicianId: tech.id,
+        technicianName: tech.name,
+        technicianPhone: tech.phone || "",
+        technicianRating: tech.rating ?? 4.5,
+        technicianPhoto: tech.photo || null,
+        completedJobs: tech.jobs ?? 20,
+        eta: 30,
+        assignedAt: new Date().toISOString(),
+        completionToken,
+        completionUrl,
+      });
+      alert("Technician assigned. WhatsApp opened with the client message.");
+    } catch (error) {
+      console.error("[OnCall] Failed to assign technician:", error);
+      if (whatsappWindow) whatsappWindow.close();
+      alert("Failed to assign technician. Please check your connection and try again.");
+    }
+  };
+  const updateExtraDetails = async (bookingId) => {
+    try {
+      const values = form[bookingId] || {};
 
-            technicianName:
-              tech.name,
-
-            technicianPhone:
-              tech.phone,
-
-            technicianRating:
-              tech.rating ?? 4.5,
-
-            technicianPhoto:
-              tech.photo ||
-              null,
-
-            completedJobs:
-              tech.jobs ?? 20,
-
-            eta:
-              30,
-
-            assignedAt:
-              new Date().toISOString(),
-
-          }
-        );
-
-        alert(
-          "Technician Assigned ✔"
-        );
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-        alert(
-          "Failed to assign technician"
-        );
-      }
-    };
-
-  /*
-  ==========================================================
-  UPDATE TECHNICIAN DETAILS
-  ==========================================================
-  */
-
-  const updateExtraDetails =
-    async (
-      bookingId
-    ) => {
-
-      try {
-
-        const values =
-          form[bookingId] ||
-          {};
-
-        await updateDoc(
-          doc(
-            db,
-            "bookings",
-            bookingId
-          ),
-          {
-
-            technicianPhoto:
-              values.photo ||
-              null,
-
-            technicianRating:
-              Number(
-                values.rating
-              ) || 4.5,
-
-            completedJobs:
-              Number(
-                values.jobs
-              ) || 20,
-
-            eta:
-              Number(
-                values.eta
-              ) || null,
-
-          }
-        );
-
-        alert(
-          "Updated successfully ✔"
-        );
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-        alert(
-          "Failed to update details"
-        );
-      }
-    };
-
-  /*
-  ==========================================================
-  UPDATE FORM
-  ==========================================================
-  */
-
-  const updateField =
-    (
-      bookingId,
-      key,
-      value
-    ) => {
-
-      setForm(
-        (prev) => ({
-          ...prev,
-
-          [bookingId]: {
-            ...prev[
-              bookingId
-            ],
-
-            [key]:
-              value,
-          },
-        })
-      );
-    };
-
-  /*
-  ==========================================================
-  HELPER - GET BOOKING TOTAL
-  ==========================================================
-  */
-
-  const getBookingAmount =
-    (booking) => {
-
-      const possibleAmounts = [
-        booking?.totalAmount,
-        booking?.amount,
-        booking?.total,
-        booking?.price,
-      ];
-
-      for (
-        const value of possibleAmounts
-      ) {
-
-        const number =
-          Number(value);
-
-        if (
-          Number.isFinite(number)
-        ) {
-
-          return number;
+      await updateDoc(
+        doc(db, "bookings", bookingId),
+        {
+          technicianPhoto: values.photo || null,
+          technicianRating:
+            Number(values.rating) || 4.5,
+          completedJobs:
+            Number(values.jobs) || 20,
+          eta: Number(values.eta) || null,
         }
+      );
+
+      alert("Updated successfully ✔");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update details");
+    }
+  };
+  const updateField = (bookingId, key, value) => {
+    setForm((prev) => ({
+      ...prev,
+      [bookingId]: {
+        ...prev[bookingId],
+        [key]: value,
+      },
+    }));
+  };
+  const getBookingAmount = (booking) => {
+    const possibleAmounts = [
+      booking?.totalAmount,
+      booking?.amount,
+      booking?.total,
+      booking?.price,
+    ];
+
+    for (const value of possibleAmounts) {
+      const number = Number(value);
+
+      if (Number.isFinite(number)) {
+        return number;
       }
+    }
 
-      /*
-      ------------------------------------------------------
-      FALLBACK: CALCULATE FROM ITEMS
-      ------------------------------------------------------
-      */
+    if (Array.isArray(booking?.items)) {
+      return booking.items.reduce((total, item) => {
+        const price = Number(item?.price) || 0;
 
-      if (
-        Array.isArray(
-          booking?.items
-        )
-      ) {
-
-        return booking.items.reduce(
-          (
-            total,
-            item
-          ) => {
-
-            const price =
-              Number(
-                item?.price
-              ) || 0;
-
-            const qty =
-              Number(
-                item?.qty
-              ) > 0
-                ? Number(item.qty)
-                : 1;
-
-            const subtotal =
-              Number(
-                item?.subtotal
-              );
-
-            return (
-              total +
-              (
-                Number.isFinite(
-                  subtotal
-                )
-                  ? subtotal
-                  : price * qty
-              )
-            );
-
-          },
-          0
-        );
-      }
-
-      return 0;
-    };
-
-  /*
-  ==========================================================
-  DASHBOARD STATISTICS
-  ==========================================================
-  */
-
-  const totalOrders =
-    bookings.length;
-
-  const pendingOrders =
-    bookings.filter(
-      (booking) => {
-
-        const status =
-          String(
-            booking?.status ||
-            "Pending"
-          )
-            .trim()
-            .toLowerCase();
-
-        return (
-          status ===
-            "pending" ||
-          status ===
-            "new"
-        );
-      }
-    ).length;
-
-  const totalValue =
-    bookings.reduce(
-      (
-        total,
-        booking
-      ) => {
+        const qty =
+          Number(item?.qty) > 0
+            ? Number(item.qty)
+            : 1;
+            const subtotal = Number(item?.subtotal);
 
         return (
           total +
-          getBookingAmount(
-            booking
-          )
+          (Number.isFinite(subtotal)
+            ? subtotal
+            : price * qty)
         );
+      }, 0);
+    }
 
-      },
-      0
-    );
+    return 0;
+  };
 
-  /*
-  ==========================================================
-  SERVICE NAME HELPER
-  ==========================================================
-  */
+  const getServiceName = (booking) => {
+    if (
+      Array.isArray(booking?.items) &&
+      booking.items.length > 0
+    ) {
+      const names = booking.items
+        .map(
+          (item) =>
+            item?.label ||
+            item?.name ||
+            item?.serviceName ||
+            item?.subService
+        )
+        .filter(Boolean);
 
-  const getServiceName =
-    (booking) => {
-
-      if (
-        Array.isArray(
-          booking?.items
-        ) &&
-        booking.items.length > 0
-      ) {
-
-        const names =
-          booking.items
-            .map(
-              (item) =>
-                item?.label ||
-                item?.name ||
-                item?.serviceName ||
-                item?.subService
-            )
-            .filter(Boolean);
-
-        if (
-          names.length > 0
-        ) {
-
-          return names.join(
-            ", "
-          );
-        }
+      if (names.length > 0) {
+        return names.join(", ");
       }
+    }
 
-      return (
-        booking?.serviceName ||
-        booking?.subService ||
-        booking?.subServiceName ||
-        booking?.selectedService ||
-        booking?.service ||
-        booking?.category ||
-        "Service"
-      );
-    };
+    return (
+      booking?.serviceName ||
+      booking?.subService ||
+      booking?.subServiceName ||
+      booking?.selectedService ||
+      booking?.service ||
+      booking?.category ||
+      "Service"
+    );
+  };
+  const totalOrders = bookings.length;
 
-  /*
-  ==========================================================
-  UI
-  ==========================================================
-  */
+  const pendingOrders = bookings.filter((booking) => {
+    const status = String(
+      booking?.status || "Pending"
+    )
+      .trim()
+      .toLowerCase();
 
+    return (
+      status === "pending" ||
+      status === "new"
+    );
+  }).length;
+
+  const completedOrders = bookings.filter(
+    (booking) => String(booking?.status || "").toLowerCase() === "completed"
+  ).length;
+
+  const totalValue = bookings.reduce(
+    (total, booking) =>
+      total + getBookingAmount(booking),
+    0
+  );
   return (
+    <div className="admin-dashboard-local">
+      <div className="admin-dashboard-container">
+        <header className="admin-dashboard-header">
+          <div className="admin-dashboard-header-brand">
+            <div className="admin-dashboard-logo">
+              O
+            </div>
 
-    <div className="p-4 bg-gray-50 min-h-screen pb-20">
+            <div>
+              <span className="admin-dashboard-eyebrow">
+                ONCALL ADMIN
+              </span>
 
-      <div className="max-w-5xl mx-auto">
+              <h1>Admin Dashboard</h1>
 
-        {/* =================================================
-            HEADER
-        ================================================= */}
-
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
-
-          <div>
-
-            <h1 className="text-2xl font-bold text-gray-900">
-              Admin Dashboard
-            </h1>
-
-            <p className="text-sm text-gray-500">
-              QuickSeva bookings
-            </p>
-
+              <p>
+                Manage bookings, technicians and
+                service requests.
+              </p>
+            </div>
           </div>
-
-          {/* SOUND BUTTON */}
-
           <button
-            onClick={
-              enableNotificationSound
-            }
-            className={`px-4 py-2 rounded-xl text-sm font-semibold ${
+            type="button"
+            onClick={enableNotificationSound}
+            className={`admin-sound-button ${
               soundEnabled
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
+                ? "admin-sound-enabled"
+                : "admin-sound-disabled"
             }`}
           >
-
             {soundEnabled
               ? "🔊 Sound ON"
               : "🔇 Enable Sound"}
-
           </button>
+        </header>
+        <section className="admin-stat-grid">
 
-        </div>
-
-        {/* =================================================
-            DASHBOARD SUMMARY CARDS
-        ================================================= */}
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-
-          {/* TOTAL ORDERS */}
-
-          <div className="bg-white rounded-2xl shadow-sm border border-blue-100 p-5">
-
-            <div className="flex items-center justify-between">
-
-              <div>
-
-                <p className="text-sm font-semibold text-gray-500">
-                  Total Orders
-                </p>
-
-                <p className="text-3xl font-bold text-blue-700 mt-1">
-                  {totalOrders}
-                </p>
-
-              </div>
-
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-2xl">
-                📦
-              </div>
-
+          <div className="admin-stat-card admin-stat-orders">
+            <div className="admin-stat-content">
+              <span>Total Orders</span>
+              <strong>{totalOrders}</strong>
+              <small>All OnCall bookings</small>
             </div>
 
-            <p className="text-xs text-gray-400 mt-3">
-              All QuickSeva bookings
-            </p>
-
+            <div className="admin-stat-icon">
+              📦
+            </div>
           </div>
 
-          {/* PENDING ORDERS */}
-
-          <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-5">
-
-            <div className="flex items-center justify-between">
-
-              <div>
-
-                <p className="text-sm font-semibold text-gray-500">
-                  Pending Orders
-                </p>
-
-                <p className="text-3xl font-bold text-orange-600 mt-1">
-                  {pendingOrders}
-                </p>
-
-              </div>
-
-              <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-2xl">
-                ⏳
-              </div>
-
+          <div className="admin-stat-card admin-stat-pending">
+            <div className="admin-stat-content">
+              <span>Pending Orders</span>
+              <strong>{pendingOrders}</strong>
+              <small>
+                Awaiting technician assignment
+              </small>
             </div>
 
-            <p className="text-xs text-gray-400 mt-3">
-              Awaiting technician assignment
-            </p>
-
+            <div className="admin-stat-icon">
+              ⏳
+            </div>
+          </div>
+<div className="admin-stat-card admin-stat-completed">
+            <div className="admin-stat-content">
+              <span>Completed Orders</span>
+              <strong>{completedOrders}</strong>
+              <small>Confirmed by customers</small>
+            </div>
+            <div className="admin-stat-icon">✅</div>
           </div>
 
-          {/* TOTAL VALUE */}
-
-          <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-5">
-
-            <div className="flex items-center justify-between">
-
-              <div>
-
-                <p className="text-sm font-semibold text-gray-500">
-                  Total Value
-                </p>
-
-                <p className="text-3xl font-bold text-green-700 mt-1">
-                  ₹
-                  {totalValue.toLocaleString(
-                    "en-IN"
-                  )}
-                </p>
-
-              </div>
-
-              <div className="w-12 h-12 rounded-2xl bg-green-50 flex items-center justify-center text-2xl">
-                💰
-              </div>
-
+          <div className="admin-stat-card admin-stat-value">
+            <div className="admin-stat-content">
+              <span>Total Value</span>
+              <strong>
+                ₹{totalValue.toLocaleString("en-IN")}
+              </strong>
+              <small>Value of all bookings</small>
             </div>
 
-            <p className="text-xs text-gray-400 mt-3">
-              Value of all bookings
+            <div className="admin-stat-icon">
+              💰
+            </div>
+          </div>
+
+        </section>
+        <section className="admin-notification-status">
+          <div className="admin-notification-status-icon">
+            🔔
+          </div>
+
+          <div>
+            <strong>
+              FCM Notifications Active
+            </strong>
+
+            <p>
+              {soundEnabled
+                ? "🔊 OnCall booking sound is enabled."
+                : "🔇 Click Enable Sound to activate booking alerts."}
             </p>
-
           </div>
-
-        </div>
-
-        {/* =================================================
-            NOTIFICATION STATUS
-        ================================================= */}
-
-        <div className="mb-5 bg-green-100 text-green-700 px-4 py-3 rounded-xl text-sm font-semibold">
-
-          🔔 FCM Notifications Active
-
-          <div className="text-xs font-normal mt-1">
-
-            {soundEnabled
-              ? "🔊 QuickSeva booking sound is enabled."
-              : "🔇 Click Enable Sound to activate booking alerts."}
-
-          </div>
-
-        </div>
-
-        {/* =================================================
-            NEW BOOKING ALERT
-        ================================================= */}
-
+        </section>
         {newBookingAlert && (
+          <section className="admin-new-booking-alert">
+            <div className="admin-alert-header">
+              <div>
+                <span className="admin-alert-badge">
+                  🔔 NEW BOOKING
+                </span>
 
-          <div className="mb-5 bg-blue-600 text-white rounded-2xl p-4 shadow-lg">
-
-            <div className="flex items-start justify-between">
-
-              <div className="min-w-0">
-
-                <div className="font-bold text-lg">
-                  🔔 New QuickSeva Booking!
-                </div>
-
-                <div className="text-sm mt-1 font-semibold break-all">
-                  🆔 Booking ID:{" "}
-                  {newBookingAlert.id ||
-                    "Not available"}
-                </div>
-
-                <div className="text-sm mt-1">
-                  🛠️{" "}
-                  {getServiceName(
-                    newBookingAlert
-                  )}
-                </div>
-
-                <div className="text-sm mt-1 font-semibold">
-                  💰 ₹
-                  {getBookingAmount(
-                    newBookingAlert
-                  )}
-                </div>
-
-                <div className="text-sm mt-1">
-
-                  📅{" "}
-                  {newBookingAlert.date ||
-                    newBookingAlert.bookingDate ||
-                    "Date not provided"}
-
-                  {" • "}
-
-                  ⏰{" "}
-                  {newBookingAlert.time ||
-                    newBookingAlert.bookingTime ||
-                    "Time not provided"}
-
-                </div>
-
-                <div className="text-sm mt-1">
-
-                  👤{" "}
-                  {newBookingAlert.name ||
-                    newBookingAlert.customerName ||
-                    newBookingAlert.userName ||
-                    "Customer"}
-
-                  {" • "}
-
-                  📞{" "}
-                  {newBookingAlert.phone ||
-                    newBookingAlert.mobile ||
-                    newBookingAlert.customerPhone ||
-                    "Phone not provided"}
-
-                </div>
-
-                <div className="text-sm mt-1">
-
-                  📍{" "}
-                  {newBookingAlert.address ||
-                    newBookingAlert.fullAddress ||
-                    newBookingAlert.location ||
-                    "Address not provided"}
-
-                </div>
-
+                <h2>
+                  New OnCall Booking!
+                </h2>
               </div>
 
               <button
+                type="button"
                 onClick={() =>
-                  setNewBookingAlert(
-                    null
-                  )
+                  setNewBookingAlert(null)
                 }
-                className="text-white text-xl ml-3"
+                className="admin-alert-close"
               >
                 ✕
               </button>
-
             </div>
+            <div className="admin-alert-details">
+              <p>
+                <strong>🆔 Booking ID:</strong>{" "}
+                {newBookingAlert.id ||
+                  "Not available"}
+              </p>
 
-          </div>
+              <p>
+                <strong>🛠️ Service:</strong>{" "}
+                {getServiceName(
+                  newBookingAlert
+                )}
+              </p>
 
+              <p>
+                <strong>💰 Amount:</strong>{" "}
+                ₹
+                {getBookingAmount(
+                  newBookingAlert
+                ).toLocaleString("en-IN")}
+              </p>
+<p>
+                📅{" "}
+                {newBookingAlert.date ||
+                  newBookingAlert.bookingDate ||
+                  "Date not provided"}
+                {" • "}
+                ⏰{" "}
+                {newBookingAlert.time ||
+                  newBookingAlert.bookingTime ||
+                  "Time not provided"}
+              </p>
+
+              <p>
+                👤{" "}
+                {newBookingAlert.name ||
+                  newBookingAlert.customerName ||
+                  newBookingAlert.userName ||
+                  "Customer"}
+                {" • "}
+                📞{" "}
+                {newBookingAlert.phone ||
+                  newBookingAlert.mobile ||
+                  newBookingAlert.customerPhone ||
+                  "Phone not provided"}
+              </p>
+              <p>
+                📍{" "}
+                {newBookingAlert.address ||
+                  newBookingAlert.fullAddress ||
+                  newBookingAlert.location ||
+                  "Address not provided"}
+              </p>
+            </div>
+          </section>
         )}
-
-        {/* =================================================
-            NO BOOKINGS
-        ================================================= */}
-
-        {bookings.length === 0 ? (
-
-          <div className="bg-white rounded-2xl p-8 text-center shadow">
-
-            <div className="text-4xl mb-3">
-              📭
+        <section className="admin-bookings-section">
+          <div className="admin-section-heading">
+            <div>
+              <span>BOOKING MANAGEMENT</span>
+              <h2>Recent Bookings</h2>
             </div>
 
-            <h2 className="font-bold text-lg">
-              No bookings yet
-            </h2>
-
-            <p className="text-gray-500 text-sm mt-1">
-              New QuickSeva bookings will appear here.
-            </p>
-
+            <div className="admin-booking-count">
+              {totalOrders}
+            </div>
           </div>
 
-        ) : (
+          {bookings.length === 0 ? (
+            <div className="admin-empty-state">
+              <div className="admin-empty-icon">
+                📭
+              </div>
 
-          <div className="space-y-4">
+              <h2>No bookings yet</h2>
 
-            {bookings.map(
-              (b) => {
+              <p>
+                New OnCall bookings will appear here.
+              </p>
+            </div>
+            ) : (
+            <div className="admin-booking-list">
 
+              {bookings.map((b) => {
                 const assignedTech =
                   technicians.find(
                     (t) =>
-                      t.id ===
-                      b.technicianId
+                      t.id === b.technicianId
                   );
 
                 const bookingAmount =
-                  getBookingAmount(
-                    b
-                  );
+                  getBookingAmount(b);
 
                 const serviceName =
-                  getServiceName(
-                    b
-                  );
+                  getServiceName(b);
 
-                const isPending =
-                  !b.status ||
-                  String(
-                    b.status
-                  ).toLowerCase() ===
-                    "pending";
+                const normalizedStatus = String(b.status || "Pending").trim().toLowerCase();
+                const isPending = normalizedStatus === "pending" || normalizedStatus === "new";
+                const isCompleted = normalizedStatus === "completed";
 
                 return (
-
-                  <div
+                  <article
                     key={b.id}
-                    className={`border bg-white p-4 rounded-2xl shadow ${
+                    className={`admin-booking-card ${
                       isPending
-                        ? "border-orange-300"
-                        : "border-gray-200"
-                    }`}
+                        ? "admin-booking-pending"
+                        : "admin-booking-assigned"
+                        } ${isCompleted ? "admin-booking-completed" : ""}`}
                   >
 
-                    {/* =================================================
-                        NEW ORDER
-                    ================================================= */}
+                    {/* NEW ORDER */}
 
                     {isPending && (
-
-                      <div className="mb-3">
-
-                        <span className="inline-flex bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">
-                          🔴 NEW ORDER
-                        </span>
-
+                      <div className="admin-new-order">
+                        🔴 NEW ORDER
                       </div>
-
                     )}
 
-                    {/* =================================================
-                        BOOKING HEADER
-                    ================================================= */}
+                    {/* BOOKING HEADER */}
 
-                    <div className="flex items-start justify-between gap-3">
-
-                      <div className="min-w-0">
-
-                        {/* BOOKING ID */}
-
-                        <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold mb-2">
-
+                    <div className="admin-booking-header">
+                      <div className="admin-booking-heading">
+                        <div className="admin-booking-id">
                           🆔
-
                           <span>
                             Booking ID:
                           </span>
 
-                          <span className="break-all">
+                          <strong>
                             {b.id}
-                          </span>
-
+                          </strong>
                         </div>
-
-                        {/* SERVICE */}
-
-                        <h2 className="text-lg font-bold text-gray-900 break-words">
-
-                          🛠️{" "}
-
-                          {serviceName}
-
+                        <h2>
+                          🛠️ {serviceName}
                         </h2>
-
-                        {/* SUB SERVICE */}
 
                         {(b.subService ||
                           b.subServiceName ||
                           b.selectedService) && (
-
-                          <div className="text-sm text-gray-600 mt-1">
-
+                          <p className="admin-sub-service">
                             🔧{" "}
-
                             {b.subService ||
                               b.subServiceName ||
                               b.selectedService}
-
-                          </div>
-
+                          </p>
                         )}
-
                       </div>
-
-                      {/* STATUS */}
 
                       <span
-                        className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold ${
+                        className={`admin-status ${
                           isPending
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-green-100 text-green-700"
-                        }`}
+                            ? "admin-status-pending"
+                            : "admin-status-success"
+                        } ${isCompleted ? "admin-status-completed" : ""}`}
                       >
-
-                        {b.status ||
-                          "Pending"}
-
+                        {b.status || "Pending"}
                       </span>
-
                     </div>
-
-                    {/* =================================================
-                        SERVICE + AMOUNT SUMMARY
-                    ================================================= */}
-
-                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-                      {/* SERVICE NAME */}
-
-                      <div className="rounded-xl bg-blue-50 border border-blue-100 p-3">
-
-                        <div className="text-xs font-semibold text-blue-600">
+                    <div className="admin-booking-summary">
+                      <div className="admin-info-tile admin-service-tile">
+                        <span>
                           🛠️ Service Name
-                        </div>
+                        </span>
 
-                        <div className="mt-1 text-sm font-bold text-gray-900 break-words">
+                        <strong>
                           {serviceName}
-                        </div>
-
+                        </strong>
                       </div>
 
-                      {/* AMOUNT */}
-
-                      <div className="rounded-xl bg-green-50 border border-green-100 p-3">
-
-                        <div className="text-xs font-semibold text-green-600">
+                      <div className="admin-info-tile admin-amount-tile">
+                        <span>
                           💰 Total Amount
-                        </div>
+                        </span>
 
-                        <div className="mt-1 text-lg font-bold text-green-700">
-
+                        <strong>
                           ₹
                           {bookingAmount.toLocaleString(
                             "en-IN"
                           )}
-
-                        </div>
-
+                        </strong>
                       </div>
-
                     </div>
-
-                    {/* =================================================
-                        BOOKED SERVICES
-                    ================================================= */}
-
-                    {Array.isArray(
-                      b.items
-                    ) &&
-                      b.items.length >
-                        0 && (
-
-                        <div className="mt-3 rounded-xl border border-slate-200 bg-white p-4">
-
-                          <div className="text-sm font-bold text-gray-900 mb-3">
+                    {Array.isArray(b.items) &&
+                      b.items.length > 0 && (
+                        <div className="admin-items-card">
+                          <h3>
                             🛠️ Booked Service
-                            {b.items.length >
-                            1
+                            {b.items.length > 1
                               ? "s"
                               : ""}
-                          </div>
+                          </h3>
 
-                          <div className="space-y-2">
-
+                          <div className="admin-items-list">
                             {b.items.map(
-                              (
-                                item,
-                                index
-                              ) => {
-
+                              (item, index) => {
                                 const itemName =
                                   item?.label ||
                                   item?.name ||
@@ -1280,7 +742,7 @@ export default function AdminDashboardLocal() {
                                     item?.qty
                                   ) > 0
                                     ? Number(
-                                        item.qty
+                                      item.qty
                                       )
                                     : 1;
 
@@ -1293,231 +755,144 @@ export default function AdminDashboardLocal() {
                                   Number(
                                     item?.subtotal
                                   ) ||
-                                  price *
-                                    qty;
+                                  price * qty;
 
                                 return (
-
                                   <div
                                     key={
                                       item?.id ||
                                       item?.key ||
                                       index
                                     }
-                                    className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2"
+                                    className="admin-item-row"
                                   >
-
-                                    <div className="min-w-0">
-
-                                      <div className="font-semibold text-gray-900 break-words">
+                                    <div>
+                                      <strong>
                                         {itemName}
-                                      </div>
+                                        </strong>
 
-                                      <div className="text-xs text-gray-500">
-                                        Qty:{" "}
-                                        {qty}
-                                        {" × "}
-                                        ₹
+                                      <small>
+                                        Qty: {qty} × ₹
                                         {price}
-                                      </div>
-
+                                      </small>
                                     </div>
 
-                                    <div className="shrink-0 font-bold text-gray-900">
+                                    <strong>
                                       ₹
                                       {subtotal.toLocaleString(
                                         "en-IN"
                                       )}
-                                    </div>
-
+                                    </strong>
                                   </div>
-
                                 );
                               }
                             )}
-
                           </div>
 
-                          <div className="mt-3 pt-3 border-t border-slate-200 flex items-center justify-between">
-
-                            <span className="font-bold text-gray-900">
+                          <div className="admin-items-total">
+                            <span>
                               Total Amount
                             </span>
 
-                            <span className="font-bold text-green-700">
+                            <strong>
                               ₹
                               {bookingAmount.toLocaleString(
                                 "en-IN"
                               )}
-                            </span>
-
+                            </strong>
                           </div>
-
                         </div>
-
                       )}
 
-                    {/* =================================================
-                        CUSTOMER / BOOKING DETAILS
-                    ================================================= */}
+                    {/* CUSTOMER DETAILS */}
 
-                    <div className="mt-4 bg-gray-50 rounded-xl p-4 space-y-3 text-sm">
+                    <div className="admin-customer-card">
 
-                      {/* CUSTOMER */}
+                      <div className="admin-customer-row">
+                        <span>👤</span>
 
-                      <div className="flex gap-3">
+                        <div>
+                          <label>
+                            Customer
+                          </label>
 
-                        <span>
-                          👤
-                        </span>
-
-                        <div className="min-w-0">
-
-                          <b>
-                            Customer:
-                          </b>
-
-                          <div className="text-gray-700 break-words">
-
+                          <p>
                             {b.name ||
                               b.customerName ||
                               b.userName ||
                               b.customer?.name ||
                               "Customer"}
-
-                          </div>
-
+                              </p>
                         </div>
-
                       </div>
 
-                      {/* PHONE */}
+                      <div className="admin-customer-row">
+                        <span>📞</span>
 
-                      <div className="flex gap-3">
+                        <div>
+                          <label>Phone</label>
 
-                        <span>
-                          📞
-                        </span>
-
-                        <div className="min-w-0">
-
-                          <b>
-                            Phone:
-                          </b>
-
-                          <div className="text-gray-700 break-words">
-
+                          <p>
                             {b.phone ||
                               b.mobile ||
                               b.customerPhone ||
                               b.customer?.phone ||
                               "Not provided"}
-
-                          </div>
-
+                          </p>
                         </div>
-
                       </div>
 
-                      {/* DATE */}
+                      <div className="admin-customer-row">
+                        <span>📅</span>
 
-                      <div className="flex gap-3">
-
-                        <span>
-                          📅
-                        </span>
-
-                        <div className="min-w-0">
-
-                          <b>
-                            Date:
-                          </b>
-
-                          <div className="text-gray-700 break-words">
-
+                        <div>
+                          <label>Date</label>
+<p>
                             {b.date ||
                               b.bookingDate ||
                               b.serviceDate ||
                               "Not provided"}
-
-                          </div>
-
+                          </p>
                         </div>
-
                       </div>
 
-                      {/* TIME */}
+                      <div className="admin-customer-row">
+                        <span>⏰</span>
 
-                      <div className="flex gap-3">
+                        <div>
+                          <label>Time</label>
 
-                        <span>
-                          ⏰
-                        </span>
-
-                        <div className="min-w-0">
-
-                          <b>
-                            Time:
-                          </b>
-
-                          <div className="text-gray-700 break-words">
-
+                          <p>
                             {b.time ||
                               b.bookingTime ||
                               b.serviceTime ||
                               "Not provided"}
-
-                          </div>
-
+                          </p>
                         </div>
-
                       </div>
+                      <div className="admin-customer-row">
+                        <span>📍</span>
 
-                      {/* ADDRESS */}
+                        <div>
+                          <label>Address</label>
 
-                      <div className="flex gap-3">
-
-                        <span>
-                          📍
-                        </span>
-
-                        <div className="min-w-0">
-
-                          <b>
-                            Address:
-                          </b>
-
-                          <div className="text-gray-700 break-words">
-
+                          <p>
                             {b.address ||
                               b.fullAddress ||
                               b.location ||
                               b.customerAddress ||
                               b.customer?.address ||
                               "Not provided"}
-
-                          </div>
-
+                          </p>
                         </div>
-
                       </div>
 
                     </div>
-
-                    {/* =================================================
-                        ASSIGN TECHNICIAN
-                    ================================================= */}
-
-                    {b.status ===
-                      "Pending" &&
-                      technicians.length >
-                        0 && (
-
+                    {isPending && technicians.length > 0 && (
                         <select
-                          className="w-full mt-4 border p-3 rounded-xl bg-white"
+                          className="admin-technician-select"
                           defaultValue=""
                           onChange={(e) => {
-
                             const tech =
                               technicians.find(
                                 (t) =>
@@ -1526,103 +901,90 @@ export default function AdminDashboardLocal() {
                               );
 
                             if (tech) {
-
                               assignTechnician(
                                 b,
                                 tech
                               );
                             }
-
                           }}
                         >
-
                           <option
                             value=""
                             disabled
                           >
                             Select Technician
                           </option>
-
-                          {technicians.map(
-                            (t) => (
-
-                              <option
-                                key={
-                                  t.id
-                                }
-                                value={
-                                  t.id
-                                }
-                              >
-
-                                {t.name}
-                                {" "}
-                                ⭐
-                                {" "}
-                                {t.rating ??
-                                  0}
-
-                              </option>
-
-                            )
-                          )}
-
+                          {technicians.map((t) => (
+                            <option
+                              key={t.id}
+                              value={t.id}
+                            >
+                              {t.name} ⭐{" "}
+                              {t.rating ?? 0}
+                            </option>
+                          ))}
                         </select>
-
                       )}
 
-                    {/* =================================================
-                        TECHNICIAN
-                    ================================================= */}
-
-                    {b.technicianName && (
-
-                      <div className="mt-4 bg-gray-100 p-3 rounded-xl">
-
-                        <div className="font-semibold">
-                          👨‍🔧{" "}
-                          {b.technicianName}
-                        </div>
-
-                        <div className="text-sm mt-1">
-                          ⭐{" "}
-                          {b.technicianRating ||
-                            4.5}
-                        </div>
-
-                        <div className="text-sm">
-                          ETA:{" "}
-                          {b.eta ||
-                            "--"}{" "}
-                          mins
-                        </div>
-
-                        {b.technicianPhone && (
-
-                          <div className="text-sm">
-                            📞{" "}
-                            {b.technicianPhone}
-                          </div>
-
+                    {isCompleted && (
+                      <div className="admin-completion-confirmed">
+                        ✅ Service marked completed by the customer
+                        {b.completedAt && (
+                          <small>
+                            Completed: {new Date(b.completedAt).toLocaleString("en-IN")}
+                          </small>
                         )}
-
                       </div>
+                    )}
+                    {b.technicianName && (
+                      <div className="admin-assigned-tech">
+                        <div className="admin-tech-avatar">
+                          👨‍🔧
+                        </div>
 
+                        <div className="admin-tech-info">
+                          <strong>
+                            {b.technicianName}
+                          </strong>
+
+                          <span>
+                            ⭐{" "}
+                            {b.technicianRating ||
+                              4.5}
+                          </span>
+
+                          <span>
+                            ETA:{" "}
+                            {b.eta || "--"} mins
+                          </span>
+
+                          {b.technicianPhone && (
+                            <span>
+                              📞{" "}
+                              {b.technicianPhone}
+                            </span>
+                            )}
+                        </div>
+                      </div>
                     )}
 
-                    {/* =================================================
-                        EDIT TECH DETAILS
-                    ================================================= */}
+                    {/* EDIT TECHNICIAN DETAILS */}
 
-                    {b.status ===
-                      "Assigned" && (
+                    {String(b.status || "").toLowerCase() === "assigned" && (
+                      <div className="admin-tech-edit">
+                        <div className="admin-tech-edit-heading">
+                          <span>
+                            TECHNICIAN DETAILS
+                          </span>
 
-                      <div className="mt-4">
+                          <h3>
+                            Update Assigned Technician
+                          </h3>
+                        </div>
 
-                        <div className="grid grid-cols-2 gap-2">
-
+                        <div className="admin-tech-input-grid">
                           <input
-                            className="border p-2 rounded-xl"
+                            type="text"
                             placeholder="Tech Photo URL"
                             onChange={(e) =>
                               updateField(
@@ -1634,10 +996,9 @@ export default function AdminDashboardLocal() {
                           />
 
                           <input
-                            className="border p-2 rounded-xl"
-                            placeholder="Rating"
                             type="number"
                             step="0.1"
+                            placeholder="Rating"
                             onChange={(e) =>
                               updateField(
                                 b.id,
@@ -1646,11 +1007,9 @@ export default function AdminDashboardLocal() {
                               )
                             }
                           />
-
-                          <input
-                            className="border p-2 rounded-xl"
-                            placeholder="Jobs Done"
+<input
                             type="number"
+                            placeholder="Jobs Done"
                             onChange={(e) =>
                               updateField(
                                 b.id,
@@ -1661,9 +1020,8 @@ export default function AdminDashboardLocal() {
                           />
 
                           <input
-                            className="border p-2 rounded-xl"
-                            placeholder="ETA (mins)"
                             type="number"
+                            placeholder="ETA (mins)"
                             onChange={(e) =>
                               updateField(
                                 b.id,
@@ -1672,53 +1030,54 @@ export default function AdminDashboardLocal() {
                               )
                             }
                           />
-
                         </div>
-
                         <button
+                          type="button"
                           onClick={() =>
                             updateExtraDetails(
                               b.id
                             )
                           }
-                          className="mt-3 w-full p-3 bg-blue-600 text-white rounded-xl font-semibold"
+                          className="admin-save-button"
                         >
                           Save Technician Details
                         </button>
 
-                        {assignedTech?.phone && (
-
+                        {b.completionUrl && (
                           <button
-                            onClick={() =>
-                              openWhatsAppForTechnician(
-                                assignedTech.phone,
-                                b
-                              )
-                            }
-                            className="mt-2 w-full p-3 bg-green-600 text-white rounded-xl font-semibold"
+                            type="button"
+                            className="admin-whatsapp-button"
+                            onClick={() => {
+                              const clientPhone = String(
+                                b.phone || b.mobile || b.customerPhone ||
+                                b.customer?.phone || b.user?.phone || b.userPhone || ""
+                              ).replace(/\\D/g, "");
+                              if (!clientPhone) {
+                                alert("Customer phone number is missing.");
+                                return;
+                              }
+                               const whatsappPhone = clientPhone.length === 10 ? `91${clientPhone}` : clientPhone;
+                              const url = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(
+                                `Hello! Here is your OnCall service completion link: ${b.completionUrl}`
+                              )}`;
+                              window.open(url, "_blank", "noopener,noreferrer");
+                            }}
                           >
-                            📲 Notify Technician via WhatsApp
+                            📲 Resend Completion Link to Client
                           </button>
-
                         )}
-
                       </div>
-
                     )}
 
-                  </div>
-
+                  </article>
                 );
-              }
-            )}
+              })}
 
-          </div>
-
-        )}
+            </div>
+          )}
+        </section>
 
       </div>
-
     </div>
-
   );
 }

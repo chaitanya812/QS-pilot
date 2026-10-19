@@ -147,7 +147,7 @@ export function CartProvider({ children }) {
       return normalizeCart(parsed);
     } catch (error) {
       console.error(
-        "QuickSeva: Unable to load cart",
+        "OnCall: Unable to load cart",
         error
       );
 
@@ -167,7 +167,7 @@ export function CartProvider({ children }) {
       );
     } catch (error) {
       console.error(
-        "QuickSeva: Unable to save cart",
+        "OnCall: Unable to save cart",
         error
       );
     }
@@ -182,7 +182,7 @@ export function CartProvider({ children }) {
 
     if (!normalized) {
       console.warn(
-        "QuickSeva: Invalid cart item",
+        "OnCall: Invalid cart item",
         item
       );
 

@@ -1,12 +1,22 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./Fridge.css";
+
 import bannerFridge from "../../assets/Fridge service.png";
+import onCallLogo from "../../assets/On-Call-Logo.jpeg";
 import { useCart } from "../../utils/CartContext";
 import ViewCartBar from "../../components/ViewCartBar";
 
-/* =========================================================
-   CUSTOMER REVIEWS
-========================================================= */
+const THEME = {
+  navy: "#0B1D36",
+  teal: "#0D9488",
+  sky: "#0EA5E9",
+  cloud: "#F8FAFC",
+  mist: "#F1F5F9",
+  text: "#0F172A",
+  muted: "#64748B",
+  border: "#DCE5EC",
+};
 
 const REVIEWS = [
   {
@@ -38,18 +48,12 @@ const REVIEWS = [
   },
 ];
 
-/* =========================================================
-   FRIDGE SERVICES
-========================================================= */
-
 const SERVICES = [
   {
     id: "fr1",
     icon: "❄️",
     title: "Super Saving Offers",
     tagline: "Best value fridge services",
-    banner:
-      "linear-gradient(135deg, rgba(56,189,248,0.65), rgba(14,165,233,0.42))",
     items: [
       {
         id: "fr1-1",
@@ -85,8 +89,6 @@ const SERVICES = [
     icon: "🧊",
     title: "Home Fridge Services",
     tagline: "Keeps your fridge running smooth",
-    banner:
-      "linear-gradient(135deg, rgba(45,212,191,0.72), rgba(14,116,144,0.48))",
     items: [
       {
         id: "fr2-1",
@@ -122,8 +124,6 @@ const SERVICES = [
     icon: "⚙️",
     title: "Repair Services",
     tagline: "Problem? We fix it properly",
-    banner:
-      "linear-gradient(135deg, rgba(99,102,241,0.72), rgba(59,130,246,0.45))",
     items: [
       {
         id: "fr3-1",
@@ -167,8 +167,6 @@ const SERVICES = [
     icon: "🛠️",
     title: "Gas & Parts Support",
     tagline: "Handled by verified technicians",
-    banner:
-      "linear-gradient(135deg, rgba(251,191,36,0.7), rgba(249,115,22,0.45))",
     items: [
       {
         id: "fr4-1",
@@ -204,8 +202,6 @@ const SERVICES = [
     icon: "🏢",
     title: "Commercial & Deep Freezer",
     tagline: "Heavy duty cooling solutions",
-    banner:
-      "linear-gradient(135deg, rgba(14,116,144,0.72), rgba(45,212,191,0.42))",
     items: [
       {
         id: "fr5-1",
@@ -244,10 +240,6 @@ const SERVICES = [
     ],
   },
 ];
-
-/* =========================================================
-   QUICK PROBLEMS
-========================================================= */
 
 const PROBLEMS = [
   {
@@ -288,18 +280,10 @@ const PROBLEMS = [
   },
 ];
 
-/* =========================================================
-   HELPERS
-========================================================= */
-
 const priceToNumber = (value) => {
   const number = Number(String(value).replace(/[₹,\s]/g, ""));
   return Number.isFinite(number) ? number : 0;
 };
-
-/* =========================================================
-   COMPONENT
-========================================================= */
 
 export default function Fridge() {
   const navigate = useNavigate();
@@ -309,9 +293,17 @@ export default function Fridge() {
   const [bookingId, setBookingId] = useState(null);
   const [selectedProblem, setSelectedProblem] = useState(null);
 
-  /* -------------------------------------------------------
-     SEARCH RESULTS
-  ------------------------------------------------------- */
+  const [activeProblemIndex, setActiveProblemIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveProblemIndex((prev) => {
+        return (prev + 1) % PROBLEMS.length;
+      });
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const searchResults = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -343,10 +335,6 @@ export default function Fridge() {
     return results;
   }, [search]);
 
-  /* -------------------------------------------------------
-     BOOK NOW → CART
-  ------------------------------------------------------- */
-
   const handleBook = (section, item) => {
     if (bookingId) return;
 
@@ -359,15 +347,12 @@ export default function Fridge() {
       name: item.name,
       price: priceToNumber(item.price),
       qty: 1,
-
       service: "Fridge Repair",
       category: section.title,
       subService: item.name,
-
       description: item.desc,
       duration: item.time,
       warranty: item.warranty,
-
       image: bannerFridge,
       tag: item.tag || "",
     };
@@ -380,104 +365,91 @@ export default function Fridge() {
     }, 100);
   };
 
-  /* -------------------------------------------------------
-     PROBLEM FILTER
-  ------------------------------------------------------- */
-
   const handleProblem = (problem) => {
     setSelectedProblem(problem.id);
-
     setSearch(problem.keywords[0]);
 
     setTimeout(() => {
-      document
-        .getElementById("fridge-services")
-        ?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
+      document.getElementById("fridge-services")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }, 50);
   };
 
-  /* =======================================================
-     UI
-  ======================================================= */
-
   return (
-    <div className="min-h-screen bg-slate-50 pb-28">
-      {/* =================================================
-          HEADER
-      ================================================= */}
-
-      <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
+    <div className="fridge-page">
+      <header className="fridge-header">
+        <div className="fridge-header-inner">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl"
+            className="fridge-back-btn"
           >
             ←
           </button>
 
-          <div className="flex-1">
-            <p className="text-xs text-slate-500">QuickSeva</p>
-            <h1 className="font-bold text-slate-900">
-              Fridge & Refrigerator
-            </h1>
+          <div className="fridge-brand">
+             <div className="Fridge-logo-box">
+            
+                          <img
+                            src={onCallLogo}
+                            alt="OnCall Services"
+                            className="Fridge-logo"
+                          />
+            
+                        </div>
+
+            <div>
+              <small>OnCall</small>
+              <h1>Fridge & Refrigerator</h1>
+            </div>
           </div>
 
           <button
             type="button"
             onClick={() => navigate("/cart")}
-            className="relative w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center"
-            aria-label="Open cart"
+            className="fridge-cart-btn"
           >
             🛒
 
             {itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-sky-500 text-white text-xs font-bold flex items-center justify-center">
-                {itemCount}
-              </span>
+              <span className="fridge-cart-count">{itemCount}</span>
             )}
           </button>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4">
-        {/* =================================================
-            HERO
-        ================================================= */}
+      <main className="fridge-container">
+        {/* HERO */}
 
-        <section className="relative mt-4 h-52 sm:h-64 rounded-3xl overflow-hidden shadow-lg">
+        <section className="fridge-hero">
           <img
             src={bannerFridge}
             alt="Fridge service"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="fridge-hero-image"
           />
 
-          <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/20" />
+          <div className="fridge-hero-overlay" />
 
-          <div className="relative z-10 h-full p-5 sm:p-7 flex flex-col justify-center text-white">
-            <span className="text-sm font-semibold text-sky-300">
-              QuickSeva Fridge Services
+          <div className="fridge-hero-content">
+            <span className="fridge-hero-label">
+              ❄️ ONCALL FRIDGE SERVICES
             </span>
 
-            <h2 className="text-2xl sm:text-3xl font-bold mt-1 max-w-xl">
+            <h2>
               Fridge problem?
               <br />
-              We'll take care of it.
+              <span>We'll take care of it.</span>
             </h2>
 
-            <p className="text-sm text-white/90 mt-2 max-w-lg">
+            <p>
               Cleaning, cooling problems, gas refill, repairs and refrigerator
               maintenance at your doorstep.
             </p>
 
-            <div className="flex gap-2 mt-4">
-              <a
-                href="tel:7661045308"
-                className="px-4 py-2 rounded-xl bg-green-600 text-white font-semibold shadow"
-              >
+            <div className="fridge-hero-actions">
+              <a href="tel:7661045308" className="fridge-call-btn">
                 📞 Call
               </a>
 
@@ -485,7 +457,7 @@ export default function Fridge() {
                 href="https://wa.me/7661045308"
                 target="_blank"
                 rel="noreferrer"
-                className="px-4 py-2 rounded-xl bg-green-500 text-white font-semibold shadow"
+                className="fridge-whatsapp-btn"
               >
                 💬 WhatsApp
               </a>
@@ -493,15 +465,11 @@ export default function Fridge() {
           </div>
         </section>
 
-        {/* =================================================
-            SEARCH
-        ================================================= */}
+        {/* SEARCH */}
 
-        <section className="mt-5">
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-              🔍
-            </span>
+        <section className="fridge-search-section">
+          <div className="fridge-search-box">
+            <span className="fridge-search-icon">🔍</span>
 
             <input
               type="text"
@@ -511,7 +479,6 @@ export default function Fridge() {
                 setSelectedProblem(null);
               }}
               placeholder="Search fridge services or problems..."
-              className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-11 pr-4 outline-none focus:ring-2 focus:ring-sky-400"
             />
 
             {search && (
@@ -521,7 +488,7 @@ export default function Fridge() {
                   setSearch("");
                   setSelectedProblem(null);
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-slate-100 text-slate-500"
+                className="fridge-clear-btn"
               >
                 ×
               </button>
@@ -529,48 +496,115 @@ export default function Fridge() {
           </div>
         </section>
 
-        {/* =================================================
-            PROBLEM CARDS
-        ================================================= */}
+        {/* PROBLEMS */}
 
         {!search && (
-          <section className="mt-6">
-            <div className="flex items-end justify-between mb-3">
+          <section className="fridge-problems-section">
+            <div className="fridge-section-title">
               <div>
-                <h2 className="text-lg font-bold text-slate-900">
-                  What's wrong with your fridge?
-                </h2>
+                <h2>What's wrong with your fridge?</h2>
 
-                <p className="text-sm text-slate-500">
-                  Select your problem and find the right service
-                </p>
+                <p>Select your problem and find the right service</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {PROBLEMS.map((problem) => {
-                const active = selectedProblem === problem.id;
+              {PROBLEMS.map((problem, index) => {
+                const isFlowActive = index === activeProblemIndex;
+
+                const isSelected = selectedProblem === problem.id;
 
                 return (
                   <button
                     key={problem.id}
                     type="button"
                     onClick={() => handleProblem(problem)}
-                    className={`text-left p-4 rounded-2xl border transition ${
-                      active
-                        ? "bg-sky-50 border-sky-400 shadow-sm"
-                        : "bg-white border-slate-200 hover:border-sky-300"
-                    }`}
+                    className={`
+                      relative
+                      overflow-hidden
+                      text-left
+                      rounded-2xl
+                      border
+                      p-4
+                      transition-all
+                      duration-500
+                      active:scale-[0.98]
+                      fridge-problem-card
+                      ${
+                        isFlowActive
+                          ? "oncall-problem-flow-active"
+                          : ""
+                      }
+                    `}
+                    style={{
+                      backgroundColor: isFlowActive
+                        ? "transparent"
+                        : THEME.cloud,
+
+                      borderColor: isFlowActive
+                        ? THEME.teal
+                        : isSelected
+                        ? THEME.sky
+                        : THEME.border,
+
+                      color: isFlowActive
+                        ? "#FFFFFF"
+                        : THEME.text,
+
+                      boxShadow: isFlowActive
+                        ? "0 8px 24px rgba(13,148,136,.25)"
+                        : isSelected
+                        ? "0 8px 24px rgba(14,165,233,.18)"
+                        : "0 2px 8px rgba(15,23,42,.04)",
+                    }}
                   >
-                    <div className="text-2xl">{problem.icon}</div>
+                    {/* LEFT → RIGHT FLOW */}
 
-                    <p className="font-semibold text-slate-900 mt-2">
-                      {problem.title}
-                    </p>
+                    {isFlowActive && (
+                      <span
+                        key={activeProblemIndex}
+                        className="absolute inset-0 z-0 oncall-problem-flow-background"
+                      />
+                    )}
 
-                    <p className="text-xs text-slate-500 mt-1">
-                      Find service →
-                    </p>
+                    {/* CONTENT */}
+
+                    <span className="relative z-10 block">
+                      <span
+                        className="fridge-problem-icon"
+                        style={{
+                          backgroundColor: isFlowActive
+                            ? "rgba(255,255,255,.18)"
+                            : isSelected
+                            ? "rgba(14,165,233,.20)"
+                            : "#E0F2FE",
+                        }}
+                      >
+                        {problem.icon}
+                      </span>
+
+                      <span
+                        className="fridge-problem-title"
+                        style={{
+                          color: isFlowActive
+                            ? "#FFFFFF"
+                            : THEME.text,
+                        }}
+                      >
+                        {problem.title}
+                      </span>
+
+                      <span
+                        className="fridge-problem-find"
+                        style={{
+                          color: isFlowActive
+                            ? "rgba(255,255,255,.85)"
+                            : THEME.muted,
+                        }}
+                      >
+                        Find service →
+                      </span>
+                    </span>
                   </button>
                 );
               })}
@@ -578,59 +612,41 @@ export default function Fridge() {
           </section>
         )}
 
-        {/* =================================================
-            SUPPORT
-        ================================================= */}
+        {/* HELP */}
 
-        <section className="mt-6 bg-slate-900 rounded-3xl p-5 text-white">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex-1">
-              <p className="text-sky-300 text-sm font-semibold">
-                Need help choosing?
-              </p>
+        <section className="fridge-help-card">
+          <div className="fridge-help-content">
+            <span>NEED HELP CHOOSING?</span>
 
-              <h3 className="text-lg font-bold mt-1">
-                Not sure what's wrong with your fridge?
-              </h3>
+            <h3>Not sure what's wrong with your fridge?</h3>
 
-              <p className="text-sm text-white/70 mt-1">
-                Talk to QuickSeva and we'll help you choose the right service.
-              </p>
-            </div>
+            <p>
+              Talk to OnCall and we'll help you choose the right service.
+            </p>
+          </div>
 
-            <div className="flex gap-2">
-              <a
-                href="tel:7661045308"
-                className="px-4 py-2 rounded-xl bg-white text-slate-900 font-bold"
-              >
-                Call
-              </a>
+          <div className="fridge-help-actions">
+            <a href="tel:7661045308">Call</a>
 
-              <a
-                href="https://wa.me/7661045308"
-                target="_blank"
-                rel="noreferrer"
-                className="px-4 py-2 rounded-xl bg-green-500 text-white font-bold"
-              >
-                WhatsApp
-              </a>
-            </div>
+            <a
+              href="https://wa.me/7661045308"
+              target="_blank"
+              rel="noreferrer"
+            >
+              WhatsApp
+            </a>
           </div>
         </section>
 
-        {/* =================================================
-            SEARCH RESULTS
-        ================================================= */}
+        {/* SEARCH RESULTS */}
 
         {search && (
-          <section className="mt-6">
-            <div className="flex items-center justify-between mb-3">
+          <section className="fridge-search-results">
+            <div className="fridge-section-title">
               <div>
-                <h2 className="text-lg font-bold text-slate-900">
-                  Search results
-                </h2>
+                <h2>Search results</h2>
 
-                <p className="text-sm text-slate-500">
+                <p>
                   {searchResults.length} service
                   {searchResults.length === 1 ? "" : "s"} found
                 </p>
@@ -638,156 +654,121 @@ export default function Fridge() {
             </div>
 
             {searchResults.length === 0 ? (
-              <div className="bg-white border rounded-2xl p-6 text-center">
-                <div className="text-4xl">🔍</div>
+              <div className="fridge-empty-state">
+                <div>🔍</div>
 
-                <h3 className="font-bold text-slate-900 mt-3">
-                  No matching service found
-                </h3>
+                <h3>No matching service found</h3>
 
-                <p className="text-sm text-slate-500 mt-1">
+                <p>
                   Try searching for cooling, leakage, gas, repair or service.
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="fridge-results-list">
                 {searchResults.map(({ section, item }) => (
-                  <div
+                  <article
                     key={`${section.id}-${item.id}`}
-                    className="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    className="fridge-result-card"
                   >
                     <div>
-                      <p className="text-xs text-sky-600 font-semibold">
+                      <span className="fridge-result-category">
                         {section.title}
-                      </p>
+                      </span>
 
-                      <h3 className="font-bold text-slate-900 mt-1">
-                        {item.name}
-                      </h3>
+                      <h3>{item.name}</h3>
 
-                      <p className="text-sm text-slate-500 mt-1">
-                        {item.desc}
-                      </p>
+                      <p>{item.desc}</p>
 
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-lg">
-                          ⏱ {item.time}
-                        </span>
-
-                        <span className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded-lg">
-                          🛡 {item.warranty}
-                        </span>
+                      <div className="fridge-result-meta">
+                        <span>⏱ {item.time}</span>
+                        <span>🛡 {item.warranty}</span>
                       </div>
 
-                      <p className="text-lg font-bold text-sky-600 mt-2">
-                        {item.price}
-                      </p>
+                      <strong>{item.price}</strong>
                     </div>
 
                     <button
                       type="button"
                       disabled={bookingId === item.id}
                       onClick={() => handleBook(section, item)}
-                      className="shrink-0 px-5 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 disabled:opacity-60 text-white font-bold"
+                      className="fridge-book-btn"
                     >
                       {bookingId === item.id ? "Adding..." : "Book Now"}
                     </button>
-                  </div>
+                  </article>
                 ))}
               </div>
             )}
           </section>
         )}
 
-        {/* =================================================
-            ALL SERVICES
-        ================================================= */}
+        {/* ALL SERVICES */}
 
         <section
           id="fridge-services"
-          className="mt-8 scroll-mt-24"
+          className="fridge-services-section"
         >
-          <div className="mb-4">
-            <h2 className="text-xl font-bold text-slate-900">
-              All Fridge Services
-            </h2>
+          <div className="fridge-section-title">
+            <div>
+              <h2>All Fridge Services</h2>
 
-            <p className="text-sm text-slate-500">
-              Choose the service that matches your fridge problem
-            </p>
+              <p>Choose the service that matches your fridge problem</p>
+            </div>
           </div>
 
-          <div className="space-y-8">
+          <div className="fridge-service-groups">
             {SERVICES.map((section) => (
-              <section key={section.id}>
-                {/* Section heading */}
-
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-11 h-11 rounded-xl bg-sky-50 flex items-center justify-center text-2xl">
+              <section
+                key={section.id}
+                className="fridge-service-group"
+              >
+                <div className="fridge-service-heading">
+                  <div className="fridge-service-icon">
                     {section.icon}
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-slate-900">
-                      {section.title}
-                    </h3>
+                    <h3>{section.title}</h3>
 
-                    <p className="text-sm text-slate-500">
-                      {section.tagline}
-                    </p>
+                    <p>{section.tagline}</p>
                   </div>
                 </div>
 
-                {/* Service cards */}
-
-                <div className="space-y-3">
+                <div className="fridge-service-list">
                   {section.items.map((item) => (
                     <article
                       key={item.id}
-                      className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm"
+                      className="fridge-service-card"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h4 className="font-bold text-slate-900">
-                              {item.name}
-                            </h4>
+                      <div className="fridge-service-info">
+                        <div className="fridge-service-name">
+                          <h4>{item.name}</h4>
 
-                            {item.tag && (
-                              <span className="text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded-lg font-semibold">
-                                ⭐ {item.tag}
-                              </span>
-                            )}
-                          </div>
-
-                          <p className="text-sm text-slate-500 mt-1">
-                            {item.desc}
-                          </p>
-
-                          <div className="flex flex-wrap gap-2 mt-3">
-                            <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-lg">
-                              ⏱ {item.time}
+                          {item.tag && (
+                            <span className="fridge-service-tag">
+                              ⭐ {item.tag}
                             </span>
-
-                            <span className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded-lg">
-                              🛡 {item.warranty}
-                            </span>
-                          </div>
-
-                          <p className="text-lg font-bold text-sky-600 mt-3">
-                            {item.price}
-                          </p>
+                          )}
                         </div>
 
-                        <button
-                          type="button"
-                          disabled={bookingId === item.id}
-                          onClick={() => handleBook(section, item)}
-                          className="w-full sm:w-auto px-6 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 disabled:opacity-60 text-white font-bold shadow-sm"
-                        >
-                          {bookingId === item.id ? "Adding..." : "Book Now"}
-                        </button>
+                        <p>{item.desc}</p>
+
+                        <div className="fridge-service-meta">
+                          <span>⏱ {item.time}</span>
+                          <span>🛡 {item.warranty}</span>
+                        </div>
+
+                        <strong>{item.price}</strong>
                       </div>
+
+                      <button
+                        type="button"
+                        disabled={bookingId === item.id}
+                        onClick={() => handleBook(section, item)}
+                        className="fridge-book-btn"
+                      >
+                        {bookingId === item.id ? "Adding..." : "Book Now"}
+                      </button>
                     </article>
                   ))}
                 </div>
@@ -796,161 +777,103 @@ export default function Fridge() {
           </div>
         </section>
 
-        {/* =================================================
-            REVIEWS
-        ================================================= */}
+        {/* REVIEWS */}
 
-        <section className="mt-10">
-          <div className="bg-white rounded-3xl border border-slate-200 p-5">
-            <div className="mb-5">
-              <h2 className="text-xl font-bold text-slate-900">
-                What Customers Say
-              </h2>
+        <section className="fridge-reviews-section">
+          <div className="fridge-section-title">
+            <div>
+              <h2>What Customers Say</h2>
 
-              <p className="text-sm text-slate-500 mt-1">
-                Real feedback from QuickSeva customers
-              </p>
+              <p>Real feedback from OnCall customers</p>
             </div>
+          </div>
 
-            <div className="flex flex-col sm:flex-row gap-6">
-              {/* Rating */}
+          <div className="fridge-reviews-wrapper">
+            <div className="fridge-rating-box">
+              <strong>4.9 ⭐</strong>
 
-              <div className="sm:w-44 shrink-0 text-center sm:text-left">
-                <p className="text-4xl font-bold text-slate-900">
-                  4.9 ⭐
-                </p>
+              <p>Based on 900+ ratings</p>
 
-                <p className="text-xs text-slate-500 mt-1">
-                  Based on 900+ ratings
-                </p>
+              <div className="fridge-rating-bars">
+                {[5, 4, 3, 2, 1].map((star) => (
+                  <div key={star} className="fridge-rating-row">
+                    <span>{star}★</span>
 
-                <div className="mt-3 space-y-1">
-                  {[5, 4, 3, 2, 1].map((star) => (
-                    <div
-                      key={star}
-                      className="flex items-center gap-2"
-                    >
-                      <span className="text-xs w-5">
-                        {star}★
-                      </span>
-
-                      <div className="flex-1 bg-slate-200 rounded-full h-2">
-                        <div
-                          className="bg-yellow-400 h-2 rounded-full"
-                          style={{
-                            width: `${star * 18}%`,
-                          }}
-                        />
-                      </div>
+                    <div>
+                      <i style={{ width: `${star * 18}%` }} />
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Review cards */}
-
-              <div className="flex-1 flex gap-3 overflow-x-auto no-scrollbar pb-2">
-                {REVIEWS.map((review, index) => (
-                  <article
-                    key={index}
-                    className="min-w-[260px] sm:min-w-[280px] bg-slate-50 border border-slate-200 rounded-2xl p-4"
-                  >
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={review.avatar}
-                        alt={review.name}
-                        className="w-11 h-11 rounded-full object-cover border"
-                      />
-
-                      <div>
-                        <p className="font-bold text-sm text-slate-900">
-                          {review.name}
-                        </p>
-
-                        <p className="text-xs text-slate-500">
-                          {review.city}
-                        </p>
-                      </div>
-                    </div>
-
-                    <p className="text-yellow-500 text-sm mt-3">
-                      ⭐ {review.rating}
-                    </p>
-
-                    <p className="text-sm text-slate-700 mt-2">
-                      {review.review}
-                    </p>
-
-                    <p className="text-xs text-slate-400 mt-3">
-                      {review.date}
-                    </p>
-
-                    <span className="inline-flex mt-3 bg-green-50 text-green-700 text-xs px-2 py-1 rounded-lg font-semibold">
-                      ✔ Verified Booking
-                    </span>
-                  </article>
+                  </div>
                 ))}
               </div>
+            </div>
+
+            <div className="fridge-review-list">
+              {REVIEWS.map((review, index) => (
+                <article
+                  key={index}
+                  className="fridge-review-card"
+                >
+                  <div className="fridge-review-user">
+                    <img
+                      src={review.avatar}
+                      alt={review.name}
+                    />
+
+                    <div>
+                      <h4>{review.name}</h4>
+                      <span>{review.city}</span>
+                    </div>
+                  </div>
+
+                  <div className="fridge-review-stars">
+                    {"⭐".repeat(review.rating)}
+                  </div>
+
+                  <p>{review.review}</p>
+
+                  <small>{review.date}</small>
+
+                  <label>✔ Verified Booking</label>
+                </article>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* =================================================
-            TRUST SECTION
-        ================================================= */}
+        {/* TRUST */}
 
-        <section className="mt-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-5">
-            <div className="text-center mb-5">
-              <h2 className="text-xl font-bold text-slate-900">
-                Why Choose QuickSeva?
-              </h2>
+        <section className="fridge-trust-section">
+          <div className="fridge-section-title center">
+            <div>
+              <h2>Why Choose OnCall?</h2>
 
-              <p className="text-sm text-slate-500 mt-1">
-                Reliable fridge service at your doorstep
-              </p>
+              <p>Reliable fridge service at your doorstep</p>
+            </div>
+          </div>
+
+          <div className="fridge-trust-grid">
+            <div className="fridge-trust-card">
+              <div>🛡️</div>
+              <h3>Verified Technicians</h3>
+              <p>Trained service professionals</p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="rounded-2xl bg-slate-50 p-4 text-center">
-                <div className="text-2xl">🛡️</div>
-                <p className="font-bold text-sm text-slate-900 mt-2">
-                  Verified Technicians
-                </p>
-                <p className="text-xs text-slate-500 mt-1">
-                  Trained service professionals
-                </p>
-              </div>
+            <div className="fridge-trust-card">
+              <div>💰</div>
+              <h3>Clear Pricing</h3>
+              <p>Transparent service prices</p>
+            </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 text-center">
-                <div className="text-2xl">💰</div>
-                <p className="font-bold text-sm text-slate-900 mt-2">
-                  Clear Pricing
-                </p>
-                <p className="text-xs text-slate-500 mt-1">
-                  Transparent service prices
-                </p>
-              </div>
+            <div className="fridge-trust-card">
+              <div>⚡</div>
+              <h3>Quick Response</h3>
+              <p>Fast booking confirmation</p>
+            </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 text-center">
-                <div className="text-2xl">⚡</div>
-                <p className="font-bold text-sm text-slate-900 mt-2">
-                  Quick Response
-                </p>
-                <p className="text-xs text-slate-500 mt-1">
-                  Fast booking confirmation
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-slate-50 p-4 text-center">
-                <div className="text-2xl">⭐</div>
-                <p className="font-bold text-sm text-slate-900 mt-2">
-                  Trusted Service
-                </p>
-                <p className="text-xs text-slate-500 mt-1">
-                  Customer-focused support
-                </p>
-              </div>
+            <div className="fridge-trust-card">
+              <div>⭐</div>
+              <h3>Trusted Service</h3>
+              <p>Customer-focused support</p>
             </div>
           </div>
         </section>

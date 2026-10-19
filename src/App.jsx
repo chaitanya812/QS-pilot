@@ -59,6 +59,7 @@ import ElectricianPlumber from "./pages/Services/ElectricianPlumber.jsx";
 import Plumber from "./pages/Services/Plumber.jsx";
 import Washing from "./pages/Services/Washing.jsx";
 import Frigde from "./pages/Services/Frigde.jsx";
+import ServiceCompletion from "./pages/ServiceCompletion.jsx";
 
 /* =====================================================
    UTILITIES
@@ -100,8 +101,11 @@ export default function App() {
         <Route path="/login" element={<PhoneLogin />} />
         <Route path="/phone-login" element={<PhoneLogin />} />
         <Route path="/otp" element={<OtpVerify />} />
-
-        {/* CUSTOMER / PROTECTED */}
+           {/* CUSTOMER / PROTECTED */}
+           <Route
+  path="/service-completion/:bookingId"
+  element={<ServiceCompletion />}
+/>
         <Route
           path="/cart"
           element={

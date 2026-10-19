@@ -616,7 +616,7 @@ export default function TechnicianJobDetails() {
 
           <p className="tech-preview-note">
             Booking information is loaded
-            from QuickSeva Firestore and
+            from OnCall Firestore and
             status changes are synchronized
             with the booking.
           </p>
